@@ -410,7 +410,7 @@ input[type=range] { accent-color: #7dd3fc; width: 100%; }
   <div class="prev-wrap">
     <img id="prev" alt="معاينة بطاقة التمرين">
   </div>
-  <p class="hint">تصميم iOS Liquid Glass الحقيقي + منحنى نبض القلب الانسيابي</p>
+  <p class="hint">تصميم iOS Liquid Glass الحقيقي + تحكم كامل بالغراف والوحدات</p>
   <div id="strip"></div>
 
   <p id="msg"></p>
@@ -463,15 +463,16 @@ input[type=range] { accent-color: #7dd3fc; width: 100%; }
       <label>العضلات المستهدفة / نوع الجلسة<input type="text" data-k="muscleTag" value="تمرين حديد / STRENGTH" placeholder="علوي / UPPER BODY"></label>
       <label>نوع الغراف في البطاقة الرئيسية
         <select data-k="chartMode">
-          <option value="hr">📈 منحنى نبض القلب الانسيابي (Heart Rate Graph)</option>
+          <option value="hr">📈 منحنى نبض القلب (Heart Rate)</option>
           <option value="route">🗺️ مسار الـ GPS (للدراجة والجري)</option>
+          <option value="none">🚫 بدون غراف (إخفاء الرسم البياني نهائياً)</option>
         </select>
       </label>
     </div>
 
     <div class="row-3">
       <label id="lblMainStat">الرقم الرئيسي (الجلسات/المسافة)<input type="text" data-k="dist" value="17" placeholder="17 أو 5.02"></label>
-      <label>وحدة الرقم الرئيسي<input type="text" data-k="mainUnit" value="جلسة / SET" class="rtl-in" placeholder="جلسة / SET"></label>
+      <label>وحدة الرقم الرئيسي<input type="text" data-k="mainUnit" value="جلسة / SET" class="rtl-in" placeholder="اتركها فارغة لإخفائها"></label>
       <label>تاريخ التمرين<input type="date" data-k="date"></label>
     </div>
   </section>
@@ -622,7 +623,7 @@ const S = {
   title: 'UPPER 1',
   tag: 'COROS PACE 4',
   muscleTag: 'تمرين حديد / STRENGTH',
-  chartMode: 'hr',
+  chartMode: 'hr', // 'hr' | 'route' | 'none'
   dist: '17',
   mainLbl: 'الجلسات / TOTAL SETS',
   mainUnit: 'جلسة / SET',
@@ -630,7 +631,7 @@ const S = {
   style: 0,
   numFont: "'Inter', 'Readex Pro', sans-serif",
   titleFont: "'Inter', 'Readex Pro', sans-serif",
-  accent: '#7dd3fc', // أزرق ثلجي ناعم مطابق للصورة المرجعية
+  accent: '#7dd3fc',
   glassOpacity: 22,
   dark: 15,
   safeShift: 35,
@@ -638,7 +639,7 @@ const S = {
   showSafeGuide: false,
   bg: null,
   route: [],
-  hrSeries: [], // سلسلة نبضات القلب الحقيقية من ملف FIT لرسم المنحنى الانسيابي
+  hrSeries: [],
   maxHrVal: 0,
   minHrVal: 0,
   stats: [
@@ -676,21 +677,25 @@ function applyLanguage(lang) {
   const sp = dict.sports[S.sport] || dict.sports.gym;
 
   S.mainLbl = sp.mainLbl;
-  S.mainUnit = sp.mainUnit;
-  document.querySelector('[data-k="mainUnit"]').value = sp.mainUnit;
+  // لا نعيد فرض الوحدة إذا كان المستخدم قد مسحها عمداً
+  const unitInput = document.querySelector('[data-k="mainUnit"]');
+  if (unitInput.value.trim() !== '') {
+    S.mainUnit = sp.mainUnit;
+    unitInput.value = sp.mainUnit;
+  }
   S.muscleTag = sp.badge;
   document.querySelector('[data-k="muscleTag"]').value = S.muscleTag;
 
   S.stats.forEach(st => {
     if (st.id === 'pace') {
       st.label = sp.paceLbl;
-      st.unit = sp.paceUnit;
+      if (st.unit !== '') st.unit = sp.paceUnit;
     } else if (st.id === 'elev') {
       st.label = sp.elevLbl;
-      st.unit = sp.elevUnit;
+      if (st.unit !== '') st.unit = sp.elevUnit;
     } else if (dict.stats[st.id]) {
       st.label = dict.stats[st.id].label;
-      st.unit = dict.stats[st.id].unit;
+      if (st.unit !== '') st.unit = dict.stats[st.id].unit;
     }
   });
 
@@ -805,15 +810,18 @@ function applySportMode(sport) {
   const sp = dict.sports[sport] || dict.sports.gym;
 
   S.mainLbl = sp.mainLbl;
-  S.mainUnit = sp.mainUnit;
-  document.querySelector('[data-k="mainUnit"]').value = sp.mainUnit;
+  const unitInput = document.querySelector('[data-k="mainUnit"]');
+  if (unitInput.value.trim() !== '') {
+    S.mainUnit = sp.mainUnit;
+    unitInput.value = sp.mainUnit;
+  }
   S.muscleTag = sp.badge;
   document.querySelector('[data-k="muscleTag"]').value = S.muscleTag;
 
   const paceIt = S.stats.find(x => x.id === 'pace');
-  if (paceIt) { paceIt.label = sp.paceLbl; paceIt.unit = sp.paceUnit; }
+  if (paceIt) { paceIt.label = sp.paceLbl; if (paceIt.unit !== '') paceIt.unit = sp.paceUnit; }
   const elevIt = S.stats.find(x => x.id === 'elev');
-  if (elevIt) { elevIt.label = sp.elevLbl; elevIt.unit = sp.elevUnit; }
+  if (elevIt) { elevIt.label = sp.elevLbl; if (elevIt.unit !== '') elevIt.unit = sp.elevUnit; }
 
   renderStatsManager();
   sched();
@@ -836,7 +844,6 @@ function setStatValue(id, val) {
   if (item) {
     item.label = lbl;
     item.val = String(val);
-    item.unit = unt;
     item.on = true;
   } else {
     S.stats.push({ id, label: lbl, val: String(val), unit: unt, on: true });
@@ -862,7 +869,8 @@ function cover(c, img, x, y, w, h) {
 
 function txt(c, s, x, y, size, wt, col, al = 'left', fam = S.titleFont, mw = null) {
   if (s === undefined || s === null || s === '') return;
-  const str = String(s);
+  const str = String(s).trim();
+  if (!str) return;
   const isAr = /[\u0600-\u06FF]/.test(str);
   c.save();
   c.direction = isAr ? 'rtl' : 'ltr';
@@ -885,7 +893,6 @@ function drawAtmosphericBackground(c, width, height) {
   if (S.bg) {
     cover(c, S.bg, 0, 0, width, height);
   } else {
-    // خلفية ضبابية ناعمة بدرجات الرمادي المزرق الفاتح والأخضر الطبيعي نفس الصورة المرجعية تماماً
     const base = c.createLinearGradient(0, 0, width, height);
     base.addColorStop(0, '#68829e');
     base.addColorStop(0.38, '#4e677f');
@@ -894,7 +901,6 @@ function drawAtmosphericBackground(c, width, height) {
     c.fillStyle = base;
     c.fillRect(0, 0, width, height);
 
-    // إضاءة نافذة ناعمة من الأعلى واليمين
     const light = c.createRadialGradient(width * 0.85, height * 0.18, 20, width * 0.75, height * 0.25, width * 0.9);
     light.addColorStop(0, 'rgba(225, 240, 255, 0.45)');
     light.addColorStop(0.5, 'rgba(180, 210, 235, 0.15)');
@@ -902,7 +908,6 @@ function drawAtmosphericBackground(c, width, height) {
     c.fillStyle = light;
     c.fillRect(0, 0, width, height);
 
-    // بوكيه أخضر طبيعي ناعم في الخلفية البعيدة (مثل النبتة المضببة في الصورة)
     const leaf = c.createRadialGradient(width * 0.9, height * 0.42, 10, width * 0.88, height * 0.42, width * 0.45);
     leaf.addColorStop(0, 'rgba(115, 155, 110, 0.28)');
     leaf.addColorStop(1, 'transparent');
@@ -925,12 +930,10 @@ function prepareBlurredBackdrop() {
   bc.restore();
 }
 
-/* رسم ويدجت زجاجي ثلجي نقي مطابق للصورة الثانية 100% */
 function drawFrostedGlassWidget(c, x, y, w, h, r = 42, extraBright = 0) {
   const baseAlpha = (+S.glassOpacity || 22) / 100 + extraBright;
   c.save();
 
-  // 1) ظل خارجي ناعم جداً يعطي طفو الويدجت
   c.save();
   c.shadowColor = 'rgba(0, 8, 20, 0.28)';
   c.shadowBlur = 36;
@@ -940,14 +943,12 @@ function drawFrostedGlassWidget(c, x, y, w, h, r = 42, extraBright = 0) {
   c.fill();
   c.restore();
 
-  // 2) قص منطقة الويدجت ورسم الخلفية المضببة بداخلها
   rr(c, x, y, w, h, r);
   c.clip();
   if (!S.transparent) {
     c.drawImage(blurCv, 0, 0, W, H);
   }
 
-  // 3) طبقة الزجاج الثلجي الأبيض الناعم (Frosted White Tint)
   const frost = c.createLinearGradient(x, y, x + w * 0.4, y + h);
   frost.addColorStop(0, `rgba(255, 255, 255, ${Math.min(0.65, baseAlpha + 0.12)})`);
   frost.addColorStop(0.5, `rgba(255, 255, 255, ${Math.min(0.55, baseAlpha)})`);
@@ -955,14 +956,12 @@ function drawFrostedGlassWidget(c, x, y, w, h, r = 42, extraBright = 0) {
   c.fillStyle = frost;
   c.fillRect(x, y, w, h);
 
-  // 4) لمعة داخلية علوية ناعمة
   const topGlow = c.createLinearGradient(x, y, x, y + Math.min(120, h * 0.45));
   topGlow.addColorStop(0, 'rgba(255, 255, 255, 0.26)');
   topGlow.addColorStop(1, 'rgba(255, 255, 255, 0)');
   c.fillStyle = topGlow;
   c.fillRect(x, y, w, Math.min(120, h * 0.45));
 
-  // 5) الحد الزجاجي الأبيض الرقيق جداً (1.8px Crisp White Specular Border)
   const borderGrad = c.createLinearGradient(x, y, x + w, y + h);
   borderGrad.addColorStop(0, 'rgba(255, 255, 255, 0.88)');
   borderGrad.addColorStop(0.4, 'rgba(255, 255, 255, 0.38)');
@@ -978,12 +977,12 @@ function drawFrostedGlassWidget(c, x, y, w, h, r = 42, extraBright = 0) {
 }
 
 /* =========================================================================
-   رسم منحنى نبض القلب الانسيابي (Smooth Spline Area Graph - نفس بطاقة 3.2K بالصورة)
+   رسم الغراف (منحنى نبض القلب أو مسار الـ GPS، أو عدم رسم أي شيء عند اختيار none)
    ========================================================================= */
 function drawSmoothHeartRateChart(c, gx, gy, gw, gh, strokeCol = S.accent) {
+  if (S.chartMode === 'none') return;
   c.save();
 
-  // استخدام بيانات نبض القلب الحقيقية من ملف FIT أو توليد منحنى تمرين واقعي وناعم
   let pts = S.hrSeries && S.hrSeries.length >= 6
     ? S.hrSeries
     : [96, 104, 112, 108, 122, 134, 128, 142, 138, 152, 146, 158, 149, 162, 155, 166];
@@ -997,7 +996,6 @@ function drawSmoothHeartRateChart(c, gx, gy, gw, gh, strokeCol = S.accent) {
     gy + gh - ((v - minV) / range) * (gh * 0.82) - gh * 0.08
   ]);
 
-  // دالة رسم المنحنى الناعم عبر نقاط التحكم (Catmull-Rom / Quadratic Midpoint Spline)
   function traceSmoothCurve() {
     c.moveTo(coords[0][0], coords[0][1]);
     for (let i = 0; i < coords.length - 1; i++) {
@@ -1009,7 +1007,6 @@ function drawSmoothHeartRateChart(c, gx, gy, gw, gh, strokeCol = S.accent) {
     c.lineTo(last[0], last[1]);
   }
 
-  // 1) التعبئة المتدرجة تحت المنحنى (Soft Gradient Fill Under Curve)
   c.save();
   c.beginPath();
   traceSmoothCurve();
@@ -1018,14 +1015,13 @@ function drawSmoothHeartRateChart(c, gx, gy, gw, gh, strokeCol = S.accent) {
   c.closePath();
 
   const areaGrad = c.createLinearGradient(0, gy, 0, gy + gh);
-  areaGrad.addColorStop(0, strokeCol + '77'); // شفافية ناعمة في القمة
+  areaGrad.addColorStop(0, strokeCol + '77');
   areaGrad.addColorStop(0.75, strokeCol + '18');
   areaGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
   c.fillStyle = areaGrad;
   c.fill();
   c.restore();
 
-  // 2) رسم الخط الانسيابي المضيء بالأعلى
   c.beginPath();
   traceSmoothCurve();
   c.strokeStyle = '#ffffff';
@@ -1039,8 +1035,8 @@ function drawSmoothHeartRateChart(c, gx, gy, gw, gh, strokeCol = S.accent) {
   c.restore();
 }
 
-/* رسم مسار الـ GPS لو اختار المستخدم وضع الخريطة بدل منحنى النبض */
 function drawMiniRoute(c, boxX, boxY, boxW, boxH, color = '#ffffff') {
+  if (S.chartMode === 'none') return;
   c.save();
   const pts = (S.route && S.route.length >= 3) ? S.route : [
     [0.15, 0.75], [0.10, 0.48], [0.22, 0.25], [0.48, 0.14],
@@ -1072,7 +1068,15 @@ function drawMiniRoute(c, boxX, boxY, boxW, boxH, color = '#ffffff') {
   c.restore();
 }
 
-/* رسم أيقونات صغيرة نظيفة داخل المربعات والدوائر الزجاجية (نفس الصورة المرجعية) */
+function drawActiveChart(c, x, y, w, h) {
+  if (S.chartMode === 'none') return;
+  if (S.chartMode === 'route') {
+    drawMiniRoute(c, x, y, w, h, '#ffffff');
+  } else {
+    drawSmoothHeartRateChart(c, x, y, w, h, S.accent);
+  }
+}
+
 function drawMiniVectorIcon(c, type, cx, cy, r = 16, col = '#ffffff') {
   c.save();
   c.translate(cx, cy);
@@ -1083,12 +1087,10 @@ function drawMiniVectorIcon(c, type, cx, cy, r = 16, col = '#ffffff') {
   c.lineJoin = 'round';
 
   if (type === 'bars') {
-    // أيقونة الأعمدة الصغيرة بجانب Overview
     c.fillRect(-r * 0.7, r * 0.1, 4, r * 0.6);
     c.fillRect(-r * 0.15, -r * 0.4, 4, r * 1.1);
     c.fillRect(r * 0.4, -r * 0.15, 4, r * 0.85);
   } else if (type === 'trend') {
-    // أيقونة السهم الصاعد داخل الدائرة
     c.beginPath();
     c.moveTo(-r * 0.55, r * 0.35);
     c.lineTo(-r * 0.1, -r * 0.15);
@@ -1139,6 +1141,7 @@ function drawMiniVectorIcon(c, type, cx, cy, r = 16, col = '#ffffff') {
   c.restore();
 }
 
+/* تجهيز القيم الحالية مع احترام المسح اليدوي للوحدة أو الرقم الرئيسي (بدون إعادة فرض النص المحذوف!) */
 function getCardState() {
   const dict = I18N[S.lang];
   const cfg = dict.sports[S.sport] || dict.sports.gym;
@@ -1156,14 +1159,23 @@ function getCardState() {
     }
   }
   const activeStats = S.stats.filter(x => x.on);
+  const cleanUnit = (S.mainUnit || '').trim();
+  const cleanLbl = (S.mainLbl || cfg.mainLbl).trim();
+  // إذا مسح المستخدم الوحدة، لا نظهر أقواس فارغة ولا نعيد وضع الوحدة الافتراضية!
+  const fullMainLabel = cleanUnit ? `${cleanLbl} (${cleanUnit})` : cleanLbl;
+  const distWithUnit = cleanUnit ? `${S.dist} ${cleanUnit}`.trim() : String(S.dist || '').trim();
+
   return {
     dict,
     cfg,
-    title: S.title || cfg.defTitle,
+    title: S.title,
     dateStr: dStr,
-    dist: S.dist || (S.sport === 'gym' ? '17' : '5.02'),
-    mainLbl: S.mainLbl || cfg.mainLbl,
-    mainUnit: S.mainUnit || cfg.mainUnit,
+    dist: String(S.dist || '').trim(),
+    mainLbl: cleanLbl,
+    mainUnit: cleanUnit,
+    fullMainLabel,
+    distWithUnit,
+    hasChart: S.chartMode !== 'none',
     activeStats
   };
 }
@@ -1189,7 +1201,7 @@ function drawStorySafeOverlay(c) {
 }
 
 /* =========================================================================
-   رسم الثيمات (الثيم 0 يطابق تصميم الصورة المرجعية Liquid Glass UI Adoption حرفياً)
+   رسم الثيمات (مع دعم إخفاء الوحدة وإخفاء الغراف بالكامل)
    ========================================================================= */
 function drawCard(c, w, st, isExport = false) {
   const u = w / W;
@@ -1206,123 +1218,120 @@ function drawCard(c, w, st, isExport = false) {
   }
 
   // =========================================================================
-  // ثيم 0: Liquid Glass UI Adoption (مطابق للصورة المرجعية 100%)
+  // ثيم 0: Liquid Glass UI Adoption (نفس الصورة المرجعية)
   // =========================================================================
   if (st === 0) {
     const padX = 78;
-    const fullW = W - padX * 2; // 924px
+    const fullW = W - padX * 2;
 
-    // 1. الهيدر العلوي (العنوان الكبير على اليسار + زر دائري زجاجي على اليمين)
+    // 1. الهيدر العلوي
     txt(c, M.title, padX, TOP + 55, 76, 700, '#ffffff', 'left', S.titleFont, 720);
-    txt(c, S.muscleTag || M.cfg.badge, padX, TOP + 112, 34, 500, 'rgba(255,255,255,0.85)', 'left', S.titleFont, 720);
+    txt(c, S.muscleTag, padX, TOP + 112, 34, 500, 'rgba(255,255,255,0.85)', 'left', S.titleFont, 720);
     txt(c, M.dateStr || S.tag, padX, TOP + 158, 25, 400, 'rgba(255,255,255,0.68)', 'left', S.titleFont, 720);
 
-    // الدائرة الزجاجية العلوية على اليمين (نفس زر القائمة الدائري بالصورة)
     drawFrostedGlassWidget(c, W - padX - 88, TOP + 10, 88, 88, 44, 0.05);
     drawMiniVectorIcon(c, S.sport === 'gym' ? 'dumbbell' : 'trend', W - padX - 44, TOP + 54, 22, '#ffffff');
 
-    // 2. شريط الكبسولة الزجاجي (Search Pill Bar في الصورة)
+    // 2. شريط الكبسولة الزجاجي
     const pillY = TOP + 195;
     drawFrostedGlassWidget(c, padX, pillY, fullW, 96, 48, 0.02);
     drawMiniVectorIcon(c, 'heart', padX + 52, pillY + 48, 16, 'rgba(255,255,255,0.8)');
     const barText = [S.tag, M.dateStr].filter(Boolean).join('   ·   ');
     txt(c, barText, padX + 92, pillY + 58, 28, 500, 'rgba(255,255,255,0.88)', 'left', S.titleFont, fullW - 130);
 
-    // 3. بطاقة الـ Overview الرئيسية الكبيرة (الرقم على اليسار + منحنى نبض القلب على اليمين)
+    // 3. بطاقة الـ Overview الرئيسية الكبيرة
     const ovY = pillY + 124;
     const ovH = 445;
     drawFrostedGlassWidget(c, padX, ovY, fullW, ovH, 48, 0.03);
 
-    // ترويسة Overview مع أيقونة الأعمدة الصغيرة
     drawMiniVectorIcon(c, 'bars', padX + 56, ovY + 58, 16, 'rgba(255,255,255,0.85)');
     txt(c, M.dict.overviewHdr, padX + 86, ovY + 66, 27, 500, 'rgba(255,255,255,0.88)', 'left', S.titleFont, 500);
 
-    // الرقم الرئيسي الضخم (نفس 3.2K في الصورة) + المسمى تحته
-    txt(c, M.dist, padX + 46, ovY + 205, 118, 700, '#ffffff', 'left', S.numFont, 390);
-    txt(c, `${M.mainLbl} (${M.mainUnit})`, padX + 48, ovY + 258, 25, 400, 'rgba(255,255,255,0.78)', 'left', S.titleFont, 410);
-
-    // منحنى نبض القلب الانسيابي على النصف الأيمن من البطاقة
-    if (S.chartMode === 'route' && S.route.length > 2) {
-      drawMiniRoute(c, padX + 430, ovY + 75, 445, 195, '#ffffff');
-    } else {
-      drawSmoothHeartRateChart(c, padX + 420, ovY + 75, 455, 195, S.accent);
+    if (M.dist) {
+      const numMaxW = M.hasChart ? 390 : (fullW - 100);
+      txt(c, M.dist, padX + 46, ovY + 205, 118, 700, '#ffffff', 'left', S.numFont, numMaxW);
+      txt(c, M.fullMainLabel, padX + 48, ovY + 258, 25, 400, 'rgba(255,255,255,0.78)', 'left', S.titleFont, numMaxW);
     }
 
-    // خط فاصل زجاجي أفقي داخل بطاقة Overview
+    // رسم الغراف فقط إذا لم يكن مخفياً (chartMode !== 'none')
+    if (M.hasChart) {
+      drawActiveChart(c, padX + 420, ovY + 75, 455, 195);
+    }
+
     c.fillStyle = 'rgba(255, 255, 255, 0.22)';
     c.fillRect(padX + 46, ovY + 292, fullW - 92, 1.8);
 
-    // الإحصائية الأولى في أسفل بطاقة Overview (نفس +12.5% vs last month) + زر السهم الدائري
-    const firstStat = M.activeStats[0] || { label: 'TIME', val: '1:30:52', unit: '' };
-    const secondStat = M.activeStats[1] || { label: 'AVG HR', val: '116', unit: 'BPM' };
+    const firstStat = M.activeStats[0];
+    const secondStat = M.activeStats[1];
 
-    txt(c, `${firstStat.val} ${firstStat.unit}`.trim(), padX + 48, ovY + 362, 46, 700, '#ffffff', 'left', S.numFont, 420);
-    txt(c, firstStat.label, padX + 48, ovY + 402, 24, 400, 'rgba(255,255,255,0.72)', 'left', S.titleFont, 420);
+    if (firstStat) {
+      txt(c, `${firstStat.val} ${firstStat.unit}`.trim(), padX + 48, ovY + 362, 46, 700, '#ffffff', 'left', S.numFont, 400);
+      txt(c, firstStat.label, padX + 48, ovY + 402, 24, 400, 'rgba(255,255,255,0.72)', 'left', S.titleFont, 400);
+    }
+    if (secondStat) {
+      txt(c, `${secondStat.val} ${secondStat.unit}`.trim(), padX + 430, ovY + 362, 46, 700, '#ffffff', 'left', S.numFont, 340);
+      txt(c, secondStat.label, padX + 430, ovY + 402, 24, 400, 'rgba(255,255,255,0.72)', 'left', S.titleFont, 340);
+    }
 
-    // عرض متوسط النبض بجانبه داخل نفس الشريط السفلي
-    txt(c, `${secondStat.val} ${secondStat.unit}`.trim(), padX + 430, ovY + 362, 46, 700, '#ffffff', 'left', S.numFont, 340);
-    txt(c, secondStat.label, padX + 430, ovY + 402, 24, 400, 'rgba(255,255,255,0.72)', 'left', S.titleFont, 340);
-
-    // الدائرة الزجاجية الصغيرة للسهم الصاعد أسفل يمين بطاقة Overview
     drawFrostedGlassWidget(c, padX + fullW - 118, ovY + 328, 74, 74, 37, 0.08);
     drawMiniVectorIcon(c, 'trend', padX + fullW - 81, ovY + 365, 17, '#ffffff');
 
-    // 4. بطاقتان زجاجيتان جنباً إلى جنب (نفس Messages و Tasks في الصورة)
+    // 4. بطاقتان زجاجيتان جنباً إلى جنب
     const midY = ovY + ovH + 26;
     const midH = 185;
     const gap = 24;
     const halfW = (fullW - gap) / 2;
 
-    const statLeft = M.activeStats[2] || { label: 'CALORIES', val: '359', unit: 'KCAL' };
-    const statRight = M.activeStats[3] || { label: 'TOTAL REPS', val: '164', unit: 'REPS' };
+    const statLeft = M.activeStats[2];
+    const statRight = M.activeStats[3];
 
-    // البطاقة اليسرى
-    drawFrostedGlassWidget(c, padX, midY, halfW, midH, 42, 0.03);
-    drawFrostedGlassWidget(c, padX + 28, midY + 45, 92, 92, 26, 0.08);
-    drawMiniVectorIcon(c, 'flame', padX + 74, midY + 91, 22, '#ffffff');
-    txt(c, statLeft.label, padX + 142, midY + 78, 25, 600, 'rgba(255,255,255,0.9)', 'left', S.titleFont, halfW - 160);
-    txt(c, `${statLeft.val} ${statLeft.unit}`.trim(), padX + 142, midY + 128, 38, 700, '#ffffff', 'left', S.numFont, halfW - 160);
+    if (statLeft) {
+      drawFrostedGlassWidget(c, padX, midY, statRight ? halfW : fullW, midH, 42, 0.03);
+      drawFrostedGlassWidget(c, padX + 28, midY + 45, 92, 92, 26, 0.08);
+      drawMiniVectorIcon(c, 'flame', padX + 74, midY + 91, 22, '#ffffff');
+      txt(c, statLeft.label, padX + 142, midY + 78, 25, 600, 'rgba(255,255,255,0.9)', 'left', S.titleFont, (statRight ? halfW : fullW) - 160);
+      txt(c, `${statLeft.val} ${statLeft.unit}`.trim(), padX + 142, midY + 128, 38, 700, '#ffffff', 'left', S.numFont, (statRight ? halfW : fullW) - 160);
+    }
 
-    // البطاقة اليمنى
-    const rightX = padX + halfW + gap;
-    drawFrostedGlassWidget(c, rightX, midY, halfW, midH, 42, 0.03);
-    drawFrostedGlassWidget(c, rightX + 28, midY + 45, 92, 92, 26, 0.08);
-    drawMiniVectorIcon(c, 'check', rightX + 74, midY + 91, 22, '#ffffff');
-    txt(c, statRight.label, rightX + 142, midY + 78, 25, 600, 'rgba(255,255,255,0.9)', 'left', S.titleFont, halfW - 160);
-    txt(c, `${statRight.val} ${statRight.unit}`.trim(), rightX + 142, midY + 128, 38, 700, '#ffffff', 'left', S.numFont, halfW - 160);
+    if (statRight) {
+      const rightX = padX + halfW + gap;
+      drawFrostedGlassWidget(c, rightX, midY, halfW, midH, 42, 0.03);
+      drawFrostedGlassWidget(c, rightX + 28, midY + 45, 92, 92, 26, 0.08);
+      drawMiniVectorIcon(c, 'check', rightX + 74, midY + 91, 22, '#ffffff');
+      txt(c, statRight.label, rightX + 142, midY + 78, 25, 600, 'rgba(255,255,255,0.9)', 'left', S.titleFont, halfW - 160);
+      txt(c, `${statRight.val} ${statRight.unit}`.trim(), rightX + 142, midY + 128, 38, 700, '#ffffff', 'left', S.numFont, halfW - 160);
+    }
 
-    // 5. البطاقة السفلية (نفس Recent Activity في الصورة لعرض باقي الإحصائيات)
-    const botY = midY + midH + 26;
+    // 5. البطاقة السفلية لباقي الإحصائيات المفعلة
     const remainingStats = M.activeStats.slice(4);
-    const rowsToShow = remainingStats.length > 0 ? remainingStats.slice(0, 2) : [
-      { label: M.dict.hrGraphTitle, val: S.maxHrVal ? `Max ${S.maxHrVal} bpm` : `${secondStat.val} bpm`, unit: '' }
-    ];
-    const botH = rowsToShow.length === 1 ? 225 : 335;
+    if (remainingStats.length > 0) {
+      const botY = midY + (statLeft ? midH + 26 : 0);
+      const rowsToShow = remainingStats.slice(0, 2);
+      const botH = rowsToShow.length === 1 ? 225 : 335;
 
-    drawFrostedGlassWidget(c, padX, botY, fullW, botH, 46, 0.03);
-    txt(c, M.dict.activityHdr, padX + 44, botY + 62, 27, 600, 'rgba(255,255,255,0.92)', 'left', S.titleFont, fullW - 90);
+      drawFrostedGlassWidget(c, padX, botY, fullW, botH, 46, 0.03);
+      txt(c, M.dict.activityHdr, padX + 44, botY + 62, 27, 600, 'rgba(255,255,255,0.92)', 'left', S.titleFont, fullW - 90);
 
-    rowsToShow.forEach((item, idx) => {
-      const ry = botY + 95 + idx * 115;
-      if (idx > 0) {
-        c.fillStyle = 'rgba(255, 255, 255, 0.18)';
-        c.fillRect(padX + 44, ry - 12, fullW - 88, 1.5);
-      }
-      // أيقونة مربعة زجاجية على اليسار
-      drawFrostedGlassWidget(c, padX + 44, ry + 8, 74, 74, 22, 0.07);
-      drawMiniVectorIcon(c, idx === 0 ? 'dumbbell' : 'clock', padX + 81, ry + 45, 18, '#ffffff');
+      rowsToShow.forEach((item, idx) => {
+        const ry = botY + 95 + idx * 115;
+        if (idx > 0) {
+          c.fillStyle = 'rgba(255, 255, 255, 0.18)';
+          c.fillRect(padX + 44, ry - 12, fullW - 88, 1.5);
+        }
+        drawFrostedGlassWidget(c, padX + 44, ry + 8, 74, 74, 22, 0.07);
+        drawMiniVectorIcon(c, idx === 0 ? 'dumbbell' : 'clock', padX + 81, ry + 45, 18, '#ffffff');
 
-      txt(c, `${item.val} ${item.unit}`.trim(), padX + 142, ry + 45, 34, 700, '#ffffff', 'left', S.numFont, fullW - 280);
-      txt(c, item.label, padX + 142, ry + 80, 23, 400, 'rgba(255,255,255,0.68)', 'left', S.titleFont, fullW - 280);
+        txt(c, `${item.val} ${item.unit}`.trim(), padX + 142, ry + 45, 34, 700, '#ffffff', 'left', S.numFont, fullW - 280);
+        txt(c, item.label, padX + 142, ry + 80, 23, 400, 'rgba(255,255,255,0.68)', 'left', S.titleFont, fullW - 280);
 
-      // دائرة زجاجية صغيرة على اليمين
-      drawFrostedGlassWidget(c, padX + fullW - 114, ry + 11, 68, 68, 34, 0.08);
-      drawMiniVectorIcon(c, idx === 0 ? 'arrowUpRight' : 'check', padX + fullW - 80, ry + 45, 16, '#ffffff');
-    });
+        drawFrostedGlassWidget(c, padX + fullW - 114, ry + 11, 68, 68, 34, 0.08);
+        drawMiniVectorIcon(c, idx === 0 ? 'arrowUpRight' : 'check', padX + fullW - 80, ry + 45, 16, '#ffffff');
+      });
+    }
   }
 
   // =========================================================================
-  // ثيم 1: Liquid Glass (بطاقة مدمجة وسط الشاشة - ممتازة للستوري مع خلفية صورتك)
+  // ثيم 1: Liquid Glass (بطاقة مدمجة وسط الشاشة - مثل لقطة شاشتك الثانية)
   // =========================================================================
   if (st === 1) {
     const padX = 75, fullW = W - padX * 2;
@@ -1330,19 +1339,25 @@ function drawCard(c, w, st, isExport = false) {
 
     drawFrostedGlassWidget(c, padX, cardY, fullW, 108, 54, 0.04);
     drawMiniVectorIcon(c, 'dumbbell', padX + 58, cardY + 54, 20, '#ffffff');
-    txt(c, `${M.title}   ·   ${S.tag}`, padX + 100, cardY + 64, 30, 700, '#ffffff', 'left', S.titleFont, fullW - 140);
+    const topPillTxt = [M.title, S.tag].filter(Boolean).join('   ·   ');
+    txt(c, topPillTxt, padX + 100, cardY + 64, 30, 700, '#ffffff', 'left', S.titleFont, fullW - 140);
 
     const mainBoxY = cardY + 135;
     drawFrostedGlassWidget(c, padX, mainBoxY, fullW, 520, 50, 0.04);
 
     drawMiniVectorIcon(c, 'bars', padX + 56, mainBoxY + 64, 16, 'rgba(255,255,255,0.85)');
-    txt(c, M.muscleTag || M.dict.overviewHdr, padX + 86, mainBoxY + 72, 28, 600, 'rgba(255,255,255,0.9)', 'left', S.titleFont, 500);
+    txt(c, S.muscleTag || M.dict.overviewHdr, padX + 86, mainBoxY + 72, 28, 600, 'rgba(255,255,255,0.9)', 'left', S.titleFont, 500);
     if (M.dateStr) txt(c, M.dateStr, padX + fullW - 48, mainBoxY + 72, 24, 500, 'rgba(255,255,255,0.7)', 'right', S.titleFont);
 
-    txt(c, M.dist, padX + 48, mainBoxY + 235, 140, 700, '#ffffff', 'left', S.numFont, 400);
-    txt(c, `${M.mainLbl} (${M.mainUnit})`, padX + 50, mainBoxY + 290, 26, 500, 'rgba(255,255,255,0.8)', 'left', S.titleFont, 410);
+    if (M.dist) {
+      const maxNumW = M.hasChart ? 400 : (fullW - 100);
+      txt(c, M.dist, padX + 48, mainBoxY + 235, 140, 700, '#ffffff', 'left', S.numFont, maxNumW);
+      txt(c, M.fullMainLabel, padX + 50, mainBoxY + 290, 26, 500, 'rgba(255,255,255,0.8)', 'left', S.titleFont, maxNumW);
+    }
 
-    drawSmoothHeartRateChart(c, padX + 430, mainBoxY + 95, 445, 215, S.accent);
+    if (M.hasChart) {
+      drawActiveChart(c, padX + 430, mainBoxY + 95, 445, 215);
+    }
 
     c.fillStyle = 'rgba(255, 255, 255, 0.22)';
     c.fillRect(padX + 48, mainBoxY + 335, fullW - 96, 1.8);
@@ -1358,7 +1373,7 @@ function drawCard(c, w, st, isExport = false) {
     const rest = M.activeStats.slice(3, 5);
     if (rest.length) {
       const subY = mainBoxY + 550;
-      const gap = 24, hw = (fullW - gap) / 2;
+      const gap = 24, hw = rest.length === 1 ? fullW : (fullW - gap) / 2;
       rest.forEach((it, idx) => {
         const bx = padX + idx * (hw + gap);
         drawFrostedGlassWidget(c, bx, subY, hw, 190, 42, 0.04);
@@ -1369,28 +1384,30 @@ function drawCard(c, w, st, isExport = false) {
   }
 
   // =========================================================================
-  // ثيم 2: Liquid Glass (بانوراما نبض القلب العريضة)
+  // ثيم 2: Liquid Glass (بانوراما العريضة)
   // =========================================================================
   if (st === 2) {
     const padX = 75, fullW = W - padX * 2;
     txt(c, M.title, padX, TOP + 60, 72, 700, '#ffffff', 'left', S.titleFont, 700);
-    txt(c, `${S.tag}  ·  ${M.dateStr}`, padX, TOP + 115, 28, 500, 'rgba(255,255,255,0.78)', 'left', S.titleFont, 700);
+    const subHead = [S.tag, M.dateStr].filter(Boolean).join('  ·  ');
+    txt(c, subHead, padX, TOP + 115, 28, 500, 'rgba(255,255,255,0.78)', 'left', S.titleFont, 700);
 
-    // بطاقة الرقم الرئيسي + الغراف العريض بالكامل
     const boxY = TOP + 160;
-    drawFrostedGlassWidget(c, padX, boxY, fullW, 640, 50, 0.04);
+    const boxH = M.hasChart ? 640 : 280;
+    drawFrostedGlassWidget(c, padX, boxY, fullW, boxH, 50, 0.04);
 
     txt(c, M.mainLbl, padX + 52, boxY + 75, 28, 600, 'rgba(255,255,255,0.8)', 'left', S.titleFont);
-    txt(c, `${M.dist} ${M.mainUnit}`, padX + 52, boxY + 195, 115, 700, '#ffffff', 'left', S.numFont, fullW - 100);
+    txt(c, M.distWithUnit, padX + 52, boxY + 205, 115, 700, '#ffffff', 'left', S.numFont, fullW - 100);
 
-    txt(c, M.dict.hrGraphTitle, padX + 52, boxY + 275, 25, 500, 'rgba(255,255,255,0.72)', 'left', S.titleFont);
-    drawSmoothHeartRateChart(c, padX + 45, boxY + 300, fullW - 90, 290, S.accent);
+    if (M.hasChart) {
+      txt(c, M.dict.hrGraphTitle, padX + 52, boxY + 275, 25, 500, 'rgba(255,255,255,0.72)', 'left', S.titleFont);
+      drawActiveChart(c, padX + 45, boxY + 300, fullW - 90, 290);
+    }
 
-    // شبكة بطاقات زجاجية سفلية
-    const gY = boxY + 670;
+    const gY = boxY + boxH + 30;
     const cols = 2, gap = 22;
     const cw = (fullW - gap) / 2, ch = 185;
-    M.activeStats.slice(0, 4).forEach((it, idx) => {
+    M.activeStats.slice(0, 6).forEach((it, idx) => {
       const r = Math.floor(idx / cols), cl = idx % cols;
       const bx = padX + cl * (cw + gap), by = gY + r * (ch + gap);
       drawFrostedGlassWidget(c, bx, by, cw, ch, 40, 0.04);
@@ -1400,7 +1417,7 @@ function drawCard(c, w, st, isExport = false) {
   }
 
   // =========================================================================
-  // ثيم 3: شريط Liquid Glass سفلي مدمج (يترك أعلى الصورة فارغاً لصورتك الشخصية)
+  // ثيم 3: شريط Liquid Glass سفلي مدمج (للصور الشخصية)
   // =========================================================================
   if (st === 3) {
     const padX = 65, fullW = W - padX * 2;
@@ -1410,10 +1427,15 @@ function drawCard(c, w, st, isExport = false) {
     txt(c, M.title, padX + 50, boxY + 78, 52, 700, '#ffffff', 'left', S.titleFont, 550);
     txt(c, M.dateStr || S.tag, padX + fullW - 50, boxY + 75, 25, 500, 'rgba(255,255,255,0.75)', 'right', S.titleFont);
 
-    txt(c, M.dist, padX + 50, boxY + 235, 130, 700, '#ffffff', 'left', S.numFont, 380);
-    txt(c, `${M.mainLbl} (${M.mainUnit})`, padX + 50, boxY + 285, 25, 500, 'rgba(255,255,255,0.8)', 'left', S.titleFont, 390);
+    if (M.dist) {
+      const maxNumW = M.hasChart ? 380 : (fullW - 100);
+      txt(c, M.dist, padX + 50, boxY + 235, 130, 700, '#ffffff', 'left', S.numFont, maxNumW);
+      txt(c, M.fullMainLabel, padX + 50, boxY + 285, 25, 500, 'rgba(255,255,255,0.8)', 'left', S.titleFont, maxNumW);
+    }
 
-    drawSmoothHeartRateChart(c, padX + 430, boxY + 115, 470, 185, S.accent);
+    if (M.hasChart) {
+      drawActiveChart(c, padX + 430, boxY + 115, 470, 185);
+    }
 
     c.fillStyle = 'rgba(255, 255, 255, 0.22)';
     c.fillRect(padX + 50, boxY + 330, fullW - 100, 1.8);
@@ -1430,7 +1452,7 @@ function drawCard(c, w, st, isExport = false) {
   }
 
   // =========================================================================
-  // ثيم 4: COROS داكن كلاسيك مع منحنى النبض
+  // ثيم 4: COROS داكن كلاسيك
   // =========================================================================
   if (st === 4) {
     if (!S.transparent && !S.bg) {
@@ -1442,25 +1464,34 @@ function drawCard(c, w, st, isExport = false) {
     if (M.dateStr) txt(c, M.dateStr, W - padX, TOP + 20, 26, 500, 'rgba(255,255,255,0.6)', 'right', S.titleFont);
     txt(c, M.title, padX, TOP + 95, 62, 800, '#ffffff', 'left', S.titleFont, fullW);
 
-    drawSmoothHeartRateChart(c, padX, TOP + 170, fullW, 380, S.accent);
+    let curY = TOP + 160;
+    if (M.hasChart) {
+      drawActiveChart(c, padX, curY, fullW, 380);
+      curY += 460;
+    } else {
+      curY += 80;
+    }
 
-    txt(c, M.mainLbl, padX, TOP + 640, 28, 600, 'rgba(255,255,255,0.7)', 'left', S.titleFont);
-    txt(c, `${M.dist} ${M.mainUnit}`, padX, TOP + 790, 155, 700, '#ffffff', 'left', S.numFont, fullW);
+    if (M.dist) {
+      txt(c, M.mainLbl, padX, curY, 28, 600, 'rgba(255,255,255,0.7)', 'left', S.titleFont);
+      txt(c, M.distWithUnit, padX, curY + 150, 150, 700, '#ffffff', 'left', S.numFont, fullW);
+      curY += 200;
+    }
 
     c.fillStyle = 'rgba(255,255,255,0.15)';
-    c.fillRect(padX, TOP + 840, fullW, 2);
+    c.fillRect(padX, curY, fullW, 2);
 
     const cols = 3, cw = fullW / cols;
     M.activeStats.forEach((it, idx) => {
       const r = Math.floor(idx / cols), cl = idx % cols;
-      const cx = padX + cl * cw, cy = TOP + 910 + r * 190;
+      const cx = padX + cl * cw, cy = curY + 70 + r * 190;
       txt(c, it.label, cx, cy, 24, 500, 'rgba(255,255,255,0.6)', 'left', S.titleFont, cw - 20);
       txt(c, `${it.val} ${it.unit}`.trim(), cx, cy + 68, 54, 700, '#ffffff', 'left', S.numFont, cw - 20);
     });
   }
 
   // =========================================================================
-  // ثيم 5: تقرير تقني HUD مع منحنى النبض
+  // ثيم 5: تقرير تقني HUD
   // =========================================================================
   if (st === 5) {
     const padX = 75, fullW = W - padX * 2;
@@ -1468,11 +1499,19 @@ function drawCard(c, w, st, isExport = false) {
     txt(c, `TELEMETRY // ${S.tag}`, padX + 50, TOP + 68, 25, 700, S.accent, 'left', S.numFont);
     txt(c, M.title, padX + 50, TOP + 135, 58, 800, '#ffffff', 'left', S.titleFont, fullW - 100);
 
-    drawSmoothHeartRateChart(c, padX + 50, TOP + 190, fullW - 100, 320, S.accent);
+    let listStartY = TOP + 210;
+    if (M.hasChart) {
+      drawActiveChart(c, padX + 50, TOP + 190, fullW - 100, 320);
+      listStartY = TOP + 565;
+    }
 
-    const all = [{ label: M.mainLbl, val: M.dist, unit: M.mainUnit }, ...M.activeStats];
-    all.slice(0, 6).forEach((it, idx) => {
-      const ry = TOP + 565 + idx * 140;
+    const all = M.dist
+      ? [{ label: M.mainLbl, val: M.dist, unit: M.mainUnit }, ...M.activeStats]
+      : [...M.activeStats];
+
+    const rowStep = Math.min(155, (BOT - listStartY - 40) / Math.max(1, all.length));
+    all.slice(0, 7).forEach((it, idx) => {
+      const ry = listStartY + idx * rowStep;
       c.fillStyle = 'rgba(255,255,255,0.14)';
       c.fillRect(padX + 50, ry - 15, fullW - 100, 1.5);
       txt(c, it.label, padX + 50, ry + 55, 28, 500, 'rgba(255,255,255,0.8)', 'left', S.titleFont, 460);
@@ -1523,6 +1562,13 @@ document.addEventListener('input', e => {
   sched();
 });
 
+document.addEventListener('change', e => {
+  const el = e.target, k = el.dataset.k;
+  if (!k) return;
+  S[k] = el.type === 'checkbox' ? el.checked : ((k === 'dark' || k === 'safeShift' || k === 'glassOpacity') ? +el.value : el.value);
+  sched();
+});
+
 $('bgFile').onchange = e => {
   const f = e.target.files[0];
   if (!f) return;
@@ -1560,7 +1606,7 @@ function formatPace(secPerKm) {
 }
 
 function syncInputsFromState() {
-  ['title', 'tag', 'muscleTag', 'dist', 'mainUnit', 'date'].forEach(k => {
+  ['title', 'tag', 'muscleTag', 'dist', 'mainUnit', 'date', 'chartMode'].forEach(k => {
     const el = document.querySelector(`[data-k="${k}"]`);
     if (el && S[k] !== undefined) el.value = S[k];
   });
@@ -1737,7 +1783,6 @@ function parseFitBuffer(buf) {
     }
   }
 
-  // تنعيم وتلخيص نقاط نبض القلب في 22 نقطة لرسم منحنى حريري مثل الصورة
   let smoothedHr = [];
   if (rawHrList.length >= 8) {
     const buckets = 20;
