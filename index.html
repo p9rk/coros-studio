@@ -217,6 +217,8 @@ h1 {
   background: rgba(125, 211, 252, 0.4);
   border-color: #7dd3fc;
   color: #e0f2fe;
+  font-size: 12px;
+  letter-spacing: -0.5px;
 }
 .week-day.today span { color: #7dd3fc; font-weight: 700; }
 .week-day.today .wd-check { border-color: rgba(125, 211, 252, 0.55); }
@@ -563,7 +565,7 @@ input[type=range] { accent-color: #7dd3fc; width: 100%; }
 
     <label>الأيام المكتملة (اضغط لتحديد اليوم)</label>
     <div class="week-grid" id="weekGrid"></div>
-    <p class="hint" style="margin:0;text-align:right;font-size:12px">ضغطة واحدة = يوم فيه نشاط ✓، وضغطتان = يوم فيه نشاطان 2×، والثالثة تُلغي التحديد. يُبرز اليوم الحالي تلقائياً.</p>
+    <p class="hint" style="margin:0;text-align:right;font-size:12px">ضغطة واحدة = يوم فيه نشاط ✓، وضغطتان = يوم فيه نشاطان ✓✓، والثالثة تُلغي التحديد. يُبرز اليوم الحالي تلقائياً.</p>
   </section>
 
   <!-- قسم الخطوط والألوان والأبعاد -->
@@ -735,7 +737,10 @@ const styleNames = [
   'Aurora شفق 🌌',
   'Light فاتح ☀️',
   'Duotone لونان 🎨',
-  'Editorial مجلة 📰'
+  'Editorial مجلة 📰',
+  'Blueprint مخطط 📐',
+  'Poster ملصق 🖼️',
+  'Clay طيني 🫧'
 ];
 
 const cv = document.createElement('canvas');
@@ -803,7 +808,7 @@ function buildWeekGrid() {
     const paint = () => {
       const v = S.weekCount[i] | 0;
       wrap.className = 'week-day' + (i === today ? ' today' : '') + (v >= 2 ? ' on x2' : v ? ' on' : '');
-      ck.textContent = v >= 2 ? '2×' : '✓';
+      ck.textContent = v >= 2 ? '✓✓' : '✓';
     };
     wrap.append(sp, ck);
     paint();
@@ -1020,6 +1025,31 @@ function drawSoftCard(c, x, y, w, h, r = 40, o = {}) {
   c.stroke();
 }
 
+function drawClayTile(c, x, y, w, h, r = 40, o = {}) {
+  c.save();
+  c.shadowColor = o.shadow || 'rgba(96, 72, 150, 0.24)';
+  c.shadowBlur = 46;
+  c.shadowOffsetY = 18;
+  rr(c, x, y, w, h, r);
+  c.fillStyle = o.fill || 'rgba(255, 255, 255, 0.86)';
+  c.fill();
+  c.restore();
+
+  rr(c, x + 2, y + 2, w - 4, h - 4, Math.max(2, r - 2));
+  c.strokeStyle = o.hi || 'rgba(255, 255, 255, 0.95)';
+  c.lineWidth = 3;
+  c.stroke();
+
+  c.save();
+  rr(c, x, y, w, h, r);
+  const g = c.createLinearGradient(0, y, 0, y + h);
+  g.addColorStop(0, 'rgba(255, 255, 255, 0)');
+  g.addColorStop(1, 'rgba(104, 78, 160, 0.09)');
+  c.fillStyle = g;
+  c.fill();
+  c.restore();
+}
+
 function txt(c, s, x, y, size, wt, col, al = 'left', fam = S.titleFont, mw = null) {
   if (s === undefined || s === null || s === '') return;
   const str = String(s).trim();
@@ -1194,10 +1224,83 @@ function drawPaperBackground(c, width, height) {
   c.fillRect(0, 0, width, height);
 }
 
+function drawBlueprintBackground(c, width, height) {
+  const base = c.createLinearGradient(0, 0, width, height);
+  base.addColorStop(0, '#0b2b47');
+  base.addColorStop(0.55, '#082138');
+  base.addColorStop(1, '#051522');
+  c.fillStyle = base;
+  c.fillRect(0, 0, width, height);
+
+  const glow = c.createRadialGradient(width * 0.5, height * 0.08, 10, width * 0.5, height * 0.14, width * 0.95);
+  glow.addColorStop(0, 'rgba(120, 205, 255, 0.22)');
+  glow.addColorStop(1, 'transparent');
+  c.fillStyle = glow;
+  c.fillRect(0, 0, width, height);
+
+  const step = 54;
+  c.strokeStyle = 'rgba(130, 195, 255, 0.085)';
+  c.lineWidth = 1;
+  c.beginPath();
+  for (let x = 0; x <= width; x += step) { c.moveTo(x, 0); c.lineTo(x, height); }
+  for (let y = 0; y <= height; y += step) { c.moveTo(0, y); c.lineTo(width, y); }
+  c.stroke();
+
+  c.strokeStyle = 'rgba(150, 210, 255, 0.22)';
+  c.lineWidth = 1.6;
+  c.beginPath();
+  for (let x = 0; x <= width; x += step * 5) { c.moveTo(x, 0); c.lineTo(x, height); }
+  for (let y = 0; y <= height; y += step * 5) { c.moveTo(0, y); c.lineTo(width, y); }
+  c.stroke();
+
+  const vig = c.createRadialGradient(width * 0.5, height * 0.42, width * 0.28, width * 0.5, height * 0.5, width * 0.95);
+  vig.addColorStop(0, 'transparent');
+  vig.addColorStop(1, 'rgba(2, 9, 16, 0.55)');
+  c.fillStyle = vig;
+  c.fillRect(0, 0, width, height);
+}
+
+function drawPosterBackground(c, width, height) {
+  const base = c.createLinearGradient(0, 0, width * 0.4, height);
+  base.addColorStop(0, '#f8f3e9');
+  base.addColorStop(0.6, '#f2ebdd');
+  base.addColorStop(1, '#eae1cf');
+  c.fillStyle = base;
+  c.fillRect(0, 0, width, height);
+
+  const g = c.createRadialGradient(width * 0.15, height * 0.2, 10, width * 0.18, height * 0.22, width * 0.8);
+  g.addColorStop(0, 'rgba(255, 214, 160, 0.28)');
+  g.addColorStop(1, 'transparent');
+  c.fillStyle = g;
+  c.fillRect(0, 0, width, height);
+}
+
+function drawClayBackground(c, width, height) {
+  const base = c.createLinearGradient(0, 0, width, height);
+  base.addColorStop(0, '#efe8ff');
+  base.addColorStop(0.5, '#f7ecff');
+  base.addColorStop(1, '#ffeade');
+  c.fillStyle = base;
+  c.fillRect(0, 0, width, height);
+
+  const blobs = [
+    [0.16, 0.12, 0.8, 'rgba(162, 140, 255, 0.42)'],
+    [0.9, 0.3, 0.7, 'rgba(255, 168, 150, 0.36)'],
+    [0.55, 0.9, 0.9, 'rgba(145, 220, 230, 0.32)']
+  ];
+  blobs.forEach(([bx, by, br, col]) => {
+    const g = c.createRadialGradient(width * bx, height * by, 10, width * bx, height * by, width * br);
+    g.addColorStop(0, col);
+    g.addColorStop(1, 'transparent');
+    c.fillStyle = g;
+    c.fillRect(0, 0, width, height);
+  });
+}
+
 function drawAtmosphericBackground(c, width, height, theme = 0) {
   if (S.bg) {
     cover(c, S.bg, 0, 0, width, height);
-    if (theme === 8 || theme === 10) {
+    if (theme === 8 || theme === 10 || theme === 12 || theme === 13) {
       c.fillStyle = 'rgba(255,255,255,0.42)';
       c.fillRect(0, 0, width, height);
     } else if (S.dark > 0) {
@@ -1212,9 +1315,12 @@ function drawAtmosphericBackground(c, width, height, theme = 0) {
   else if (theme === 8) drawLightBackground(c, width, height);
   else if (theme === 9) drawDuotoneBackground(c, width, height);
   else if (theme === 10) drawPaperBackground(c, width, height);
+  else if (theme === 11) drawBlueprintBackground(c, width, height);
+  else if (theme === 12) drawPosterBackground(c, width, height);
+  else if (theme === 13) drawClayBackground(c, width, height);
   else drawDefaultBackground(c, width, height);
 
-  if (S.dark > 0 && theme !== 8 && theme !== 10) {
+  if (S.dark > 0 && theme !== 8 && theme !== 10 && theme !== 12 && theme !== 13) {
     c.fillStyle = `rgba(6, 10, 15, ${S.dark / 100})`;
     c.fillRect(0, 0, width, height);
   }
@@ -1314,6 +1420,7 @@ function drawWeekCard(c, x, y, w, h, o = {}) {
   const pad = o.pad || 36;
   const counts = (S.weekCount || []).map(n => Math.max(0, Math.min(2, n | 0)));
   const total = counts.filter(n => n > 0).length;
+  const sessions = counts.reduce((a, b) => a + b, 0);
   const today = new Date().getDay();
 
   const hdrY = y + 40;
@@ -1326,8 +1433,9 @@ function drawWeekCard(c, x, y, w, h, o = {}) {
   c.fill();
   c.restore();
 
-  txt(c, dict.weekHdr, x + pad + 22, hdrY, 23, 700, ink, 'left', S.titleFont, w * 0.58);
-  txt(c, `${total} / 7`, x + w - pad, hdrY, 21, 700, sub, 'right', S.numFont, w * 0.24);
+  const countLbl = sessions > total ? `${total} / 7 · +${sessions - total}` : `${total} / 7`;
+  txt(c, dict.weekHdr, x + pad + 22, hdrY, 23, 700, ink, 'left', S.titleFont, w * 0.5);
+  txt(c, countLbl, x + w - pad, hdrY, 21, 700, sub, 'right', S.numFont, w * 0.34);
 
   c.fillStyle = hexA(ink, 0.14);
   c.fillRect(x + pad, hdrY + 16, w - pad * 2, 1.5);
@@ -1341,7 +1449,34 @@ function drawWeekCard(c, x, y, w, h, o = {}) {
     const cx = x + pad + (i + 0.5) * colW;
     const isToday = i === today;
     const n = counts[i] || 0;
-    if (n > 0) {
+
+    if (n >= 2) {
+      const r2 = r * 0.72;
+      const sep = r2 * 1.06;
+      [-sep, sep].forEach(dx => {
+        const px = cx + dx;
+        c.save();
+        c.shadowColor = hexA(accent, 0.55);
+        c.shadowBlur = isToday ? 14 : 7;
+        c.beginPath();
+        c.arc(px, cy, r2, 0, Math.PI * 2);
+        c.fillStyle = accent;
+        c.fill();
+        c.restore();
+
+        c.save();
+        c.beginPath();
+        c.moveTo(px - r2 * 0.4, cy + r2 * 0.02);
+        c.lineTo(px - r2 * 0.1, cy + r2 * 0.32);
+        c.lineTo(px + r2 * 0.44, cy - r2 * 0.3);
+        c.strokeStyle = checkInk;
+        c.lineWidth = Math.max(2.6, r2 * 0.2);
+        c.lineCap = 'round';
+        c.lineJoin = 'round';
+        c.stroke();
+        c.restore();
+      });
+    } else if (n === 1) {
       c.save();
       c.shadowColor = hexA(accent, 0.6);
       c.shadowBlur = isToday ? 16 : 8;
@@ -1365,44 +1500,31 @@ function drawWeekCard(c, x, y, w, h, o = {}) {
     } else {
       c.beginPath();
       c.arc(cx, cy, r, 0, Math.PI * 2);
-      c.fillStyle = hexA(ink, 0.06);
+      c.fillStyle = hexA(ink, 0.08);
       c.fill();
       c.beginPath();
       c.arc(cx, cy, r, 0, Math.PI * 2);
-      c.strokeStyle = hexA(ink, 0.32);
-      c.lineWidth = 1.6;
+      c.strokeStyle = hexA(ink, 0.45);
+      c.lineWidth = 1.8;
       c.stroke();
     }
 
     if (isToday) {
-      c.beginPath();
-      c.arc(cx, cy, r + 6, 0, Math.PI * 2);
+      if (n >= 2) {
+        const r2 = r * 0.72;
+        const ringW = 2 * (r2 * 1.06 + r2) + 12;
+        const ringH = 2 * r2 + 12;
+        rr(c, cx - ringW / 2, cy - ringH / 2, ringW, ringH, ringH / 2);
+      } else {
+        c.beginPath();
+        c.arc(cx, cy, r + 6, 0, Math.PI * 2);
+      }
       c.strokeStyle = hexA(accent, 0.9);
       c.lineWidth = 2;
       c.stroke();
     }
 
-    if (n >= 2) {
-      const bx = cx + r * 0.82;
-      const by = cy - r * 0.82;
-      const br = r * 0.6;
-      c.save();
-      c.shadowColor = hexA(accent, 0.7);
-      c.shadowBlur = 8;
-      c.beginPath();
-      c.arc(bx, by, br, 0, Math.PI * 2);
-      c.fillStyle = accent;
-      c.fill();
-      c.restore();
-      c.beginPath();
-      c.arc(bx, by, br, 0, Math.PI * 2);
-      c.strokeStyle = checkInk;
-      c.lineWidth = 1.6;
-      c.stroke();
-      txt(c, '2', bx, by + br * 0.36, br * 1.6, 800, checkInk, 'center', S.numFont, br * 2);
-    }
-
-    txt(c, days[i] || '', cx, y + h - 12, 19, isToday ? 700 : 500, isToday ? accent : sub, 'center', S.titleFont, colW - 2);
+    txt(c, days[i] || '', cx, y + h - 10, 21, isToday ? 700 : 600, isToday ? accent : sub, 'center', S.titleFont, colW - 2);
   }
 }
 
@@ -2328,6 +2450,193 @@ function drawCard(c, w, st, isExport = false) {
     }
   }
 
+  // =========================================================================
+  // ثيم 11: Blueprint مخطط
+  // =========================================================================
+  if (st === 11) {
+    const padX = 74, fullW = W - padX * 2;
+    const accent = S.accent;
+    const ink = '#eaf6ff';
+    const sub = 'rgba(214, 236, 255, 0.62)';
+    const line = 'rgba(150, 210, 255, 0.42)';
+
+    const fx = padX - 24, fy = TOP - 24;
+    const fw = fullW + 48;
+    const fh = (S.showWeek ? weekY + WEEK_H : contentBot + 20) - fy;
+    c.strokeStyle = hexA(ink, 0.16);
+    c.lineWidth = 1.6;
+    c.strokeRect(fx, fy, fw, fh);
+
+    c.strokeStyle = accent;
+    c.lineWidth = 3;
+    const tick = 26;
+    [[fx, fy, 1, 1], [fx + fw, fy, -1, 1], [fx, fy + fh, 1, -1], [fx + fw, fy + fh, -1, -1]].forEach(([px, py, sx, sy]) => {
+      c.beginPath();
+      c.moveTo(px, py + sy * tick);
+      c.lineTo(px, py);
+      c.lineTo(px + sx * tick, py);
+      c.stroke();
+    });
+
+    txt(c, (S.tag || 'COROS').toUpperCase(), padX, TOP + 6, 22, 700, accent, 'left', S.numFont, fullW * 0.55);
+    if (M.dateStr) txt(c, M.dateStr, W - padX, TOP + 6, 20, 500, sub, 'right', S.numFont, fullW * 0.4);
+
+    txt(c, M.title, padX, TOP + 96, 74, 800, ink, 'left', S.titleFont, fullW);
+    txt(c, S.muscleTag, padX, TOP + 136, 24, 600, hexA('#9fd4ff', 0.9), 'left', S.numFont, fullW);
+
+    c.fillStyle = line;
+    c.fillRect(padX, TOP + 164, fullW, 1.6);
+
+    let y = TOP + 214;
+    if (M.dist) {
+      txt(c, M.fullMainLabel, padX, y, 22, 600, sub, 'left', S.numFont, M.hasChart ? 400 : fullW);
+      txt(c, M.dist, padX, y + 122, 138, 700, ink, 'left', S.numFont, M.hasChart ? 400 : fullW);
+    }
+    if (M.hasChart) {
+      const chX = M.dist ? padX + 430 : padX;
+      const chW = M.dist ? fullW - 430 : fullW;
+      c.strokeStyle = line;
+      c.lineWidth = 1.4;
+      rr(c, chX, y - 24, chW, 196, 12);
+      c.stroke();
+      drawActiveChart(c, chX + 16, y - 6, chW - 32, 160, { chartAccent: accent, lineCol: '#dff2ff' });
+    }
+    y += M.hasChart ? 250 : (M.dist ? 220 : 40);
+
+    const stats = M.activeStats.slice(0, 6);
+    const rows = Math.ceil(stats.length / 2);
+    const bottomLimit = S.showWeek ? weekY - 24 : contentBot;
+    const rowH = Math.max(92, Math.min(S.showWeek ? 190 : 240, (bottomLimit - y - 10) / Math.max(1, rows)));
+    const off = Math.max(0, (bottomLimit - y - ((rows - 1) * rowH + 92)) / 2);
+    stats.forEach((it, idx) => {
+      const r = Math.floor(idx / 2), cl = idx % 2;
+      const cx = padX + cl * (fullW / 2);
+      const y0 = y + off + r * rowH;
+      txt(c, String(idx + 1).padStart(2, '0'), cx, y0 + 2, 16, 700, hexA(accent, 0.85), 'left', S.numFont, 40);
+      txt(c, it.label, cx + 34, y0 + 2, 20, 500, sub, 'left', S.numFont, fullW / 2 - 70);
+      txt(c, `${it.val} ${it.unit}`.trim(), cx, y0 + 58, 42, 700, ink, 'left', S.numFont, fullW / 2 - 44);
+      c.fillStyle = hexA(ink, 0.14);
+      c.fillRect(cx, y0 + 80, fullW / 2 - 44, 1.2);
+    });
+
+    if (S.showWeek) {
+      drawWeekCard(c, padX, weekY, fullW, WEEK_H, { fill: 'flat', ink, sub, accent, rule: true });
+    }
+  }
+
+  // =========================================================================
+  // ثيم 12: Poster ملصق
+  // =========================================================================
+  if (st === 12) {
+    const padX = 78, fullW = W - padX * 2;
+    const accent = S.accent;
+    const onAccent = readableOn(accent);
+    const ink = '#171410';
+    const sub = 'rgba(23, 20, 16, 0.56)';
+
+    c.fillStyle = accent;
+    c.fillRect(0, 0, W, TOP + 190);
+
+    txt(c, (S.tag || 'COROS').toUpperCase(), padX, TOP + 6, 20, 700, hexA(onAccent, 0.72), 'left', S.numFont, fullW * 0.5);
+    if (M.dateStr) txt(c, M.dateStr, W - padX, TOP + 6, 20, 600, hexA(onAccent, 0.72), 'right', S.numFont, fullW * 0.45);
+    txt(c, M.title, padX, TOP + 102, 104, 800, onAccent, 'left', S.titleFont, fullW);
+    txt(c, S.muscleTag, padX, TOP + 154, 28, 500, hexA(onAccent, 0.8), 'left', S.titleFont, fullW);
+
+    let y = TOP + 254;
+    if (M.dist) {
+      txt(c, M.fullMainLabel.toUpperCase(), padX, y, 22, 700, sub, 'left', S.numFont, fullW);
+      txt(c, M.dist, padX, y + 158, 176, 800, ink, 'left', S.numFont, fullW);
+      y += 202;
+    }
+    if (M.hasChart) {
+      drawActiveChart(c, padX, y - 10, fullW, 220, { chartAccent: accent, lineCol: shade(accent, 0.55) });
+      y += 262;
+    }
+    c.fillStyle = 'rgba(23,20,16,0.85)';
+    c.fillRect(padX, y, fullW, 4);
+    y += 28;
+
+    const stats = M.activeStats.slice(0, 6);
+    const rows = Math.ceil(stats.length / 2);
+    const bottomLimit = S.showWeek ? weekY - 24 : contentBot;
+    const rowH = Math.max(110, Math.min(S.showWeek ? 210 : 300, (bottomLimit - y) / Math.max(1, rows)));
+    const off = Math.max(0, (bottomLimit - y - ((rows - 1) * rowH + 112)) / 2);
+    stats.forEach((it, idx) => {
+      const r = Math.floor(idx / 2), cl = idx % 2;
+      const cx = padX + cl * (fullW / 2);
+      const y0 = y + off + r * rowH;
+      txt(c, it.label.toUpperCase(), cx, y0 + 24, 20, 700, sub, 'left', S.numFont, fullW / 2 - 34);
+      txt(c, `${it.val} ${it.unit}`.trim(), cx, y0 + 78, 48, 800, ink, 'left', S.numFont, fullW / 2 - 34);
+      c.fillStyle = 'rgba(23,20,16,0.18)';
+      c.fillRect(cx, y0 + 100, fullW / 2 - 34, 1.4);
+    });
+
+    if (S.showWeek) {
+      drawWeekCard(c, padX, weekY, fullW, WEEK_H, { fill: 'flat', ink, sub, accent, rule: true });
+    }
+  }
+
+  // =========================================================================
+  // ثيم 13: Clay طيني
+  // =========================================================================
+  if (st === 13) {
+    const padX = 74, fullW = W - padX * 2;
+    const accent = S.accent;
+    const ink = '#2b2140';
+    const sub = 'rgba(43, 33, 64, 0.6)';
+
+    txt(c, (S.tag || 'COROS').toUpperCase(), padX + 6, TOP + 6, 20, 700, shade(accent, 0.62), 'left', S.numFont, fullW * 0.5);
+    if (M.dateStr) txt(c, M.dateStr, W - padX - 6, TOP + 6, 20, 600, sub, 'right', S.numFont, fullW * 0.45);
+    txt(c, M.title, padX + 4, TOP + 92, 78, 800, ink, 'left', S.titleFont, fullW);
+    txt(c, S.muscleTag, padX + 6, TOP + 132, 26, 500, sub, 'left', S.titleFont, fullW);
+
+    const weekTop = S.showWeek ? weekY - 24 : contentBot;
+    const stats = M.activeStats.slice(0, 4);
+    const rows = Math.ceil(stats.length / 2);
+    const gap = 22, tileH = S.showWeek ? 168 : 200;
+    const statsH = rows * tileH + (rows - 1) * gap;
+
+    const heroY = TOP + 178;
+    const heroH = Math.min(S.showWeek ? 9999 : 780, Math.max(360, weekTop - heroY - statsH - 24));
+
+    drawClayTile(c, padX, heroY, fullW, heroH, 52);
+    txt(c, M.dict.overviewHdr, padX + 48, heroY + 66, 25, 600, sub, 'left', S.titleFont, 460);
+
+    if (M.dist) {
+      txt(c, M.dist, padX + 46, heroY + 190, 122, 800, ink, 'left', S.numFont, fullW - 96);
+      txt(c, M.fullMainLabel, padX + 48, heroY + 236, 24, 500, sub, 'left', S.titleFont, fullW - 96);
+    }
+
+    if (M.hasChart) {
+      const chTop = M.dist ? heroY + 286 : heroY + 108;
+      const availH = heroY + heroH - 48 - chTop;
+      const chH = Math.min(240, Math.max(120, availH));
+      const chY = chTop + (availH - chH) / 2;
+      if (M.dist) {
+        c.fillStyle = hexA(ink, 0.1);
+        c.fillRect(padX + 46, chTop - 30, fullW - 92, 1.5);
+      }
+      drawActiveChart(c, padX + 46, chY, fullW - 92, chH, { chartAccent: accent, lineCol: shade(accent, 0.6) });
+    }
+
+    const gY = heroY + heroH + 22;
+    const cw = (fullW - gap) / 2;
+    stats.forEach((it, idx) => {
+      const r = Math.floor(idx / 2), cl = idx % 2;
+      const bx = padX + cl * (cw + gap), by = gY + r * (tileH + gap);
+      drawClayTile(c, bx, by, cw, tileH, 44);
+      txt(c, it.label, bx + 34, by + 62, 22, 600, sub, 'left', S.titleFont, cw - 64);
+      txt(c, `${it.val} ${it.unit}`.trim(), bx + 34, by + 118, 44, 800, ink, 'left', S.numFont, cw - 64);
+    });
+
+    if (S.showWeek) {
+      drawWeekCard(c, padX, weekY, fullW, WEEK_H, {
+        fill: 'solid', cardFill: 'rgba(255,255,255,0.92)', cardStroke: 'rgba(120,95,180,0.16)',
+        shadow: 'rgba(96,72,150,0.3)', ink, sub, accent, radius: 44
+      });
+    }
+  }
+
   if (!isExport && w === W) {
     drawStorySafeOverlay(c);
   }
@@ -2355,13 +2664,17 @@ function sched() {
   requestAnimationFrame(() => { queued = false; render(); });
 }
 
+let thumbTimer = 0;
 function render() {
   drawCard(cv.getContext('2d'), W, S.style, false);
-  prev.src = cv.toDataURL('image/png');
-  thumbs.forEach((o, i) => {
-    drawCard(o.k.getContext('2d'), 144, i, true);
-    o.b.classList.toggle('on', i === S.style);
-  });
+  prev.src = cv.toDataURL('image/webp', 0.92);
+  clearTimeout(thumbTimer);
+  thumbTimer = setTimeout(() => {
+    thumbs.forEach((o, i) => {
+      drawCard(o.k.getContext('2d'), 144, i, true);
+      o.b.classList.toggle('on', i === S.style);
+    });
+  }, 140);
 }
 
 document.addEventListener('input', e => {
