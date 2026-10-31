@@ -171,17 +171,23 @@ h1 {
   grid-template-columns: repeat(4, 1fr);
   gap: 8px;
 }
-.week-pills {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
 .week-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 6px;
 }
-.week-day { display: grid; gap: 4px; text-align: center; }
+.week-day {
+  display: grid;
+  gap: 6px;
+  justify-items: stretch;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  text-align: center;
+}
 .week-day span {
   font-size: 10.5px;
   color: var(--mut);
@@ -189,29 +195,27 @@ h1 {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.week-day input {
-  padding: 8px 2px;
-  text-align: center;
-  font-size: 13px;
-  border-radius: 10px;
-  direction: ltr;
+.wd-check {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 11px;
   border: 1px solid var(--edge);
   background: rgba(0, 0, 0, 0.35);
-  color: #fff;
-  font-family: inherit;
-  outline: none;
-  width: 100%;
-  min-width: 0;
+  font-size: 15px;
+  font-weight: 800;
+  color: transparent;
+  transition: background .15s, border-color .15s, color .15s;
 }
-.week-day input:focus { border-color: rgba(255, 255, 255, 0.6); }
-.week-day input::-webkit-outer-spin-button,
-.week-day input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.week-day.on .wd-check {
+  background: rgba(125, 211, 252, 0.22);
+  border-color: rgba(125, 211, 252, 0.75);
+  color: #7dd3fc;
+}
 .week-day.today span { color: #7dd3fc; font-weight: 700; }
-.week-day.today input {
-  border-color: rgba(125, 211, 252, 0.7);
-  background: rgba(125, 211, 252, 0.14);
-}
-.sport-pill, .lang-pill, .week-pill {
+.week-day.today .wd-check { border-color: rgba(125, 211, 252, 0.55); }
+.sport-pill, .lang-pill {
   padding: 10px 6px;
   border-radius: 14px;
   border: 1px solid var(--edge);
@@ -224,7 +228,7 @@ h1 {
   text-align: center;
   transition: all 0.15s;
 }
-.sport-pill.active, .lang-pill.active, .week-pill.active {
+.sport-pill.active, .lang-pill.active {
   background: rgba(255, 255, 255, 0.2);
   color: #fff;
   border-color: rgba(255, 255, 255, 0.7);
@@ -552,22 +556,9 @@ input[type=range] { accent-color: #7dd3fc; width: 100%; }
       <label class="chk"><input type="checkbox" data-k="showWeek" checked> إظهار شريط نشاط الأسبوع</label>
     </div>
 
-    <label>شكل الشريط
-      <div class="week-pills">
-        <button type="button" class="week-pill active" data-w="bars">📊 أعمدة</button>
-        <button type="button" class="week-pill" data-w="line">📈 خط</button>
-        <button type="button" class="week-pill" data-w="dots">🔵 نقاط</button>
-      </div>
-    </label>
-
-    <div class="row">
-      <label>الهدف الأسبوعي<input type="text" data-k="weekGoal" value="300" placeholder="300"></label>
-      <label>وحدة الشريط<input type="text" data-k="weekUnit" class="rtl-in" value="دقيقة / MIN" placeholder="دقيقة / MIN"></label>
-    </div>
-
-    <label>القيم لكل يوم (الأحد ← السبت)</label>
+    <label>الأيام المكتملة (اضغط لتحديد اليوم)</label>
     <div class="week-grid" id="weekGrid"></div>
-    <p class="hint" style="margin:0;text-align:right;font-size:12px">تُلوّن خانة اليوم الحالي تلقائياً، والخط المتقطع يمثل متوسط هدفك اليومي.</p>
+    <p class="hint" style="margin:0;text-align:right;font-size:12px">كل يوم تحدده تظهر له علامة ✓ أسفل البطاقة، ويُبرز اليوم الحالي تلقائياً.</p>
   </section>
 
   <!-- قسم الخطوط والألوان والأبعاد -->
@@ -639,8 +630,7 @@ const I18N = {
     activityHdr: 'تفاصيل التمرين / Activity Summary',
     hrGraphTitle: 'منحنى نبض القلب / Heart Rate',
     weekHdr: 'نشاط الأسبوع / WEEKLY ACTIVITY',
-    days: ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'],
-    unitMin: 'دقيقة / MIN'
+    days: ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت']
   },
   ar: {
     sports: {
@@ -664,8 +654,7 @@ const I18N = {
     activityHdr: 'ملخص الأداء والنبض',
     hrGraphTitle: 'مخطط نبض القلب',
     weekHdr: 'نشاط الأسبوع',
-    days: ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'],
-    unitMin: 'دقيقة'
+    days: ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت']
   },
   en: {
     sports: {
@@ -689,8 +678,7 @@ const I18N = {
     activityHdr: 'Recent Activity & Telemetry',
     hrGraphTitle: 'Heart Rate Trend',
     weekHdr: 'WEEKLY ACTIVITY',
-    days: ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'],
-    unitMin: 'MIN'
+    days: ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
   }
 };
 
@@ -715,10 +703,7 @@ const S = {
   transparent: false,
   showSafeGuide: false,
   showWeek: true,
-  weekStyle: 'bars',
-  week: [42, 0, 58, 35, 76, 0, 51],
-  weekGoal: 300,
-  weekUnit: 'دقيقة / MIN',
+  weekDone: [true, false, true, true, true, false, true],
   bg: null,
   bgVer: 0,
   route: [],
@@ -774,12 +759,6 @@ function applyLanguage(lang) {
   S.muscleTag = sp.badge;
   document.querySelector('[data-k="muscleTag"]').value = S.muscleTag;
 
-  const wkUnitInput = document.querySelector('[data-k="weekUnit"]');
-  if (wkUnitInput && Object.keys(I18N).some(k => I18N[k].unitMin === S.weekUnit)) {
-    S.weekUnit = dict.unitMin;
-    wkUnitInput.value = S.weekUnit;
-  }
-
   S.stats.forEach(st => {
     if (st.id === 'pace') {
       st.label = sp.paceLbl;
@@ -802,39 +781,31 @@ document.querySelectorAll('.lang-pill').forEach(btn => {
   btn.onclick = () => applyLanguage(btn.dataset.lang);
 });
 
-/* بناء حقول أيام الأسبوع */
+/* بناء أزرار أيام الأسبوع */
 function buildWeekGrid() {
   const box = $('weekGrid');
   if (!box) return;
   const days = (I18N[S.lang] || I18N.bi).days;
   const today = new Date().getDay();
   box.innerHTML = '';
-  S.week.forEach((v, i) => {
-    const wrap = document.createElement('label');
-    wrap.className = 'week-day' + (i === today ? ' today' : '');
+  S.weekDone.forEach((on, i) => {
+    const wrap = document.createElement('button');
+    wrap.type = 'button';
+    wrap.className = 'week-day' + (i === today ? ' today' : '') + (on ? ' on' : '');
     const sp = document.createElement('span');
     sp.textContent = days[i];
-    const inp = document.createElement('input');
-    inp.type = 'number';
-    inp.min = '0';
-    inp.max = '1440';
-    inp.value = v;
-    inp.oninput = e => {
-      S.week[i] = Math.max(0, Math.min(1440, +e.target.value || 0));
+    const ck = document.createElement('b');
+    ck.className = 'wd-check';
+    ck.textContent = '✓';
+    wrap.append(sp, ck);
+    wrap.onclick = () => {
+      S.weekDone[i] = !S.weekDone[i];
+      wrap.classList.toggle('on', S.weekDone[i]);
       sched();
     };
-    wrap.append(sp, inp);
     box.appendChild(wrap);
   });
 }
-
-document.querySelectorAll('.week-pill').forEach(btn => {
-  btn.onclick = () => {
-    S.weekStyle = btn.dataset.w;
-    document.querySelectorAll('.week-pill').forEach(x => x.classList.toggle('active', x.dataset.w === S.weekStyle));
-    sched();
-  };
-});
 
 /* بناء واجهة التحكم بالإحصائيات */
 function renderStatsManager() {
@@ -1317,7 +1288,6 @@ function drawWeekCard(c, x, y, w, h, o = {}) {
   const mode = o.fill || 'glass';
   const dict = I18N[S.lang];
   const days = dict.days || I18N.bi.days;
-  const unit = (S.weekUnit || '').trim();
 
   if (mode === 'glass') drawFrostedGlassWidget(c, x, y, w, h, o.radius || 42, 0.03);
   else if (mode === 'solid') drawSoftCard(c, x, y, w, h, o.radius || 42, o);
@@ -1333,9 +1303,8 @@ function drawWeekCard(c, x, y, w, h, o = {}) {
   }
 
   const pad = o.pad || 36;
-  const vals = S.week.map(v => Math.max(0, +v || 0));
-  const total = vals.reduce((a, b) => a + b, 0);
-  const goal = Math.max(0, +S.weekGoal || 0);
+  const done = (S.weekDone || []).map(Boolean);
+  const total = done.filter(Boolean).length;
   const today = new Date().getDay();
 
   const hdrY = y + 40;
@@ -1348,160 +1317,63 @@ function drawWeekCard(c, x, y, w, h, o = {}) {
   c.fill();
   c.restore();
 
-  txt(c, dict.weekHdr, x + pad + 22, hdrY, 23, 700, ink, 'left', S.titleFont, w * 0.56);
-  const sumStr = goal > 0 ? `${total} / ${goal} ${unit}`.trim() : `${total} ${unit}`.trim();
-  txt(c, sumStr, x + w - pad, hdrY, 21, 700, sub, 'right', S.numFont, w * 0.42);
-
-  const pgY = hdrY + 15;
-  const pgW = w - pad * 2;
-  rr(c, x + pad, pgY, pgW, 4, 2);
-  c.fillStyle = hexA(ink, 0.15);
-  c.fill();
-  if (goal > 0) {
-    const pw = Math.max(6, Math.min(1, total / goal) * pgW);
-    rr(c, x + pad, pgY, pw, 4, 2);
-    c.fillStyle = accent;
-    c.fill();
-  }
-
-  const chartTop = y + 82;
-  const chartBot = y + h - 44;
-  const chartH = Math.max(30, chartBot - chartTop);
-  const avail = w - pad * 2 - 16;
-  const colW = avail / 7;
-  const maxV = Math.max(...vals, 1);
-  const baseX = x + pad + 8;
+  txt(c, dict.weekHdr, x + pad + 22, hdrY, 23, 700, ink, 'left', S.titleFont, w * 0.58);
+  txt(c, `${total} / 7`, x + w - pad, hdrY, 21, 700, sub, 'right', S.numFont, w * 0.24);
 
   c.fillStyle = hexA(ink, 0.14);
-  c.fillRect(x + pad, chartBot, pgW, 1.5);
+  c.fillRect(x + pad, hdrY + 16, w - pad * 2, 1.5);
 
-  if (goal > 0) {
-    const avg = goal / 7;
-    if (avg <= maxV * 1.2) {
-      const gy = chartBot - (avg / maxV) * chartH;
+  const colW = (w - pad * 2) / 7;
+  const cy = y + h - 50;
+  const r = Math.min(22, colW * 0.3);
+  const checkInk = readableOn(accent);
+
+  for (let i = 0; i < 7; i++) {
+    const cx = x + pad + (i + 0.5) * colW;
+    const isToday = i === today;
+    if (done[i]) {
       c.save();
-      c.setLineDash([7, 9]);
-      c.strokeStyle = hexA(ink, 0.28);
-      c.lineWidth = 1.5;
+      c.shadowColor = hexA(accent, 0.6);
+      c.shadowBlur = isToday ? 16 : 8;
       c.beginPath();
-      c.moveTo(x + pad, gy);
-      c.lineTo(x + pad + pgW, gy);
+      c.arc(cx, cy, r, 0, Math.PI * 2);
+      c.fillStyle = accent;
+      c.fill();
+      c.restore();
+
+      c.save();
+      c.beginPath();
+      c.moveTo(cx - r * 0.4, cy + r * 0.02);
+      c.lineTo(cx - r * 0.1, cy + r * 0.32);
+      c.lineTo(cx + r * 0.44, cy - r * 0.3);
+      c.strokeStyle = checkInk;
+      c.lineWidth = Math.max(3, r * 0.18);
+      c.lineCap = 'round';
+      c.lineJoin = 'round';
       c.stroke();
       c.restore();
+    } else {
+      c.beginPath();
+      c.arc(cx, cy, r, 0, Math.PI * 2);
+      c.fillStyle = hexA(ink, 0.06);
+      c.fill();
+      c.beginPath();
+      c.arc(cx, cy, r, 0, Math.PI * 2);
+      c.strokeStyle = hexA(ink, 0.32);
+      c.lineWidth = 1.6;
+      c.stroke();
     }
-  }
 
-  const px = i => baseX + (i + 0.5) * colW;
-  const py = i => chartBot - (vals[i] / maxV) * chartH;
-
-  if (S.weekStyle === 'line') {
-    const pyL = i => chartBot - (vals[i] / maxV) * (chartH - 28);
-    const pts = vals.map((v, i) => [px(i), pyL(i)]);
-    c.save();
-    c.beginPath();
-    pts.forEach(([a, b], i) => i ? c.lineTo(a, b) : c.moveTo(a, b));
-    c.lineTo(pts[6][0], chartBot);
-    c.lineTo(pts[0][0], chartBot);
-    c.closePath();
-    const g = c.createLinearGradient(0, chartTop, 0, chartBot);
-    g.addColorStop(0, hexA(accent, 0.38));
-    g.addColorStop(1, hexA(accent, 0.02));
-    c.fillStyle = g;
-    c.fill();
-    c.restore();
-
-    c.save();
-    c.beginPath();
-    pts.forEach(([a, b], i) => i ? c.lineTo(a, b) : c.moveTo(a, b));
-    c.strokeStyle = accent;
-    c.lineWidth = 4;
-    c.lineJoin = 'round';
-    c.lineCap = 'round';
-    c.shadowColor = hexA(accent, 0.8);
-    c.shadowBlur = 14;
-    c.stroke();
-    c.restore();
-
-    pts.forEach(([a, b], i) => {
+    if (isToday) {
       c.beginPath();
-      c.arc(a, b, i === today ? 6.5 : 4.5, 0, Math.PI * 2);
-      c.fillStyle = i === today ? accent : hexA(ink, 0.8);
-      c.fill();
-      if (i === today) {
-        c.beginPath();
-        c.arc(a, b, 10, 0, Math.PI * 2);
-        c.strokeStyle = hexA(accent, 0.85);
-        c.lineWidth = 2;
-        c.stroke();
-      }
-      if (vals[i] > 0) {
-        txt(c, String(vals[i]), a, b - 14, 16, 600, i === today ? accent : sub, 'center', S.numFont, colW - 2);
-      }
-    });
-  } else if (S.weekStyle === 'dots') {
-    c.save();
-    c.beginPath();
-    vals.forEach((v, i) => {
-      const a = px(i), b = chartBot - 6 - (v / maxV) * (chartH - 12);
-      i ? c.lineTo(a, b) : c.moveTo(a, b);
-    });
-    c.strokeStyle = hexA(accent, 0.45);
-    c.lineWidth = 2.5;
-    c.lineJoin = 'round';
-    c.stroke();
-    c.restore();
+      c.arc(cx, cy, r + 6, 0, Math.PI * 2);
+      c.strokeStyle = hexA(accent, 0.9);
+      c.lineWidth = 2;
+      c.stroke();
+    }
 
-    vals.forEach((v, i) => {
-      const r = 4 + (v / maxV) * 12;
-      const a = px(i), b = chartBot - 6 - Math.max(r, (v / maxV) * (chartH - 12));
-      c.beginPath();
-      c.arc(a, b, r, 0, Math.PI * 2);
-      c.fillStyle = hexA(accent, i === today ? 0.95 : 0.28 + 0.45 * (v / maxV));
-      c.fill();
-      if (i === today) {
-        c.beginPath();
-        c.arc(a, b, r + 4, 0, Math.PI * 2);
-        c.strokeStyle = hexA(accent, 0.7);
-        c.lineWidth = 1.8;
-        c.stroke();
-      }
-    });
-  } else {
-    const barW = Math.min(26, colW * 0.46);
-    vals.forEach((v, i) => {
-      const bh = v > 0 ? Math.max(8, (v / maxV) * chartH) : 3;
-      const bx = px(i) - barW / 2;
-      const by = chartBot - bh;
-      const isToday = i === today;
-
-      c.save();
-      if (isToday) {
-        c.shadowColor = hexA(accent, 0.9);
-        c.shadowBlur = 16;
-      }
-      rr(c, bx, by, barW, bh, barW / 2);
-      const g = c.createLinearGradient(0, by, 0, chartBot);
-      if (isToday) {
-        g.addColorStop(0, accent);
-        g.addColorStop(1, hexA(accent, 0.35));
-      } else {
-        g.addColorStop(0, hexA(ink, v > 0 ? 0.55 : 0.2));
-        g.addColorStop(1, hexA(ink, 0.14));
-      }
-      c.fillStyle = g;
-      c.fill();
-      c.restore();
-
-      if (v > 0) {
-        txt(c, String(v), px(i), by - 10, 17, 600, isToday ? accent : sub, 'center', S.numFont, colW - 2);
-      }
-    });
+    txt(c, days[i] || '', cx, y + h - 13, 19, isToday ? 700 : 500, isToday ? accent : sub, 'center', S.titleFont, colW - 2);
   }
-
-  const lblY = y + h - 14;
-  vals.forEach((v, i) => {
-    txt(c, days[i] || '', px(i), lblY, 19, i === today ? 700 : 500, i === today ? accent : sub, 'center', S.titleFont, colW - 2);
-  });
 }
 
 /* =========================================================================
@@ -1741,7 +1613,7 @@ function drawCard(c, w, st, isExport = false) {
   const TOP = 235 + (+S.safeShift || 0);
   const BOT = 1710;
 
-  const WEEK_H = 216;
+  const WEEK_H = 150;
   const weekBottom = BOT - 20;
   const weekY = weekBottom - WEEK_H;
   const contentBot = S.showWeek ? weekY - 22 : BOT;
@@ -1850,14 +1722,16 @@ function drawCard(c, w, st, isExport = false) {
       let rowsToShow = remainingStats.slice(0, wide ? 2 : 1);
       if (avail < 170) rowsToShow = [];
       const rowStep = 115;
-      const botH = Math.min(190 + (rowsToShow.length - 1) * rowStep, avail);
+      const needH = 190 + (rowsToShow.length - 1) * rowStep;
+      const botH = Math.min(needH + 40, avail);
 
       if (rowsToShow.length) {
         drawFrostedGlassWidget(c, padX, botY, fullW, botH, 46, 0.03);
         txt(c, M.dict.activityHdr, padX + 44, botY + 60, 27, 600, 'rgba(255,255,255,0.92)', 'left', S.titleFont, fullW - 90);
 
+        const rowsTop = botY + 84 + Math.max(0, (botH - 96 - ((rowsToShow.length - 1) * rowStep + 80)) / 2);
         rowsToShow.forEach((item, idx) => {
-          const ry = botY + 84 + idx * rowStep;
+          const ry = rowsTop + idx * rowStep;
           if (idx > 0) {
             c.fillStyle = 'rgba(255, 255, 255, 0.18)';
             c.fillRect(padX + 44, ry - 10, fullW - 88, 1.5);
@@ -1988,7 +1862,7 @@ function drawCard(c, w, st, isExport = false) {
   // =========================================================================
   if (st === 3) {
     const padX = 65, fullW = W - padX * 2;
-    const dockH = S.showWeek ? 890 : 670;
+    const dockH = S.showWeek ? 790 : 670;
     const boxY = BOT - dockH;
 
     drawFrostedGlassWidget(c, padX, boxY, fullW, dockH, 52, 0.05);
@@ -2020,7 +1894,7 @@ function drawCard(c, w, st, isExport = false) {
     });
 
     if (S.showWeek) {
-      drawWeekCard(c, padX + 24, boxY + 605, fullW - 48, WEEK_H, {
+      drawWeekCard(c, padX + 24, boxY + 616, fullW - 48, WEEK_H, {
         fill: 'flat', ink: '#ffffff', accent: S.accent, pad: 26, rule: true
       });
     }
@@ -2266,7 +2140,7 @@ function drawCard(c, w, st, isExport = false) {
     }
 
     if (M.hasChart) {
-      if (heroH > 660) {
+      if (heroH > 760) {
         drawActiveChart(c, padX + 46, heroY + 280, fullW - 92, Math.max(200, heroH - 470), { chartAccent: accent, lineCol: accentInk });
       } else {
         drawActiveChart(c, padX + 420, heroY + 84, 460, Math.min(320, heroH - 270), { chartAccent: accent, lineCol: accentInk });
@@ -2352,11 +2226,12 @@ function drawCard(c, w, st, isExport = false) {
     const stats = M.activeStats.slice(0, 6);
     const rows = Math.ceil(stats.length / 2);
     const bottomLimit = S.showWeek ? weekY - 20 : contentBot;
-    const rowH = Math.max(92, Math.min(170, (bottomLimit - y - 10) / Math.max(1, rows)));
+    const rowH = Math.max(92, Math.min(200, (bottomLimit - y - 10) / Math.max(1, rows)));
+    const rowOff = Math.max(0, (bottomLimit - y - rows * rowH) / 2);
     stats.forEach((it, idx) => {
       const r = Math.floor(idx / 2), cl = idx % 2;
       const cx = padX + cl * (fullW / 2);
-      const y0 = y + r * rowH;
+      const y0 = y + rowOff + r * rowH;
       txt(c, it.label, cx, y0 + 26, 21, 500, 'rgba(255,255,255,0.45)', 'left', S.titleFont, fullW / 2 - 30);
       txt(c, `${it.val} ${it.unit}`.trim(), cx, y0 + 74, 44, 700, '#ffffff', 'left', S.numFont, fullW / 2 - 30);
       c.fillStyle = 'rgba(255,255,255,0.08)';
