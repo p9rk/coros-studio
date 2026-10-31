@@ -10,14 +10,14 @@
 <title>COROS Activity Studio Pro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Bebas+Neue&family=Chakra+Petch:ital,wght@0,600;0,700;1,700&family=Inter:wght@400;600;700;900&family=JetBrains+Mono:wght@500;700;800&family=Oswald:wght@500;700&family=Space+Grotesk:wght@500;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@500;700;800;900&family=Archivo+Black&family=Bebas+Neue&family=Cairo:wght@600;700;800;900&family=Chakra+Petch:ital,wght@0,600;0,700;1,700&family=Changa:wght@600;700;800&family=IBM+Plex+Sans+Arabic:wght@500;700&family=Inter:wght@400;600;700;900&family=JetBrains+Mono:wght@500;700;800&family=Oswald:wght@500;700&family=Readex+Pro:wght@500;700&family=Space+Grotesk:wght@500;700&family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root {
   --ink: #ffffff;
   --mut: rgba(255, 255, 255, 0.55);
-  --edge: rgba(255, 255, 255, 0.12);
-  --edge-bright: rgba(255, 255, 255, 0.28);
-  --glass-bg: linear-gradient(145deg, rgba(22, 22, 26, 0.78), rgba(8, 8, 10, 0.94));
+  --edge: rgba(255, 255, 255, 0.14);
+  --edge-bright: rgba(255, 255, 255, 0.32);
+  --glass-bg: linear-gradient(145deg, rgba(26, 26, 32, 0.72), rgba(10, 10, 14, 0.88));
   --coros: #ff5500;
   --ok: #00e054;
   color-scheme: dark;
@@ -30,7 +30,7 @@ html { background: #030304; }
 body {
   margin: 0;
   color: var(--ink);
-  font: 15px/1.5 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Tajawal", sans-serif;
+  font: 15px/1.5 "Readex Pro", "Tajawal", -apple-system, BlinkMacSystemFont, sans-serif;
   overflow-x: hidden;
   min-height: 100vh;
 }
@@ -40,8 +40,9 @@ body::before {
   inset: 0;
   z-index: -1;
   background: 
-    radial-gradient(circle at 50% 0%, rgba(255, 85, 0, 0.08) 0%, transparent 55%),
-    radial-gradient(circle at 15% 85%, rgba(255, 255, 255, 0.03) 0%, transparent 45%),
+    radial-gradient(circle at 50% 0%, rgba(255, 85, 0, 0.09) 0%, transparent 55%),
+    radial-gradient(circle at 80% 30%, rgba(56, 189, 248, 0.05) 0%, transparent 45%),
+    radial-gradient(circle at 15% 85%, rgba(255, 255, 255, 0.04) 0%, transparent 45%),
     #030304;
 }
 main {
@@ -71,18 +72,19 @@ h1 {
 }
 [hidden] { display: none !important; }
 
-/* البطاقات الزجاجية السوداء */
+/* البطاقات الزجاجية بأسلوب Liquid Glass */
 .panel, .th {
   background: var(--glass-bg);
-  -webkit-backdrop-filter: blur(28px) saturate(160%);
-  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  backdrop-filter: blur(30px) saturate(180%);
   border: 1px solid var(--edge);
   box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 1px 1px rgba(255, 255, 255, 0.25),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.05),
     0 14px 36px rgba(0, 0, 0, 0.78);
 }
 .panel {
-  border-radius: 26px;
+  border-radius: 28px;
   padding: 16px;
   margin-top: 14px;
   display: grid;
@@ -94,10 +96,10 @@ h1 {
   width: min(64vw, 285px);
   aspect-ratio: 9/16;
   margin: 0 auto;
-  border-radius: 24px;
+  border-radius: 26px;
   overflow: hidden;
   border: 1px solid var(--edge-bright);
-  box-shadow: 0 22px 55px rgba(0, 0, 0, 0.9);
+  box-shadow: 0 22px 55px rgba(0, 0, 0, 0.9), inset 0 1px 1px rgba(255,255,255,0.3);
   background-color: #08080a;
   background-image: 
     linear-gradient(45deg, #121216 25%, transparent 25%), 
@@ -144,7 +146,7 @@ h1 {
 .th.on {
   color: #fff;
   border-color: var(--coros);
-  box-shadow: 0 0 0 2px rgba(255, 85, 0, 0.3), 0 10px 24px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 0 0 2px rgba(255, 85, 0, 0.35), 0 10px 24px rgba(0, 0, 0, 0.6);
   transform: translateY(-2px);
 }
 .th canvas {
@@ -160,26 +162,31 @@ h1 {
   font-weight: 600;
 }
 
-/* أزرار نوع الرياضة */
+/* أزرار اللغة ونوع الرياضة */
+.lang-pills {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr 1fr;
+  gap: 8px;
+}
 .sport-pills {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 8px;
 }
-.sport-pill {
+.sport-pill, .lang-pill {
   padding: 10px 6px;
   border-radius: 14px;
   border: 1px solid var(--edge);
   background: rgba(255, 255, 255, 0.04);
   color: var(--mut);
   font: inherit;
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 700;
   cursor: pointer;
   text-align: center;
   transition: all 0.15s;
 }
-.sport-pill.active {
+.sport-pill.active, .lang-pill.active {
   background: rgba(255, 85, 0, 0.18);
   color: #fff;
   border-color: var(--coros);
@@ -214,7 +221,7 @@ input[type=text], input[type=date], select {
 }
 select { direction: rtl; text-align: right; }
 select option { background: #121214; color: #fff; }
-input[data-k="title"], input[data-k="tag"], input[data-k="muscleTag"], .rtl-in {
+input[data-k="title"], input[data-k="tag"], input[data-k="muscleTag"], input[data-k="mainUnit"], .rtl-in {
   direction: auto !important;
   text-align: start !important;
 }
@@ -319,13 +326,13 @@ input[type=range] { accent-color: var(--coros); width: 100%; }
 .stat-fields {
   flex: 1;
   display: grid;
-  grid-template-columns: 1.15fr 1fr 0.7fr;
+  grid-template-columns: 1.25fr 0.85fr 0.85fr;
   gap: 6px;
   min-width: 0;
 }
 .stat-fields input {
   padding: 8px 9px;
-  font-size: 13.5px;
+  font-size: 13px;
   border-radius: 10px;
 }
 .stat-del {
@@ -408,7 +415,7 @@ input[type=range] { accent-color: var(--coros); width: 100%; }
   <div class="prev-wrap">
     <img id="prev" alt="معاينة بطاقة التمرين">
   </div>
-  <p class="hint">جميع الثيمات مضبوطة بأبعاد آمنة للستوري (لا يغطيها الأفتار أو اليوزر بالأعلى)</p>
+  <p class="hint">ثيمات iOS Liquid Glass + دعم اللغتين معاً (جلسة / SET) + أبعاد آمنة للستوري</p>
   <div id="strip"></div>
 
   <p id="msg"></p>
@@ -435,8 +442,15 @@ input[type=range] { accent-color: var(--coros); width: 100%; }
     </div>
   </section>
 
-  <!-- قسم نوع الرياضة والرقم الرئيسي -->
+  <!-- قسم اللغة ونوع الرياضة والرقم الرئيسي -->
   <section class="panel">
+    <label>لغة البطاقة (عربي + إنجليزي معاً / عربي / English)</label>
+    <div class="lang-pills">
+      <button type="button" class="lang-pill active" data-lang="bi">🌐 اللغتين (جلسة/SET)</button>
+      <button type="button" class="lang-pill" data-lang="ar">🇸🇦 عربي بالكامل</button>
+      <button type="button" class="lang-pill" data-lang="en">🇬🇧 English</button>
+    </div>
+
     <label>نوع التمرين (يغير العلامة والرسومات تلقائياً)</label>
     <div class="sport-pills" id="sportPills">
       <button type="button" class="sport-pill active" data-sport="run">🏃 جري</button>
@@ -446,13 +460,13 @@ input[type=range] { accent-color: var(--coros); width: 100%; }
     </div>
 
     <div class="row">
-      <label>عنوان التمرين<input type="text" data-k="title" value="" placeholder="Upper Body / جري مسائي"></label>
+      <label>عنوان التمرين<input type="text" data-k="title" value="" placeholder="تمرين حديد / STRENGTH"></label>
       <label>الجهاز / الكابتن<input type="text" data-k="tag" value="COROS PACE 4" placeholder="COROS PACE 4"></label>
     </div>
 
     <!-- خيار خاص يظهر لتوضيح تمرين الحديد والعضلات المستهدفة -->
     <div id="gymExtraRow" class="row" hidden>
-      <label>العضلات المستهدفة (تظهر كعلامة)<input type="text" data-k="muscleTag" value="UPPER / STRENGTH" placeholder="UPPER BODY / PULL & PUSH"></label>
+      <label>العضلات المستهدفة (تظهر كعلامة)<input type="text" data-k="muscleTag" value="تمرين حديد / STRENGTH" placeholder="علوي / UPPER BODY"></label>
       <label>شكل علامة الحديد بالبطاقة
         <select data-k="gymBadgeStyle">
           <option value="dumbbell">🏋️ أيقونة دامبل + شارة القوة</option>
@@ -463,8 +477,8 @@ input[type=range] { accent-color: var(--coros); width: 100%; }
     </div>
 
     <div class="row-3">
-      <label id="lblMainStat">الرقم الرئيسي (المسافة/الجلسات)<input type="text" data-k="dist" value="" placeholder="5.02 أو 18"></label>
-      <label>وحدة الرقم الرئيسي<input type="text" data-k="mainUnit" value="KM" placeholder="KM / SETS"></label>
+      <label id="lblMainStat">الرقم الرئيسي (المسافة/الجلسات)<input type="text" data-k="dist" value="" placeholder="5.02 أو 17"></label>
+      <label>وحدة الرقم الرئيسي<input type="text" data-k="mainUnit" value="كم / KM" class="rtl-in" placeholder="كم/KM أو جلسة/SET"></label>
       <label>تاريخ التمرين<input type="date" data-k="date"></label>
     </div>
     <div class="chk-row">
@@ -488,13 +502,13 @@ input[type=range] { accent-color: var(--coros); width: 100%; }
     <div>
       <label style="margin-bottom:6px">إضافة سريعة لخانات الحديد و COROS الشهيرة:</label>
       <div class="quick-chips" id="quickChips">
-        <button type="button" class="chip-btn gym-chip" data-l="TOTAL SETS" data-u="SETS" data-v="18">🏋️ عدد الجلسات (Sets)</button>
-        <button type="button" class="chip-btn gym-chip" data-l="TOTAL REPS" data-u="REPS" data-v="164">🏋️ مجموع التكرارات (Reps)</button>
-        <button type="button" class="chip-btn gym-chip" data-l="VOLUME" data-u="KG" data-v="4850">🏋️ الحجم العضلي (Volume)</button>
-        <button type="button" class="chip-btn" data-l="CADENCE" data-u="SPM" data-v="172">+ الكادينس (Cadence)</button>
-        <button type="button" class="chip-btn" data-l="AVG POWER" data-u="W" data-v="245">+ الباور (Power)</button>
-        <button type="button" class="chip-btn" data-l="MAX HR" data-u="BPM" data-v="184">+ أقصى نبض (Max HR)</button>
-        <button type="button" class="chip-btn" data-l="AEROBIC TE" data-u="" data-v="3.6">+ التأثير الهوائي (TE)</button>
+        <button type="button" class="chip-btn gym-chip" data-id="sets" data-v="17">🏋️ الجلسات (جلسة/SET)</button>
+        <button type="button" class="chip-btn gym-chip" data-id="reps" data-v="164">🏋️ العدات (عدة/REP)</button>
+        <button type="button" class="chip-btn gym-chip" data-id="vol" data-v="4850">🏋️ الحجم (كجم/KG)</button>
+        <button type="button" class="chip-btn" data-id="cad" data-v="172">+ الكادينس (Cadence)</button>
+        <button type="button" class="chip-btn" data-id="pwr" data-v="245">+ الباور (Power)</button>
+        <button type="button" class="chip-btn" data-id="maxhr" data-v="184">+ أقصى نبض (Max HR)</button>
+        <button type="button" class="chip-btn" data-id="te" data-v="3.6">+ التأثير الهوائي (TE)</button>
       </div>
     </div>
   </section>
@@ -503,25 +517,27 @@ input[type=range] { accent-color: var(--coros); width: 100%; }
   <section class="panel">
     <div class="row">
       <label>خط الأرقام والإحصائيات
-        <select data-k="numFont">
-          <option value="'Chakra Petch', monospace">Chakra Petch (رياضي رقمي - COROS)</option>
-          <option value="'Bebas Neue', sans-serif">Bebas Neue (طولي ضخم - ماراثون)</option>
+        <select data-k="numFont" id="numFontSel">
+          <option value="'Cairo', 'Chakra Petch', sans-serif">Cairo + Chakra (عربي/رقمي فخم)</option>
+          <option value="'Readex Pro', 'Inter', sans-serif">Readex Pro (زجاجي عصري نظيف)</option>
+          <option value="'Changa', 'Chakra Petch', sans-serif">Changa (رياضي عربي مربع)</option>
+          <option value="'Alexandria', sans-serif">Alexandria (عربي هندسي عريض)</option>
+          <option value="'Tajawal', sans-serif">Tajawal (ناعم ومتناسق)</option>
+          <option value="'Chakra Petch', monospace">Chakra Petch (رقمي COROS)</option>
+          <option value="'Bebas Neue', 'Cairo', sans-serif">Bebas Neue (طولي ضخم)</option>
           <option value="'JetBrains Mono', monospace">JetBrains Mono (تقني هندسي)</option>
-          <option value="'Oswald', sans-serif">Oswald (صلب وقوي للحديد)</option>
-          <option value="'Archivo Black', sans-serif">Archivo Black (عريض وثقيل)</option>
-          <option value="'Space Grotesk', sans-serif">Space Grotesk (عصري نظيف)</option>
-          <option value="'Inter', sans-serif">Inter (كلاسيكي أنيق)</option>
-          <option value="'Tajawal', sans-serif">Tajawal (عربي متناسق)</option>
+          <option value="'Oswald', 'Cairo', sans-serif">Oswald (صلب وقوي للحديد)</option>
         </select>
       </label>
-      <label>خط العناوين والتسميات
-        <select data-k="titleFont">
-          <option value="'Inter', 'Tajawal', sans-serif">Inter + Tajawal (افتراضي أنيق)</option>
-          <option value="'Chakra Petch', 'Tajawal', sans-serif">Chakra Petch (رياضي حاد)</option>
-          <option value="'Bebas Neue', 'Tajawal', sans-serif">Bebas Neue (بوستر سينمائي)</option>
-          <option value="'Oswald', 'Tajawal', sans-serif">Oswald (نادي الحديد)</option>
-          <option value="'Archivo Black', 'Tajawal', sans-serif">Archivo Black (عريض جداً)</option>
-          <option value="'Space Grotesk', 'Tajawal', sans-serif">Space Grotesk (حديث)</option>
+      <label>خط العناوين والمسميات
+        <select data-k="titleFont" id="titleFontSel">
+          <option value="'Cairo', 'Inter', sans-serif">Cairo (القاهرة - عربي احترافي)</option>
+          <option value="'Readex Pro', 'Inter', sans-serif">Readex Pro (أسلوب iOS الحديث)</option>
+          <option value="'Changa', 'Chakra Petch', sans-serif">Changa (رياضي قوي للحديد)</option>
+          <option value="'Alexandria', 'Inter', sans-serif">Alexandria (الإسكندرية - عريض)</option>
+          <option value="'IBM Plex Sans Arabic', sans-serif">IBM Plex Arabic (تقني رسمي)</option>
+          <option value="'Tajawal', 'Inter', sans-serif">Tajawal (تجوال - كلاسيكي)</option>
+          <option value="'Chakra Petch', 'Cairo', sans-serif">Chakra Petch (مضلع حاد)</option>
         </select>
       </label>
     </div>
@@ -529,7 +545,7 @@ input[type=range] { accent-color: var(--coros); width: 100%; }
     <div class="row-3">
       <label>لون الثيم الأساسي<input type="color" data-k="accent" value="#ff5500"></label>
       <label>لون النصوص<input type="color" data-k="txt" value="#ffffff"></label>
-      <label>تغميق الخلفية<input type="range" min="0" max="90" value="45" data-k="dark"></label>
+      <label>تغميق الخلفية<input type="range" min="0" max="90" value="35" data-k="dark"></label>
     </div>
 
     <label>إزاحة المحتوى للأسفل (لبعد إضافي عن أفتار ويوزر الستوري)<input type="range" min="0" max="160" value="40" data-k="safeShift"></label>
@@ -548,45 +564,124 @@ input[type=range] { accent-color: var(--coros); width: 100%; }
 <script>
 const W = 1080, H = 1920;
 
+/* قواميس الـ 3 أوضاع للغة: اللغتين معاً (bi) / العربية الكاملة (ar) / الإنجليزية (en) */
+const I18N = {
+  bi: {
+    sports: {
+      run:  { mainLbl: 'المسافة / DISTANCE', mainUnit: 'كم / KM', defTitle: 'جري خارجي / OUTDOOR RUN', badge: 'جري / RUN', paceLbl: 'البيس / PACE', paceUnit: '/كم · KM', elevLbl: 'الارتفاع / ELEV', elevUnit: 'م / M' },
+      bike: { mainLbl: 'المسافة / DISTANCE', mainUnit: 'كم / KM', defTitle: 'دراجة / ROAD CYCLING', badge: 'دراجة / BIKE', paceLbl: 'السرعة / SPEED', paceUnit: 'كم/س · KPH', elevLbl: 'الارتفاع / ELEV', elevUnit: 'م / M' },
+      gym:  { mainLbl: 'الجلسات / TOTAL SETS', mainUnit: 'جلسة / SET', defTitle: 'تمرين حديد / STRENGTH', badge: 'حديد / GYM', paceLbl: 'العدات / REPS', paceUnit: 'عدة / REP', elevLbl: 'الحجم / VOLUME', elevUnit: 'كجم / KG', muscleDef: 'تمرين حديد / STRENGTH' },
+      rope: { mainLbl: 'القفزات / JUMPS', mainUnit: 'قفزة / JUMP', defTitle: 'نط حبل / JUMP ROPE', badge: 'حبل / ROPE', paceLbl: 'السرعة / RATE', paceUnit: 'ق/د · JPM', elevLbl: 'أعلى تتابع / STREAK', elevUnit: 'قفزة / JUMP' }
+    },
+    stats: {
+      time: { label: 'الوقت / TIME', unit: '' },
+      pace: { label: 'البيس / PACE', unit: '/كم · KM' },
+      hr:   { label: 'النبض / AVG HR', unit: 'ن/د · BPM' },
+      elev: { label: 'الارتفاع / ELEV', unit: 'م / M' },
+      cal:  { label: 'السعرات / CALORIES', unit: 'سعرة / KCAL' },
+      tl:   { label: 'حمل التدريب / LOAD', unit: 'TL' },
+      sets: { label: 'الجلسات / SETS', unit: 'جلسة / SET' },
+      reps: { label: 'العدات / REPS', unit: 'عدة / REP' },
+      vol:  { label: 'الحجم / VOLUME', unit: 'كجم / KG' },
+      cad:  { label: 'الإيقاع / CADENCE', unit: 'خ/د · SPM' },
+      pwr:  { label: 'الطاقة / POWER', unit: 'واط / W' },
+      maxhr:{ label: 'أقصى نبض / MAX HR', unit: 'ن/د · BPM' },
+      te:   { label: 'التأثير / AEROBIC TE', unit: 'TE' }
+    },
+    setsChartTitle: (n) => `شدة الجلسات / WORKOUT SETS (${n} جلسة / SET)`
+  },
+  ar: {
+    sports: {
+      run:  { mainLbl: 'المسافة', mainUnit: 'كم', defTitle: 'جري خارجي', badge: 'تمرين جري', paceLbl: 'متوسط البيس', paceUnit: '/كم', elevLbl: 'الارتفاع', elevUnit: 'م' },
+      bike: { mainLbl: 'المسافة', mainUnit: 'كم', defTitle: 'تدرّج هوائي', badge: 'تمرين دراجة', paceLbl: 'متوسط السرعة', paceUnit: 'كم/س', elevLbl: 'الارتفاع', elevUnit: 'م' },
+      gym:  { mainLbl: 'عدد الجلسات', mainUnit: 'جلسة', defTitle: 'تمرين حديد ومقاومة', badge: 'تمرين حديد', paceLbl: 'مجموع العدات', paceUnit: 'عدة', elevLbl: 'الحجم العضلي', elevUnit: 'كجم', muscleDef: 'تمرين حديد / قوة' },
+      rope: { mainLbl: 'إجمالي القفزات', mainUnit: 'قفزة', defTitle: 'تمرين نط حبل', badge: 'لياقة وحبل', paceLbl: 'سرعة القفز', paceUnit: 'ق/د', elevLbl: 'أعلى تتابع', elevUnit: 'قفزة' }
+    },
+    stats: {
+      time: { label: 'وقت التمرين', unit: '' },
+      pace: { label: 'متوسط البيس', unit: '/كم' },
+      hr:   { label: 'نبض القلب', unit: 'ن/د' },
+      elev: { label: 'الارتفاع', unit: 'م' },
+      cal:  { label: 'السعرات', unit: 'سعرة' },
+      tl:   { label: 'حمل التدريب', unit: 'TL' },
+      sets: { label: 'عدد الجلسات', unit: 'جلسة' },
+      reps: { label: 'مجموع العدات', unit: 'عدة' },
+      vol:  { label: 'الحجم العضلي', unit: 'كجم' },
+      cad:  { label: 'إيقاع الخطوة', unit: 'خ/د' },
+      pwr:  { label: 'متوسط الطاقة', unit: 'واط' },
+      maxhr:{ label: 'أقصى نبض', unit: 'ن/د' },
+      te:   { label: 'التأثير الهوائي', unit: '' }
+    },
+    setsChartTitle: (n) => `مخطط شدة الجلسات (${n} جلسة فعلية)`
+  },
+  en: {
+    sports: {
+      run:  { mainLbl: 'DISTANCE', mainUnit: 'KM', defTitle: 'OUTDOOR RUN', badge: 'RUN SESSION', paceLbl: 'AVG PACE', paceUnit: '/KM', elevLbl: 'ELEV GAIN', elevUnit: 'M' },
+      bike: { mainLbl: 'DISTANCE', mainUnit: 'KM', defTitle: 'ROAD CYCLING', badge: 'BIKE SESSION', paceLbl: 'AVG SPEED', paceUnit: 'KM/H', elevLbl: 'ELEV GAIN', elevUnit: 'M' },
+      gym:  { mainLbl: 'TOTAL SETS', mainUnit: 'SETS', defTitle: 'STRENGTH TRAINING', badge: 'STRENGTH', paceLbl: 'TOTAL REPS', paceUnit: 'REPS', elevLbl: 'VOLUME', elevUnit: 'KG', muscleDef: 'UPPER / STRENGTH' },
+      rope: { mainLbl: 'TOTAL JUMPS', mainUnit: 'JUMPS', defTitle: 'JUMP ROPE', badge: 'CARDIO ROPE', paceLbl: 'AVG RATE', paceUnit: 'J/MIN', elevLbl: 'MAX STREAK', elevUnit: 'JUMPS' }
+    },
+    stats: {
+      time: { label: 'WORKOUT TIME', unit: '' },
+      pace: { label: 'AVG PACE', unit: '/KM' },
+      hr:   { label: 'AVG HR', unit: 'BPM' },
+      elev: { label: 'ELEV GAIN', unit: 'M' },
+      cal:  { label: 'CALORIES', unit: 'KCAL' },
+      tl:   { label: 'TRAINING LOAD', unit: 'TL' },
+      sets: { label: 'TOTAL SETS', unit: 'SETS' },
+      reps: { label: 'TOTAL REPS', unit: 'REPS' },
+      vol:  { label: 'VOLUME', unit: 'KG' },
+      cad:  { label: 'CADENCE', unit: 'SPM' },
+      pwr:  { label: 'AVG POWER', unit: 'W' },
+      maxhr:{ label: 'MAX HR', unit: 'BPM' },
+      te:   { label: 'AEROBIC TE', unit: '' }
+    },
+    setsChartTitle: (n) => `WORKOUT SETS INTENSITY (${n} ACTIVE SETS)`
+  }
+};
+
 const S = {
+  lang: 'bi', // الافتراضي: اللغتين معاً (عربي / EN)
   sport: 'run',
   title: '',
   tag: 'COROS PACE 4',
-  muscleTag: 'UPPER / STRENGTH',
+  muscleTag: 'تمرين حديد / STRENGTH',
   gymBadgeStyle: 'dumbbell',
   dist: '',
-  mainLbl: 'DISTANCE',
-  mainUnit: 'KM',
+  mainLbl: 'المسافة / DISTANCE',
+  mainUnit: 'كم / KM',
   showMain: true,
   showSportIcon: true,
   date: '',
-  style: 0,
-  numFont: "'Chakra Petch', monospace",
-  titleFont: "'Inter', 'Tajawal', sans-serif",
+  style: 0, // الافتراضي: iOS Liquid Glass الجديد
+  numFont: "'Cairo', 'Chakra Petch', sans-serif",
+  titleFont: "'Cairo', 'Inter', sans-serif",
   accent: '#ff5500',
   txt: '#ffffff',
-  dark: 45,
-  safeShift: 40, // إزاحة إضافية لحماية الجزء العلوي من أفتار ويوزر الستوري
+  dark: 35,
+  safeShift: 40,
   transparent: false,
   showRoute: true,
   showBadge: true,
   showSafeGuide: false,
   bg: null,
   route: [],
-  setReps: [], // تكرارات الجلسات في تمرين الحديد لرسمها كأعمدة
+  setReps: [],
   stats: [
-    { id: 'time', label: 'TIME', val: '', unit: '', on: true },
-    { id: 'pace', label: 'AVG PACE', val: '', unit: '/KM', on: true },
-    { id: 'hr',   label: 'AVG HR', val: '', unit: 'BPM', on: true },
-    { id: 'elev', label: 'ELEV GAIN', val: '', unit: 'M', on: true },
-    { id: 'cal',  label: 'CALORIES', val: '', unit: 'KCAL', on: true },
-    { id: 'tl',   label: 'TRAINING LOAD', val: '', unit: 'TL', on: true }
+    { id: 'time', label: 'الوقت / TIME', val: '', unit: '', on: true },
+    { id: 'pace', label: 'البيس / PACE', val: '', unit: '/كم · KM', on: true },
+    { id: 'hr',   label: 'النبض / AVG HR', val: '', unit: 'ن/د · BPM', on: true },
+    { id: 'elev', label: 'الارتفاع / ELEV', val: '', unit: 'م / M', on: true },
+    { id: 'cal',  label: 'السعرات / CALORIES', val: '', unit: 'سعرة / KCAL', on: true },
+    { id: 'tl',   label: 'حمل التدريب / LOAD', val: '', unit: 'TL', on: true }
   ]
 };
 
 const styleNames = [
-  'COROS كلاسيك',
+  'iOS Liquid Glass 💧',
+  'كبسولات Liquid 💧',
   'بطاقة الحديد 🏋️',
+  'COROS كلاسيك',
   'عداد رقمي',
   'المسار المضيء',
   'كبسولة سترافا ✨',
@@ -601,15 +696,49 @@ const styleNames = [
 
 const cv = document.createElement('canvas');
 cv.width = W; cv.height = H;
+// كانفاس خلفي مضبب لمحاكاة انكسار الزجاج السائل الحقيقي (iOS Liquid Glass Refraction)
+const blurCv = document.createElement('canvas');
+blurCv.width = 270; blurCv.height = 480;
+
 const $ = id => document.getElementById(id);
 const prev = $('prev'), strip = $('strip'), msg = $('msg');
 
-const sportDefaults = {
-  run:  { mainLbl: 'DISTANCE', mainUnit: 'KM', defTitle: 'OUTDOOR RUN', badge: 'RUN' },
-  bike: { mainLbl: 'DISTANCE', mainUnit: 'KM', defTitle: 'ROAD CYCLING', badge: 'BIKE' },
-  gym:  { mainLbl: 'TOTAL SETS', mainUnit: 'SETS', defTitle: 'STRENGTH TRAINING', badge: 'STRENGTH' },
-  rope: { mainLbl: 'TOTAL JUMPS', mainUnit: 'JUMPS', defTitle: 'JUMP ROPE', badge: 'CARDIO' }
-};
+/* تبديل اللغة بين (اللغتين معاً / العربية / الإنجليزية) */
+function applyLanguage(lang) {
+  S.lang = lang;
+  document.querySelectorAll('.lang-pill').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+  const dict = I18N[lang];
+  const sp = dict.sports[S.sport] || dict.sports.run;
+
+  S.mainLbl = sp.mainLbl;
+  S.mainUnit = sp.mainUnit;
+  document.querySelector('[data-k="mainUnit"]').value = sp.mainUnit;
+
+  if (S.sport === 'gym') {
+    S.muscleTag = sp.muscleDef;
+    document.querySelector('[data-k="muscleTag"]').value = S.muscleTag;
+  }
+
+  S.stats.forEach(st => {
+    if (st.id === 'pace') {
+      st.label = sp.paceLbl;
+      st.unit = sp.paceUnit;
+    } else if (st.id === 'elev') {
+      st.label = sp.elevLbl;
+      st.unit = sp.elevUnit;
+    } else if (dict.stats[st.id]) {
+      st.label = dict.stats[st.id].label;
+      st.unit = dict.stats[st.id].unit;
+    }
+  });
+
+  renderStatsManager();
+  sched();
+}
+
+document.querySelectorAll('.lang-pill').forEach(btn => {
+  btn.onclick = () => applyLanguage(btn.dataset.lang);
+});
 
 /* بناء واجهة التحكم بالإحصائيات */
 function renderStatsManager() {
@@ -647,6 +776,7 @@ function renderStatsManager() {
 
     const inUnit = document.createElement('input');
     inUnit.type = 'text';
+    inUnit.className = 'rtl-in';
     inUnit.placeholder = 'الوحدة';
     inUnit.value = st.unit;
     inUnit.oninput = e => { st.unit = e.target.value; sched(); };
@@ -669,9 +799,10 @@ function renderStatsManager() {
 }
 
 $('addStatBtn').onclick = () => {
+  const defaultLbl = S.lang === 'bi' ? 'إحصائية / STAT' : (S.lang === 'ar' ? 'إحصائية إضافية' : 'CUSTOM STAT');
   S.stats.push({
     id: 'custom_' + Date.now(),
-    label: 'CUSTOM STAT',
+    label: defaultLbl,
     val: '100',
     unit: '',
     on: true
@@ -682,17 +813,21 @@ $('addStatBtn').onclick = () => {
 
 document.querySelectorAll('.chip-btn').forEach(chip => {
   chip.onclick = () => {
-    const lbl = chip.dataset.l;
-    const existing = S.stats.find(x => x.label.toUpperCase() === lbl.toUpperCase());
+    const cid = chip.dataset.id;
+    const dict = I18N[S.lang];
+    const meta = dict.stats[cid] || { label: cid.toUpperCase(), unit: '' };
+    const existing = S.stats.find(x => x.id === cid);
     if (existing) {
       existing.on = true;
+      existing.label = meta.label;
+      existing.unit = meta.unit;
       if (!existing.val) existing.val = chip.dataset.v;
     } else {
       S.stats.push({
-        id: 'chip_' + Date.now(),
-        label: lbl,
+        id: cid,
+        label: meta.label,
         val: chip.dataset.v || '',
-        unit: chip.dataset.u || '',
+        unit: meta.unit || '',
         on: true
       });
     }
@@ -701,45 +836,30 @@ document.querySelectorAll('.chip-btn').forEach(chip => {
   };
 });
 
-/* تبديل نوع الرياضة وتخصيص الخانات تلقائياً (خصوصاً للحديد) */
+/* تبديل نوع الرياضة وتخصيص الخانات تلقائياً حسب اللغة المختارة */
 function applySportMode(sport, keepValues = false) {
   S.sport = sport;
   document.querySelectorAll('.sport-pill').forEach(b => b.classList.toggle('active', b.dataset.sport === sport));
   $('gymExtraRow').hidden = sport !== 'gym';
 
-  const cfg = sportDefaults[sport] || sportDefaults.run;
-  S.mainLbl = cfg.mainLbl;
-  S.mainUnit = cfg.mainUnit;
-  document.querySelector('[data-k="mainUnit"]').value = cfg.mainUnit;
+  const dict = I18N[S.lang];
+  const sp = dict.sports[sport] || dict.sports.run;
+  S.mainLbl = sp.mainLbl;
+  S.mainUnit = sp.mainUnit;
+  document.querySelector('[data-k="mainUnit"]').value = sp.mainUnit;
 
   if (sport === 'gym') {
+    S.muscleTag = sp.muscleDef;
+    document.querySelector('[data-k="muscleTag"]').value = S.muscleTag;
     $('lblMainStat').childNodes[0].nodeValue = 'عدد الجلسات (Sets)';
-    if (!keepValues) {
-      // ضبط الخانات لتناسب تمرين الحديد
-      const paceIt = S.stats.find(x => x.id === 'pace');
-      if (paceIt) { paceIt.label = 'TOTAL REPS'; paceIt.unit = 'REPS'; }
-      const elevIt = S.stats.find(x => x.id === 'elev');
-      if (elevIt) { elevIt.label = 'VOLUME'; elevIt.unit = 'KG'; }
-    }
-  } else if (sport === 'bike') {
-    $('lblMainStat').childNodes[0].nodeValue = 'المسافة (كم)';
-    const paceIt = S.stats.find(x => x.id === 'pace');
-    if (paceIt) { paceIt.label = 'AVG SPEED'; paceIt.unit = 'KM/H'; }
-    const elevIt = S.stats.find(x => x.id === 'elev');
-    if (elevIt) { elevIt.label = 'ELEV GAIN'; elevIt.unit = 'M'; }
-  } else if (sport === 'rope') {
-    $('lblMainStat').childNodes[0].nodeValue = 'إجمالي القفزات';
-    const paceIt = S.stats.find(x => x.id === 'pace');
-    if (paceIt) { paceIt.label = 'AVG RATE'; paceIt.unit = 'J/MIN'; }
-    const elevIt = S.stats.find(x => x.id === 'elev');
-    if (elevIt) { elevIt.label = 'MAX STREAK'; elevIt.unit = 'JUMPS'; }
   } else {
-    $('lblMainStat').childNodes[0].nodeValue = 'المسافة (كم)';
-    const paceIt = S.stats.find(x => x.id === 'pace');
-    if (paceIt) { paceIt.label = 'AVG PACE'; paceIt.unit = '/KM'; }
-    const elevIt = S.stats.find(x => x.id === 'elev');
-    if (elevIt) { elevIt.label = 'ELEV GAIN'; elevIt.unit = 'M'; }
+    $('lblMainStat').childNodes[0].nodeValue = sport === 'rope' ? 'إجمالي القفزات' : 'المسافة (كم)';
   }
+
+  const paceIt = S.stats.find(x => x.id === 'pace');
+  if (paceIt) { paceIt.label = sp.paceLbl; paceIt.unit = sp.paceUnit; }
+  const elevIt = S.stats.find(x => x.id === 'elev');
+  if (elevIt) { elevIt.label = sp.elevLbl; elevIt.unit = sp.elevUnit; }
 
   renderStatsManager();
   sched();
@@ -749,27 +869,35 @@ document.querySelectorAll('.sport-pill').forEach(btn => {
   btn.onclick = () => applySportMode(btn.dataset.sport, false);
 });
 
-function setStatValue(id, labelFallback, val, unitFallback) {
+function setStatValue(id, val) {
   if (val === undefined || val === null || val === '') return;
-  let item = S.stats.find(x => x.id === id || x.label.toUpperCase() === labelFallback.toUpperCase());
+  const dict = I18N[S.lang];
+  const sp = dict.sports[S.sport] || dict.sports.run;
+  let lbl = dict.stats[id] ? dict.stats[id].label : id.toUpperCase();
+  let unt = dict.stats[id] ? dict.stats[id].unit : '';
+  if (id === 'pace') { lbl = sp.paceLbl; unt = sp.paceUnit; }
+  if (id === 'elev') { lbl = sp.elevLbl; unt = sp.elevUnit; }
+
+  let item = S.stats.find(x => x.id === id);
   if (item) {
-    item.label = labelFallback;
+    item.label = lbl;
     item.val = String(val);
-    if (unitFallback !== undefined) item.unit = unitFallback;
+    item.unit = unt;
     item.on = true;
   } else {
-    S.stats.push({ id, label: labelFallback, val: String(val), unit: unitFallback || '', on: true });
+    S.stats.push({ id, label: lbl, val: String(val), unit: unt, on: true });
   }
 }
 
 /* دوال الرسم الهندسية والأيقونات */
 function rr(c, x, y, w, h, r) {
+  const rad = Math.min(r, w / 2, h / 2);
   c.beginPath();
-  c.moveTo(x + r, y);
-  c.arcTo(x + w, y, x + w, y + h, r);
-  c.arcTo(x + w, y + h, x, y + h, r);
-  c.arcTo(x, y + h, x, y, r);
-  c.arcTo(x, y, x + w, y, r);
+  c.moveTo(x + rad, y);
+  c.arcTo(x + w, y, x + w, y + h, rad);
+  c.arcTo(x + w, y + h, x, y + h, rad);
+  c.arcTo(x, y + h, x, y, rad);
+  c.arcTo(x, y, x + w, y, rad);
   c.closePath();
 }
 
@@ -778,12 +906,101 @@ function cover(c, img, x, y, w, h) {
   c.drawImage(img, (img.width - iw) / 2, (img.height - ih) / 2, iw, ih, x, y, w, h);
 }
 
+/* =========================================================================
+   محرك رسم الزجاج السائل الحقيقي (iOS 26 / visionOS Liquid Glass Engine)
+   ========================================================================= */
+function prepareBlurredBackdrop() {
+  const bc = blurCv.getContext('2d');
+  bc.clearRect(0, 0, blurCv.width, blurCv.height);
+  bc.save();
+  bc.filter = 'blur(18px) saturate(190%)';
+  if (S.bg) {
+    cover(bc, S.bg, -20, -20, blurCv.width + 40, blurCv.height + 40);
+  } else {
+    // خلفية كونية زجاجية ناعمة بألوان iOS عند عدم رفع صورة
+    const g = bc.createLinearGradient(0, 0, blurCv.width, blurCv.height);
+    g.addColorStop(0, '#1e293b');
+    g.addColorStop(0.45, '#0f172a');
+    g.addColorStop(1, '#090a0f');
+    bc.fillStyle = g;
+    bc.fillRect(0, 0, blurCv.width, blurCv.height);
+
+    bc.fillStyle = S.accent;
+    bc.globalAlpha = 0.35;
+    bc.beginPath(); bc.arc(blurCv.width * 0.25, blurCv.height * 0.28, 95, 0, Math.PI * 2); bc.fill();
+    bc.fillStyle = '#38bdf8';
+    bc.globalAlpha = 0.22;
+    bc.beginPath(); bc.arc(blurCv.width * 0.78, blurCv.height * 0.68, 110, 0, Math.PI * 2); bc.fill();
+  }
+  bc.restore();
+}
+
+function drawLiquidGlassBox(c, x, y, w, h, r = 44, tintAlpha = 0.16, highlightAccent = false) {
+  c.save();
+
+  // 1) ظل خارجي ناعم يعطي عمق الطفو ثلاثي الأبعاد
+  c.save();
+  c.shadowColor = 'rgba(0, 0, 0, 0.52)';
+  c.shadowBlur = 42;
+  c.shadowOffsetY = 18;
+  rr(c, x, y, w, h, r);
+  c.fillStyle = 'rgba(15, 18, 25, 0.08)';
+  c.fill();
+  c.restore();
+
+  // 2) قص منطقة الكبسولة ورسم الخلفية المضببة المنكسرة داخلها (Refraction)
+  rr(c, x, y, w, h, r);
+  c.clip();
+  if (!S.transparent) {
+    c.drawImage(blurCv, 0, 0, W, H);
+  }
+
+  // 3) طبقة الصبغة الزجاجية السائلة المتدرجة (Liquid Sheen)
+  const sheen = c.createLinearGradient(x, y, x + w * 0.65, y + h);
+  sheen.addColorStop(0, `rgba(255, 255, 255, ${tintAlpha + 0.14})`);
+  sheen.addColorStop(0.35, `rgba(255, 255, 255, ${tintAlpha * 0.45})`);
+  sheen.addColorStop(0.75, 'rgba(15, 18, 28, 0.32)');
+  sheen.addColorStop(1, `rgba(255, 255, 255, ${tintAlpha * 0.65})`);
+  c.fillStyle = sheen;
+  c.fillRect(x, y, w, h);
+
+  // 4) لمعة العدسة العلوية (Top Specular Caustic Glare)
+  const glare = c.createRadialGradient(x + w * 0.3, y - h * 0.1, 10, x + w * 0.5, y, w * 0.85);
+  glare.addColorStop(0, 'rgba(255, 255, 255, 0.34)');
+  glare.addColorStop(0.5, 'rgba(255, 255, 255, 0.06)');
+  glare.addColorStop(1, 'rgba(255, 255, 255, 0)');
+  c.fillStyle = glare;
+  c.fillRect(x, y, w, h * 0.55);
+
+  // 5) الحد الزجاجي المزدوج المضيء (Specular Rim Border)
+  const rimGrad = c.createLinearGradient(x, y, x + w, y + h);
+  if (highlightAccent) {
+    rimGrad.addColorStop(0, '#ffffff');
+    rimGrad.addColorStop(0.35, S.accent);
+    rimGrad.addColorStop(0.7, 'rgba(255, 255, 255, 0.15)');
+    rimGrad.addColorStop(1, S.accent);
+  } else {
+    rimGrad.addColorStop(0, 'rgba(255, 255, 255, 0.82)');
+    rimGrad.addColorStop(0.28, 'rgba(255, 255, 255, 0.22)');
+    rimGrad.addColorStop(0.72, 'rgba(255, 255, 255, 0.08)');
+    rimGrad.addColorStop(1, 'rgba(255, 255, 255, 0.48)');
+  }
+  rr(c, x + 1, y + 1, w - 2, h - 2, r - 1);
+  c.strokeStyle = rimGrad;
+  c.lineWidth = highlightAccent ? 3.2 : 2.4;
+  c.stroke();
+
+  c.restore();
+}
+
 function txt(c, s, x, y, size, wt, col, al = 'left', fam = S.titleFont, mw = null) {
   if (s === undefined || s === null || s === '') return;
   const str = String(s);
+  const isAr = /[\u0600-\u06FF]/.test(str);
   c.save();
+  c.direction = isAr ? 'rtl' : 'ltr';
   c.font = `${wt} ${size}px ${fam}`;
-  while (mw && c.measureText(str).width > mw && size > 16) {
+  while (mw && c.measureText(str).width > mw && size > 15) {
     size -= 2;
     c.font = `${wt} ${size}px ${fam}`;
   }
@@ -794,7 +1011,7 @@ function txt(c, s, x, y, size, wt, col, al = 'left', fam = S.titleFont, mw = nul
   c.restore();
 }
 
-/* رسم أيقونة دامبل / حديد احترافية بالـ Vector على البطاقة */
+/* رسم أيقونة دامبل / حديد احترافية */
 function drawDumbbellVector(c, cx, cy, size, col) {
   c.save();
   c.translate(cx, cy);
@@ -805,13 +1022,11 @@ function drawDumbbellVector(c, cx, cy, size, col) {
 
   if (S.sport === 'gym') {
     if (S.gymBadgeStyle === 'plate') {
-      // قرص حديد دائري
       c.lineWidth = size * 0.14;
       c.beginPath(); c.arc(0, 0, size * 0.45, 0, Math.PI * 2); c.stroke();
       c.lineWidth = size * 0.06;
       c.beginPath(); c.arc(0, 0, size * 0.18, 0, Math.PI * 2); c.stroke();
     } else if (S.gymBadgeStyle === 'bolt') {
-      // صاعقة القوة
       c.beginPath();
       c.moveTo(size * 0.08, -size * 0.48);
       c.lineTo(-size * 0.32, size * 0.05);
@@ -822,26 +1037,21 @@ function drawDumbbellVector(c, cx, cy, size, col) {
       c.closePath();
       c.fill();
     } else {
-      // أيقونة دامبل حديد كلاسيكية واضحة
       const barW = size * 0.46;
       c.lineWidth = size * 0.12;
       c.beginPath(); c.moveTo(-barW / 2, 0); c.lineTo(barW / 2, 0); c.stroke();
-      // أقراص داخلية
       const pw = size * 0.13, ph1 = size * 0.68, ph2 = size * 0.46;
       rr(c, -barW / 2 - pw * 1.1, -ph1 / 2, pw, ph1, 4); c.fill();
       rr(c, barW / 2 + pw * 0.1, -ph1 / 2, pw, ph1, 4); c.fill();
-      // أقراص خارجية
       rr(c, -barW / 2 - pw * 2.2, -ph2 / 2, pw * 0.9, ph2, 3); c.fill();
       rr(c, barW / 2 + pw * 1.3, -ph2 / 2, pw * 0.9, ph2, 3); c.fill();
     }
   } else if (S.sport === 'bike') {
-    // أيقونة عجلة دراجة
     c.lineWidth = size * 0.1;
     c.beginPath(); c.arc(-size * 0.28, size * 0.1, size * 0.22, 0, Math.PI * 2); c.stroke();
     c.beginPath(); c.arc(size * 0.28, size * 0.1, size * 0.22, 0, Math.PI * 2); c.stroke();
     c.beginPath(); c.moveTo(-size * 0.28, size * 0.1); c.lineTo(0, -size * 0.22); c.lineTo(size * 0.28, size * 0.1); c.stroke();
   } else if (S.sport === 'rope') {
-    // أيقونة نط الحبل / البرق
     c.beginPath();
     c.moveTo(size * 0.08, -size * 0.45);
     c.lineTo(-size * 0.28, size * 0.04);
@@ -852,7 +1062,6 @@ function drawDumbbellVector(c, cx, cy, size, col) {
     c.closePath();
     c.fill();
   } else {
-    // أيقونة مسار الجري
     c.lineWidth = size * 0.12;
     c.beginPath();
     c.moveTo(-size * 0.35, size * 0.25);
@@ -863,26 +1072,25 @@ function drawDumbbellVector(c, cx, cy, size, col) {
   c.restore();
 }
 
-/* شارة تمرين اليوم (توضح أنه تمرين حديد + العضلات المستهدفة + الجهاز) */
-function drawHeaderBadges(c, x, y, al = 'left', col = S.txt) {
+/* شارة تمرين اليوم والجهاز */
+function drawHeaderBadges(c, x, y, al = 'left', col = S.txt, isLiquid = false) {
   c.save();
-  c.direction = 'ltr';
+  const dict = I18N[S.lang];
+  const sp = dict.sports[S.sport] || dict.sports.run;
 
   const items = [];
   if (S.showBadge && S.tag) {
     items.push({ text: S.tag.toUpperCase(), isCoros: true });
   }
   if (S.showSportIcon) {
-    const sportTxt = S.sport === 'gym'
-      ? (S.muscleTag || 'STRENGTH WORKOUT').toUpperCase()
-      : (sportDefaults[S.sport].badge + ' SESSION');
+    const sportTxt = S.sport === 'gym' ? (S.muscleTag || sp.badge) : sp.badge;
     items.push({ text: sportTxt, isSport: true });
   }
 
   if (!items.length) { c.restore(); return; }
 
-  c.font = `800 25px ${S.numFont}`;
-  const pillWidths = items.map(it => c.measureText(it.text).width + (it.isSport ? 66 : 46));
+  c.font = `800 23px ${S.titleFont}`;
+  const pillWidths = items.map(it => c.measureText(it.text).width + (it.isSport ? 70 : 50));
   const gap = 14;
   const totalW = pillWidths.reduce((a, b) => a + b, 0) + (items.length - 1) * gap;
 
@@ -890,38 +1098,59 @@ function drawHeaderBadges(c, x, y, al = 'left', col = S.txt) {
 
   items.forEach((it, idx) => {
     const pw = pillWidths[idx];
-    rr(c, curX, y - 34, pw, 48, 14);
-    if (it.isSport && S.sport === 'gym') {
-      c.fillStyle = S.accent;
-      c.fill();
-      drawDumbbellVector(c, curX + 28, y - 10, 30, '#000');
-      c.fillStyle = '#000';
-      c.font = `800 24px ${S.numFont}`;
-      c.textAlign = 'left';
-      c.fillText(it.text, curX + 52, y - 1);
-    } else if (it.isSport) {
-      c.fillStyle = 'rgba(255, 85, 0, 0.18)';
-      c.fill();
-      c.strokeStyle = S.accent;
-      c.lineWidth = 2;
-      c.stroke();
-      drawDumbbellVector(c, curX + 26, y - 10, 26, S.accent);
-      c.fillStyle = col;
-      c.font = `800 24px ${S.numFont}`;
-      c.textAlign = 'left';
-      c.fillText(it.text, curX + 48, y - 1);
+    const isAr = /[\u0600-\u06FF]/.test(it.text);
+    c.direction = isAr ? 'rtl' : 'ltr';
+
+    if (isLiquid) {
+      drawLiquidGlassBox(c, curX, y - 36, pw, 50, 25, 0.18, it.isSport);
+      if (it.isSport) {
+        drawDumbbellVector(c, curX + 28, y - 11, 28, S.accent);
+        c.fillStyle = '#fff';
+        c.font = `800 23px ${S.titleFont}`;
+        c.textAlign = 'center';
+        c.fillText(it.text, curX + 24 + (pw - 24) / 2, y - 2);
+      } else {
+        c.fillStyle = S.accent;
+        c.beginPath(); c.arc(curX + 22, y - 11, 7, 0, Math.PI * 2); c.fill();
+        c.fillStyle = '#fff';
+        c.font = `800 23px ${S.numFont}`;
+        c.textAlign = 'center';
+        c.fillText(it.text, curX + 18 + (pw - 18) / 2, y - 2);
+      }
     } else {
-      c.fillStyle = 'rgba(255, 255, 255, 0.09)';
-      c.fill();
-      c.strokeStyle = 'rgba(255, 255, 255, 0.22)';
-      c.lineWidth = 1.5;
-      c.stroke();
-      c.fillStyle = S.accent;
-      c.beginPath(); c.arc(curX + 20, y - 10, 7, 0, Math.PI * 2); c.fill();
-      c.fillStyle = col;
-      c.font = `800 25px ${S.numFont}`;
-      c.textAlign = 'left';
-      c.fillText(it.text, curX + 34, y - 1);
+      rr(c, curX, y - 34, pw, 48, 14);
+      if (it.isSport && S.sport === 'gym') {
+        c.fillStyle = S.accent;
+        c.fill();
+        drawDumbbellVector(c, curX + 28, y - 10, 30, '#000');
+        c.fillStyle = '#000';
+        c.font = `800 23px ${S.titleFont}`;
+        c.textAlign = 'center';
+        c.fillText(it.text, curX + 24 + (pw - 24) / 2, y - 1);
+      } else if (it.isSport) {
+        c.fillStyle = 'rgba(255, 85, 0, 0.18)';
+        c.fill();
+        c.strokeStyle = S.accent;
+        c.lineWidth = 2;
+        c.stroke();
+        drawDumbbellVector(c, curX + 26, y - 10, 26, S.accent);
+        c.fillStyle = col;
+        c.font = `800 23px ${S.titleFont}`;
+        c.textAlign = 'center';
+        c.fillText(it.text, curX + 22 + (pw - 22) / 2, y - 1);
+      } else {
+        c.fillStyle = 'rgba(255, 255, 255, 0.09)';
+        c.fill();
+        c.strokeStyle = 'rgba(255, 255, 255, 0.22)';
+        c.lineWidth = 1.5;
+        c.stroke();
+        c.fillStyle = S.accent;
+        c.beginPath(); c.arc(curX + 20, y - 10, 7, 0, Math.PI * 2); c.fill();
+        c.fillStyle = col;
+        c.font = `800 23px ${S.numFont}`;
+        c.textAlign = 'center';
+        c.fillText(it.text, curX + 16 + (pw - 16) / 2, y - 1);
+      }
     }
     curX += pw + gap;
   });
@@ -929,46 +1158,43 @@ function drawHeaderBadges(c, x, y, al = 'left', col = S.txt) {
   c.restore();
 }
 
-/* رسم مسار الـ GPS أو أعمدة الجلسات (Sets Bars) لتمارين الحديد */
+/* رسم مسار الـ GPS أو أعمدة الجلسات لتمارين الحديد */
 function drawVisualCenterpiece(c, boxX, boxY, boxW, boxH, color, lineWidth = 10) {
   if (!S.showRoute) return;
   c.save();
 
-  // إذا كان التمرين "حديد / قوة" نرسم مخطط أعمدة الجلسات + شعار دامبل كبير فخم بالخلفية
   if (S.sport === 'gym') {
-    // دامبل مائي ضخم بالخلفية
     c.save();
-    c.globalAlpha = 0.11;
+    c.globalAlpha = 0.12;
     drawDumbbellVector(c, boxX + boxW / 2, boxY + boxH * 0.42, Math.min(boxW, boxH) * 0.72, color);
     c.restore();
 
-    const setsCount = Math.min(24, Math.max(4, parseInt(S.dist) || S.setReps.length || 12));
-    const bars = S.setReps.length >= 3
-      ? S.setReps.slice(0, 24)
-      : Array.from({ length: setsCount }, (_, i) => 8 + Math.round(Math.sin(i * 0.9 + 1) * 3 + (i % 3)));
+    const parsedSets = parseInt(S.dist);
+    const setsCount = Math.min(30, Math.max(4, parsedSets || S.setReps.length || 12));
+    const bars = (S.setReps.length > 0 && (!parsedSets || S.setReps.length === parsedSets))
+      ? S.setReps.slice(0, 30)
+      : Array.from({ length: setsCount }, (_, i) => S.setReps[i] || (8 + Math.round(Math.sin(i * 0.9 + 1) * 3 + (i % 3))));
 
     const maxRep = Math.max(...bars, 12);
     const chartW = boxW * 0.86;
     const chartH = boxH * 0.52;
     const startX = boxX + (boxW - chartW) / 2;
     const baseY = boxY + boxH * 0.78;
-    const gap = Math.max(6, Math.round(chartW / (bars.length * 3.5)));
+    const gap = Math.max(5, Math.round(chartW / (bars.length * 3.5)));
     const barW = (chartW - gap * (bars.length - 1)) / bars.length;
 
-    // عنوان مصغر فوق الأعمدة
-    txt(c, `WORKOUT SETS INTENSITY (${bars.length} SETS)`, boxX + boxW / 2, baseY - chartH - 28, 22, 700, 'rgba(255,255,255,0.55)', 'center', S.numFont);
+    const chartLbl = I18N[S.lang].setsChartTitle(parsedSets || bars.length);
+    txt(c, chartLbl, boxX + boxW / 2, baseY - chartH - 26, 22, 700, 'rgba(255,255,255,0.68)', 'center', S.titleFont, boxW - 30);
 
     bars.forEach((rep, idx) => {
       const bh = Math.max(24, (rep / maxRep) * chartH);
       const bx = startX + idx * (barW + gap);
       const by = baseY - bh;
 
-      // خلفية العمود
       rr(c, bx, baseY - chartH, barW, chartH, Math.min(10, barW / 2));
-      c.fillStyle = 'rgba(255,255,255,0.07)';
+      c.fillStyle = 'rgba(255,255,255,0.08)';
       c.fill();
 
-      // العمود المضيء
       rr(c, bx, by, barW, bh, Math.min(10, barW / 2));
       c.fillStyle = color;
       c.shadowColor = color;
@@ -1053,29 +1279,29 @@ function drawVisualCenterpiece(c, boxX, boxY, boxW, boxH, color, lineWidth = 10)
   c.restore();
 }
 
-function drawStatCell(c, x, y, label, val, unit, al = 'left', valSize = 66, maxW = 280, inkCol = S.txt) {
+function drawStatCell(c, x, y, label, val, unit, al = 'left', valSize = 64, maxW = 280, inkCol = S.txt) {
   const displayVal = (val !== undefined && val !== '') ? val : '--';
-  txt(c, label, x, y, 22, 700, inkCol === S.txt ? 'rgba(255,255,255,0.58)' : 'rgba(0,0,0,0.55)', al, S.titleFont, maxW);
+  txt(c, label, x, y, 22, 700, inkCol === S.txt ? 'rgba(255,255,255,0.68)' : 'rgba(0,0,0,0.62)', al, S.titleFont, maxW);
   c.save();
   let sz = valSize;
   c.font = `700 ${sz}px ${S.numFont}`;
-  while (c.measureText(String(displayVal)).width > maxW * 0.78 && sz > 28) {
+  while (c.measureText(String(displayVal)).width > maxW * 0.72 && sz > 26) {
     sz -= 3;
     c.font = `700 ${sz}px ${S.numFont}`;
   }
   const vw = c.measureText(String(displayVal)).width;
-  const uSz = Math.round(sz * 0.36);
+  const uSz = Math.max(17, Math.round(sz * 0.32));
   c.font = `700 ${uSz}px ${S.titleFont}`;
-  const uw = unit ? c.measureText(unit).width + 8 : 0;
+  const uw = unit ? Math.min(maxW * 0.4, c.measureText(unit).width) + 8 : 0;
 
   let vx = x;
   if (al === 'center') vx = x - uw / 2;
   else if (al === 'right') vx = x - uw;
 
-  txt(c, displayVal, vx, y + sz + 6, sz, 700, inkCol, al, S.numFont);
+  txt(c, displayVal, vx, y + sz + 8, sz, 700, inkCol, al, S.numFont);
   if (unit) {
     const ux = al === 'center' ? vx + vw / 2 + 8 : (al === 'right' ? x : vx + vw + 8);
-    txt(c, unit, ux, y + sz + 6, uSz, 700, S.accent, al === 'right' ? 'right' : 'left', S.titleFont);
+    txt(c, unit, ux, y + sz + 8, uSz, 700, S.accent, al === 'right' ? 'right' : 'left', S.titleFont, maxW * 0.42);
   }
   c.restore();
 }
@@ -1087,7 +1313,7 @@ function drawDynamicStatsGrid(c, items, boxX, boxY, boxW, boxH, maxCols = 3, ali
   const rows = Math.ceil(n / cols);
   const cellW = boxW / cols;
   const cellH = Math.min(185, boxH / rows);
-  const valSize = rows >= 4 ? 50 : (cols === 3 ? 62 : 70);
+  const valSize = rows >= 4 ? 48 : (cols === 3 ? 60 : 68);
 
   items.forEach((st, i) => {
     const r = Math.floor(i / cols);
@@ -1101,26 +1327,38 @@ function drawDynamicStatsGrid(c, items, boxX, boxY, boxW, boxH, maxCols = 3, ali
       : rowStartX + colIdx * cellW;
     const cy = boxY + r * cellH;
 
-    drawStatCell(c, cx, cy, st.label, st.val, st.unit, align, valSize, cellW - 20, inkCol);
+    drawStatCell(c, cx, cy, st.label, st.val, st.unit, align, valSize, cellW - 18, inkCol);
   });
 }
 
 function getCardState() {
-  const cfg = sportDefaults[S.sport] || sportDefaults.run;
-  const dStr = S.date ? new Date(S.date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase() : '';
+  const dict = I18N[S.lang];
+  const cfg = dict.sports[S.sport] || dict.sports.run;
+  let dStr = '';
+  if (S.date) {
+    const dObj = new Date(S.date + 'T12:00:00');
+    if (S.lang === 'ar') {
+      dStr = dObj.toLocaleDateString('ar-SA', { day: 'numeric', month: 'long', year: 'numeric' });
+    } else if (S.lang === 'bi') {
+      const arM = dObj.toLocaleDateString('ar-SA', { day: 'numeric', month: 'short' });
+      const enM = dObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase();
+      dStr = `${arM} · ${enM}`;
+    } else {
+      dStr = dObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase();
+    }
+  }
   const activeStats = S.stats.filter(x => x.on);
   return {
     cfg,
     title: S.title || cfg.defTitle,
     dateStr: dStr,
-    dist: S.dist || (S.sport === 'gym' ? '16' : '0.00'),
+    dist: S.dist || (S.sport === 'gym' ? '17' : '0.00'),
     mainLbl: S.mainLbl || cfg.mainLbl,
     mainUnit: S.mainUnit || cfg.mainUnit,
     activeStats
   };
 }
 
-/* رسم دليل المنطقة الآمنة للستوري (يظهر في المعاينة فقط عند تفعيله ولا يطبع عند الحفظ) */
 function drawStorySafeOverlay(c) {
   if (!S.showSafeGuide) return;
   c.save();
@@ -1136,7 +1374,6 @@ function drawStorySafeOverlay(c) {
   c.moveTo(0, 1700); c.lineTo(W, 1700);
   c.stroke();
 
-  // تمثيل مكان أفتار ويوزر الستوري
   c.fillStyle = 'rgba(255,255,255,0.25)';
   c.beginPath(); c.arc(95, 135, 42, 0, Math.PI * 2); c.fill();
   txt(c, 'منطقة أفتار ويوزر الستوري (محمية)', 540, 145, 28, 700, '#ff8080', 'center', S.titleFont);
@@ -1144,22 +1381,49 @@ function drawStorySafeOverlay(c) {
   c.restore();
 }
 
-/* الدالة الرئيسية لرسم الـ 12 ثيم (كلها داخل المنطقة الآمنة للستوري) */
+/* الدالة الرئيسية لرسم الـ 14 ثيم (بما فيها iOS Liquid Glass) */
 function drawCard(c, w, st, isExport = false) {
   const u = w / W;
   c.setTransform(u, 0, 0, u, 0, 0);
   c.clearRect(0, 0, W, H);
   const M = getCardState();
 
-  // بداية ونهاية المنطقة الآمنة للستوري
   const TOP = 265 + (+S.safeShift || 0);
   const BOT = 1685;
+
+  // تجهيز الخلفية المضببة لانكسار الزجاج السائل
+  if (st === 0 || st === 1) {
+    prepareBlurredBackdrop();
+  }
 
   if (!S.transparent) {
     if (S.bg) {
       cover(c, S.bg, 0, 0, W, H);
-    } else if (st === 7) {
-      // خلفية التوهج الحراري
+    } else if (st === 0 || st === 1) {
+      // خلفية iOS مع كرات ضوئية خلف الزجاج السائل
+      const g = c.createLinearGradient(0, 0, W, H);
+      g.addColorStop(0, '#0f172a');
+      g.addColorStop(0.5, '#090b10');
+      g.addColorStop(1, '#030305');
+      c.fillStyle = g;
+      c.fillRect(0, 0, W, H);
+
+      c.save();
+      const orb1 = c.createRadialGradient(280, TOP + 280, 20, 280, TOP + 280, 420);
+      orb1.addColorStop(0, S.accent);
+      orb1.addColorStop(1, 'transparent');
+      c.globalAlpha = 0.28;
+      c.fillStyle = orb1;
+      c.fillRect(0, 0, W, H);
+
+      const orb2 = c.createRadialGradient(820, TOP + 920, 20, 820, TOP + 920, 460);
+      orb2.addColorStop(0, '#38bdf8');
+      orb2.addColorStop(1, 'transparent');
+      c.globalAlpha = 0.18;
+      c.fillStyle = orb2;
+      c.fillRect(0, 0, W, H);
+      c.restore();
+    } else if (st === 9) {
       const g = c.createRadialGradient(W * 0.5, H * 0.42, 40, W * 0.5, H * 0.5, H * 0.85);
       g.addColorStop(0, S.accent);
       g.addColorStop(0.45, '#1a0905');
@@ -1176,39 +1440,90 @@ function drawCard(c, w, st, isExport = false) {
     }
     c.fillStyle = `rgba(0, 0, 0, ${S.dark / 100})`;
     c.fillRect(0, 0, W, H);
-    const botGrad = c.createLinearGradient(0, 880, 0, H);
-    botGrad.addColorStop(0, 'rgba(0,0,0,0)');
-    botGrad.addColorStop(1, 'rgba(0,0,0,0.84)');
-    c.fillStyle = botGrad;
-    c.fillRect(0, 880, W, H - 880);
   }
 
-  // ثيم 0: COROS كلاسيك (مضبوط للستوري)
+  // =========================================================================
+  // ثيم 0: iOS Liquid Glass 💧 (لوح زجاجي سائل عائم مع كبسولات زجاجية داخلية)
+  // =========================================================================
   if (st === 0) {
-    drawHeaderBadges(c, 85, TOP, 'left');
-    if (M.dateStr) txt(c, M.dateStr, W - 85, TOP - 4, 25, 700, 'rgba(255,255,255,0.65)', 'right', S.numFont);
-    txt(c, M.title, 85, TOP + 78, 52, 800, S.txt, 'left', S.titleFont, 910);
+    drawHeaderBadges(c, 540, TOP, 'center', S.txt, true);
 
-    drawVisualCenterpiece(c, 160, TOP + 120, 760, S.showMain ? 460 : 620, S.accent, 12);
+    // البطاقة الزجاجية السائلة الكبرى
+    const cardTop = TOP + 35;
+    const cardH = BOT - cardTop;
+    drawLiquidGlassBox(c, 60, cardTop, 960, cardH, 56, 0.16, false);
 
-    let gridTop = TOP + 630;
+    // العنوان والتاريخ داخل الزجاج السائل
+    txt(c, M.title, 540, cardTop + 72, 48, 800, S.txt, 'center', S.titleFont, 860);
+    if (M.dateStr) txt(c, M.dateStr, 540, cardTop + 112, 23, 700, 'rgba(255,255,255,0.68)', 'center', S.titleFont);
+
+    let curY = cardTop + 140;
+
+    // كبسولة الرقم الرئيسي الزجاجية السائلة
     if (S.showMain) {
-      txt(c, M.mainLbl, 85, TOP + 625, 26, 700, S.accent, 'left', S.titleFont);
-      txt(c, M.dist, 85, TOP + 785, 175, 700, S.txt, 'left', S.numFont, 700);
-      c.font = `700 175px ${S.numFont}`;
-      const dw = Math.min(700, c.measureText(M.dist).width);
-      txt(c, M.mainUnit, 100 + dw, TOP + 785, 50, 800, S.accent, 'left', S.numFont);
-
-      c.fillStyle = 'rgba(255,255,255,0.15)';
-      c.fillRect(85, TOP + 830, 910, 2);
-      gridTop = TOP + 875;
+      drawLiquidGlassBox(c, 100, curY, 880, 235, 42, 0.22, true);
+      txt(c, M.mainLbl, 540, curY + 52, 25, 700, 'rgba(255,255,255,0.78)', 'center', S.titleFont, 800);
+      txt(c, M.dist, 540, curY + 172, 132, 800, S.txt, 'center', S.numFont, 780);
+      txt(c, M.mainUnit, 540, curY + 215, 28, 800, S.accent, 'center', S.titleFont, 500);
+      curY += 255;
     }
 
-    drawDynamicStatsGrid(c, M.activeStats, 85, gridTop, 910, BOT - gridTop, 3, 'left');
+    // رسم المسار أو أعمدة الجلسات
+    if (S.showRoute) {
+      const rH = S.showMain ? 330 : 480;
+      drawVisualCenterpiece(c, 120, curY + 10, 840, rH, S.accent, 12);
+      curY += rH + 25;
+    }
+
+    // شبكة الإحصائيات داخل الزجاج السائل
+    const availH = (cardTop + cardH - 30) - curY;
+    drawDynamicStatsGrid(c, M.activeStats, 100, curY + 10, 880, availH, 3, 'center');
   }
 
-  // ثيم 1: بطاقة الحديد والقوة (Iron Club Card - مصمم خصيصاً لتمارين الحديد والجلسات)
+  // =========================================================================
+  // ثيم 1: كبسولات Liquid Glass 💧 (كل إحصائية في كبسولة زجاجية سائلة مستقلة)
+  // =========================================================================
   if (st === 1) {
+    drawHeaderBadges(c, 540, TOP, 'center', S.txt, true);
+
+    // كبسولة العنوان الزجاجية
+    drawLiquidGlassBox(c, 75, TOP + 30, 930, 115, 38, 0.18, false);
+    txt(c, M.title, 540, TOP + 85, 42, 800, S.txt, 'center', S.titleFont, 850);
+    if (M.dateStr) txt(c, M.dateStr, 540, TOP + 124, 21, 700, 'rgba(255,255,255,0.68)', 'center', S.titleFont);
+
+    let nextY = TOP + 165;
+    if (S.showRoute) {
+      drawLiquidGlassBox(c, 75, nextY, 930, 340, 44, 0.14, false);
+      drawVisualCenterpiece(c, 115, nextY + 20, 850, 300, S.accent, 11);
+      nextY += 360;
+    }
+
+    const cards = S.showMain
+      ? [{ label: M.mainLbl, val: M.dist, unit: M.mainUnit, highlight: true }, ...M.activeStats]
+      : [...M.activeStats];
+
+    const n = cards.length;
+    const cols = n === 1 ? 1 : 2;
+    const rows = Math.ceil(n / cols);
+    const gap = 16;
+    const availH = BOT - nextY;
+    const cardW = cols === 1 ? 820 : (930 - gap) / 2;
+    const cardH = Math.min(205, (availH - (rows - 1) * gap) / Math.max(1, rows));
+    const startX = cols === 1 ? (W - cardW) / 2 : 75;
+
+    cards.forEach((it, idx) => {
+      const col = idx % cols, row = Math.floor(idx / cols);
+      const bx = startX + col * (cardW + gap);
+      const by = nextY + row * (cardH + gap);
+
+      drawLiquidGlassBox(c, bx, by, cardW, cardH, 36, it.highlight ? 0.24 : 0.16, !!it.highlight);
+      const vSz = cardH < 165 ? 48 : 62;
+      drawStatCell(c, bx + cardW / 2, by + Math.round(cardH * 0.28), it.label, it.val, it.unit, 'center', vSz, cardW - 40);
+    });
+  }
+
+  // ثيم 2: بطاقة الحديد والقوة (Iron Club Card)
+  if (st === 2) {
     c.save();
     rr(c, 65, TOP - 25, 950, BOT - TOP + 20, 44);
     c.fillStyle = 'rgba(14, 15, 19, 0.86)';
@@ -1218,7 +1533,6 @@ function drawCard(c, w, st, isExport = false) {
     c.stroke();
     c.restore();
 
-    // شريط علوي داخل البطاقة
     c.save();
     rr(c, 95, TOP + 5, 890, 95, 24);
     c.fillStyle = 'rgba(255, 85, 0, 0.12)';
@@ -1226,12 +1540,11 @@ function drawCard(c, w, st, isExport = false) {
     c.restore();
 
     drawDumbbellVector(c, 155, TOP + 52, 54, S.accent);
-    txt(c, M.title.toUpperCase(), 210, TOP + 50, 38, 800, S.txt, 'left', S.titleFont, 520);
-    txt(c, (S.muscleTag || S.tag || 'WORKOUT SESSION').toUpperCase(), 210, TOP + 84, 22, 700, S.accent, 'left', S.numFont, 520);
-    if (M.dateStr) txt(c, M.dateStr, 950, TOP + 62, 24, 700, 'rgba(255,255,255,0.65)', 'right', S.numFont);
+    txt(c, M.title, 215, TOP + 48, 36, 800, S.txt, 'left', S.titleFont, 490);
+    txt(c, (S.muscleTag || S.tag || 'WORKOUT'), 215, TOP + 84, 22, 700, S.accent, 'left', S.titleFont, 490);
+    if (M.dateStr) txt(c, M.dateStr, 950, TOP + 62, 21, 700, 'rgba(255,255,255,0.65)', 'right', S.titleFont);
 
     if (S.showMain) {
-      // صندوق الجلسات / الرقم الكبير
       c.save();
       rr(c, 95, TOP + 130, 890, 250, 28);
       c.fillStyle = 'rgba(255,255,255,0.04)';
@@ -1241,8 +1554,8 @@ function drawCard(c, w, st, isExport = false) {
       c.stroke();
       c.restore();
 
-      txt(c, M.mainLbl, 540, TOP + 185, 26, 700, 'rgba(255,255,255,0.6)', 'center', S.titleFont);
-      txt(c, M.dist + ' ' + M.mainUnit, 540, TOP + 335, 145, 700, S.accent, 'center', S.numFont, 820);
+      txt(c, M.mainLbl, 540, TOP + 185, 26, 700, 'rgba(255,255,255,0.65)', 'center', S.titleFont);
+      txt(c, M.dist + ' ' + M.mainUnit, 540, TOP + 330, 125, 700, S.accent, 'center', S.numFont, 820);
     }
 
     drawVisualCenterpiece(c, 110, TOP + (S.showMain ? 405 : 150), 860, 360, S.accent, 11);
@@ -1251,10 +1564,34 @@ function drawCard(c, w, st, isExport = false) {
     drawDynamicStatsGrid(c, M.activeStats, 110, gTop, 860, BOT - gTop - 30, 3, 'center');
   }
 
-  // ثيم 2: عداد رقمي (Chrono HUD)
-  if (st === 2) {
+  // ثيم 3: COROS كلاسيك
+  if (st === 3) {
+    drawHeaderBadges(c, 85, TOP, 'left');
+    if (M.dateStr) txt(c, M.dateStr, W - 85, TOP - 4, 23, 700, 'rgba(255,255,255,0.65)', 'right', S.titleFont);
+    txt(c, M.title, 85, TOP + 78, 50, 800, S.txt, 'left', S.titleFont, 910);
+
+    drawVisualCenterpiece(c, 160, TOP + 120, 760, S.showMain ? 460 : 620, S.accent, 12);
+
+    let gridTop = TOP + 630;
+    if (S.showMain) {
+      txt(c, M.mainLbl, 85, TOP + 625, 26, 700, S.accent, 'left', S.titleFont);
+      txt(c, M.dist, 85, TOP + 785, 165, 700, S.txt, 'left', S.numFont, 640);
+      c.font = `700 165px ${S.numFont}`;
+      const dw = Math.min(640, c.measureText(M.dist).width);
+      txt(c, M.mainUnit, 105 + dw, TOP + 785, 42, 800, S.accent, 'left', S.titleFont, 260);
+
+      c.fillStyle = 'rgba(255,255,255,0.15)';
+      c.fillRect(85, TOP + 830, 910, 2);
+      gridTop = TOP + 875;
+    }
+
+    drawDynamicStatsGrid(c, M.activeStats, 85, gridTop, 910, BOT - gridTop, 3, 'left');
+  }
+
+  // ثيم 4: عداد رقمي (Chrono HUD)
+  if (st === 4) {
     drawHeaderBadges(c, 540, TOP, 'center');
-    txt(c, M.title.toUpperCase(), 540, TOP + 75, 46, 800, S.txt, 'center', S.titleFont, 900);
+    txt(c, M.title, 540, TOP + 75, 46, 800, S.txt, 'center', S.titleFont, 900);
 
     const ringY = TOP + 395;
     if (S.showMain) {
@@ -1277,22 +1614,22 @@ function drawCard(c, w, st, isExport = false) {
       c.restore();
 
       drawDumbbellVector(c, 540, ringY - 145, 44, S.accent);
-      txt(c, M.mainLbl, 540, ringY - 75, 24, 700, 'rgba(255,255,255,0.65)', 'center', S.titleFont);
-      txt(c, M.dist, 540, ringY + 65, 150, 700, S.txt, 'center', S.numFont, 460);
-      txt(c, M.mainUnit, 540, ringY + 130, 38, 800, S.accent, 'center', S.numFont);
+      txt(c, M.mainLbl, 540, ringY - 75, 24, 700, 'rgba(255,255,255,0.65)', 'center', S.titleFont, 420);
+      txt(c, M.dist, 540, ringY + 65, 145, 700, S.txt, 'center', S.numFont, 460);
+      txt(c, M.mainUnit, 540, ringY + 130, 34, 800, S.accent, 'center', S.titleFont, 360);
     } else {
       drawVisualCenterpiece(c, 220, TOP + 120, 640, 500, S.accent, 14);
     }
 
     drawDynamicStatsGrid(c, M.activeStats, 85, TOP + 730, 910, BOT - (TOP + 760), 3, 'center');
-    if (M.dateStr) txt(c, M.dateStr, 540, BOT - 15, 25, 600, 'rgba(255,255,255,0.5)', 'center', S.numFont);
+    if (M.dateStr) txt(c, M.dateStr, 540, BOT - 15, 24, 600, 'rgba(255,255,255,0.5)', 'center', S.titleFont);
   }
 
-  // ثيم 3: المسار المضيء (Neon Focus)
-  if (st === 3) {
+  // ثيم 5: المسار المضيء (Neon Focus)
+  if (st === 5) {
     drawHeaderBadges(c, 90, TOP, 'left');
-    txt(c, M.title, 90, TOP + 78, 52, 800, S.txt, 'left', S.titleFont, 900);
-    if (M.dateStr) txt(c, M.dateStr, 90, TOP + 122, 25, 600, S.accent, 'left', S.numFont);
+    txt(c, M.title, 90, TOP + 78, 50, 800, S.txt, 'left', S.titleFont, 900);
+    if (M.dateStr) txt(c, M.dateStr, 90, TOP + 122, 24, 600, S.accent, 'left', S.titleFont);
 
     drawVisualCenterpiece(c, 120, TOP + 155, 840, 600, S.accent, 15);
 
@@ -1316,11 +1653,11 @@ function drawCard(c, w, st, isExport = false) {
     }
   }
 
-  // ثيم 4: كبسولة سترافا (Strava Pill Floating)
-  if (st === 4) {
+  // ثيم 6: كبسولة سترافا (Strava Pill Floating)
+  if (st === 6) {
     drawHeaderBadges(c, 540, TOP, 'center');
-    txt(c, M.title, 540, TOP + 78, 54, 800, S.txt, 'center', S.titleFont, 900);
-    if (M.dateStr) txt(c, M.dateStr, 540, TOP + 122, 24, 600, 'rgba(255,255,255,0.6)', 'center', S.numFont);
+    txt(c, M.title, 540, TOP + 78, 52, 800, S.txt, 'center', S.titleFont, 900);
+    if (M.dateStr) txt(c, M.dateStr, 540, TOP + 122, 24, 600, 'rgba(255,255,255,0.6)', 'center', S.titleFont);
 
     drawVisualCenterpiece(c, 180, TOP + 160, 720, 480, S.accent, 13);
 
@@ -1346,12 +1683,12 @@ function drawCard(c, w, st, isExport = false) {
       c.stroke();
       c.restore();
 
-      drawStatCell(c, px + pW / 2, py + 38, it.label, it.val, it.unit, 'center', Math.min(64, pH * 0.44), pW - 60);
+      drawStatCell(c, px + pW / 2, py + 38, it.label, it.val, it.unit, 'center', Math.min(60, pH * 0.42), pW - 60);
     });
   }
 
-  // ثيم 5: ستوري زجاجي (Frosted Glass Grid)
-  if (st === 5) {
+  // ثيم 7: ستوري زجاجي داكن (Dark Frosted Grid)
+  if (st === 7) {
     drawHeaderBadges(c, 540, TOP, 'center');
     txt(c, M.title, 540, TOP + 78, 52, 800, S.txt, 'center', S.titleFont, 900);
 
@@ -1383,7 +1720,7 @@ function drawCard(c, w, st, isExport = false) {
       c.stroke();
       c.restore();
 
-      const vSz = cardH < 175 ? 52 : 68;
+      const vSz = cardH < 175 ? 50 : 64;
       drawStatCell(c, bx + 36, by + Math.round(cardH * 0.32), it.label, it.val, it.unit, 'left', vSz, cardW - 65);
     });
 
@@ -1392,28 +1729,23 @@ function drawCard(c, w, st, isExport = false) {
     }
   }
 
-  // ثيم 6: قمرة القيادة التكتيكية (Tactical HUD)
-  if (st === 6) {
-    // زوايا هندسية تكتيكية
+  // ثيم 8: قمرة القيادة التكتيكية (Tactical HUD)
+  if (st === 8) {
     c.save();
     c.strokeStyle = S.accent;
     c.lineWidth = 4;
     const L = 45;
-    // أعلى يسار
     c.beginPath(); c.moveTo(65, TOP - 40 + L); c.lineTo(65, TOP - 40); c.lineTo(65 + L, TOP - 40); c.stroke();
-    // أعلى يمين
     c.beginPath(); c.moveTo(W - 65 - L, TOP - 40); c.lineTo(W - 65, TOP - 40); c.lineTo(W - 65, TOP - 40 + L); c.stroke();
-    // أسفل يسار
     c.beginPath(); c.moveTo(65, BOT - L); c.lineTo(65, BOT); c.lineTo(65 + L, BOT); c.stroke();
-    // أسفل يمين
     c.beginPath(); c.moveTo(W - 65 - L, BOT); c.lineTo(W - 65, BOT); c.lineTo(W - 65, BOT - L); c.stroke();
     c.restore();
 
     txt(c, `SYS // ${(S.tag || 'COROS').toUpperCase()}`, 95, TOP, 24, 700, S.accent, 'left', S.numFont);
-    txt(c, M.dateStr || 'TELEMETRY ACTIVE', W - 95, TOP, 24, 700, S.accent, 'right', S.numFont);
+    txt(c, M.dateStr || 'TELEMETRY ACTIVE', W - 95, TOP, 22, 700, S.accent, 'right', S.titleFont);
 
     drawHeaderBadges(c, 95, TOP + 65, 'left');
-    txt(c, M.title.toUpperCase(), 95, TOP + 140, 50, 800, S.txt, 'left', S.titleFont, 890);
+    txt(c, M.title, 95, TOP + 140, 48, 800, S.txt, 'left', S.titleFont, 890);
 
     drawVisualCenterpiece(c, 150, TOP + 185, 780, 460, S.accent, 11);
 
@@ -1421,42 +1753,42 @@ function drawCard(c, w, st, isExport = false) {
     if (S.showMain) {
       c.fillStyle = 'rgba(255,255,255,0.12)';
       c.fillRect(95, TOP + 665, 890, 2);
-      drawStatCell(c, 95, TOP + 700, M.mainLbl, M.dist, M.mainUnit, 'left', 135, 850);
+      drawStatCell(c, 95, TOP + 700, M.mainLbl, M.dist, M.mainUnit, 'left', 125, 850);
       gTop = TOP + 915;
     }
 
     drawDynamicStatsGrid(c, M.activeStats, 95, gTop, 890, BOT - gTop - 25, 3, 'left');
   }
 
-  // ثيم 7: توهج حراري (Thermal Neon)
-  if (st === 7) {
+  // ثيم 9: توهج حراري (Thermal Neon)
+  if (st === 9) {
     drawHeaderBadges(c, 540, TOP, 'center');
-    txt(c, M.title.toUpperCase(), 540, TOP + 82, 60, 800, S.txt, 'center', S.titleFont, 900);
+    txt(c, M.title, 540, TOP + 82, 54, 800, S.txt, 'center', S.titleFont, 900);
 
     drawVisualCenterpiece(c, 140, TOP + 135, 800, 520, '#ffffff', 16);
 
     if (S.showMain) {
-      txt(c, M.dist, 540, TOP + 835, 190, 700, S.txt, 'center', S.numFont, 780);
-      txt(c, `${M.mainLbl} (${M.mainUnit})`, 540, TOP + 890, 28, 800, S.accent, 'center', S.titleFont);
+      txt(c, M.dist, 540, TOP + 835, 180, 700, S.txt, 'center', S.numFont, 780);
+      txt(c, `${M.mainLbl} (${M.mainUnit})`, 540, TOP + 890, 26, 800, S.accent, 'center', S.titleFont);
     }
 
     drawDynamicStatsGrid(c, M.activeStats, 85, TOP + (S.showMain ? 955 : 720), 910, BOT - (TOP + 955), 3, 'center');
   }
 
-  // ثيم 8: بوستر ماراثون (Editorial Race Poster)
-  if (st === 8) {
+  // ثيم 10: بوستر ماراثون (Editorial Race Poster)
+  if (st === 10) {
     if (!S.transparent) {
       c.fillStyle = '#f4efe6';
       c.fillRect(0, 0, W, H);
     }
     const ink = S.transparent ? S.txt : '#141413';
     drawHeaderBadges(c, 90, TOP, 'left', ink);
-    if (M.dateStr) txt(c, M.dateStr, W - 90, TOP - 4, 26, 700, ink, 'right', S.numFont);
+    if (M.dateStr) txt(c, M.dateStr, W - 90, TOP - 4, 24, 700, ink, 'right', S.titleFont);
 
     c.fillStyle = ink;
     c.fillRect(90, TOP + 25, 900, 4);
 
-    txt(c, M.title.toUpperCase(), 90, TOP + 135, 96, 700, ink, 'left', S.numFont, 900);
+    txt(c, M.title, 90, TOP + 135, 82, 700, ink, 'left', S.titleFont, 900);
 
     drawVisualCenterpiece(c, 180, TOP + 180, 720, 460, S.accent, 14);
 
@@ -1465,16 +1797,17 @@ function drawCard(c, w, st, isExport = false) {
 
     let gridTop = TOP + 725;
     if (S.showMain) {
-      txt(c, (M.dist || '0.00') + ' ' + M.mainUnit, 90, TOP + 865, 165, 700, ink, 'left', S.numFont, 900);
+      txt(c, (M.dist || '0.00') + ' ' + M.mainUnit, 90, TOP + 865, 145, 700, ink, 'left', S.numFont, 900);
       gridTop = TOP + 935;
     }
 
     drawDynamicStatsGrid(c, M.activeStats, 90, gridTop, 900, BOT - gridTop, 3, 'left', ink);
   }
 
-  // ثيم 9: شريط سفلي أنيق (Minimal Bottom Bar - ممتاز للصور الشخصية بالـ Gym أو الجري)
-  if (st === 9) {
-    drawHeaderBadges(c, 85, TOP, 'left');
+  // ثيم 11: شريط سفلي زجاجي سائل (Minimal Liquid Bottom Bar)
+  if (st === 11) {
+    prepareBlurredBackdrop();
+    drawHeaderBadges(c, 85, TOP, 'left', S.txt, true);
     drawVisualCenterpiece(c, 710, TOP - 20, 270, 220, S.accent, 8);
 
     const allStats = S.showMain
@@ -1485,28 +1818,21 @@ function drawCard(c, w, st, isExport = false) {
     const boxH = Math.max(330, 165 + rows * 165);
     const boxY = BOT - boxH;
 
-    c.save();
-    rr(c, 55, boxY, 970, boxH, 42);
-    c.fillStyle = 'rgba(10, 10, 14, 0.86)';
-    c.fill();
-    c.strokeStyle = 'rgba(255,255,255,0.18)';
-    c.lineWidth = 2;
-    c.stroke();
-    c.restore();
+    drawLiquidGlassBox(c, 55, boxY, 970, boxH, 48, 0.22, false);
 
-    txt(c, M.title, 105, boxY + 75, 44, 800, S.txt, 'left', S.titleFont, 620);
-    if (M.dateStr) txt(c, M.dateStr, 975, boxY + 75, 25, 600, S.accent, 'right', S.numFont);
+    txt(c, M.title, 105, boxY + 75, 42, 800, S.txt, 'left', S.titleFont, 580);
+    if (M.dateStr) txt(c, M.dateStr, 975, boxY + 75, 22, 600, S.accent, 'right', S.titleFont);
 
-    c.fillStyle = 'rgba(255,255,255,0.12)';
+    c.fillStyle = 'rgba(255,255,255,0.16)';
     c.fillRect(105, boxY + 105, 870, 2);
 
     drawDynamicStatsGrid(c, allStats, 105, boxY + 145, 870, boxH - 165, 3, 'left');
   }
 
-  // ثيم 10: تقرير تقني (COROS Telemetry Split)
-  if (st === 10) {
+  // ثيم 12: تقرير تقني (COROS Telemetry Split)
+  if (st === 12) {
     drawHeaderBadges(c, 85, TOP, 'left');
-    txt(c, M.title.toUpperCase(), 85, TOP + 78, 50, 800, S.txt, 'left', S.titleFont, 900);
+    txt(c, M.title, 85, TOP + 78, 48, 800, S.txt, 'left', S.titleFont, 900);
 
     const list = S.showMain
       ? [{ label: M.mainLbl, val: M.dist, unit: M.mainUnit }, ...M.activeStats]
@@ -1520,7 +1846,7 @@ function drawCard(c, w, st, isExport = false) {
     c.fill();
 
     const stepY = Math.min(195, colH / Math.max(1, list.length));
-    const vSz = stepY < 160 ? 58 : 74;
+    const vSz = stepY < 160 ? 56 : 70;
     list.forEach((it, idx) => {
       drawStatCell(c, 130, colTop + 25 + idx * stepY, it.label, it.val, it.unit, 'left', vSz, 420);
     });
@@ -1528,22 +1854,21 @@ function drawCard(c, w, st, isExport = false) {
     drawVisualCenterpiece(c, 555, colTop + 80, 445, colH - 160, S.accent, 12);
   }
 
-  // ثيم 11: ملصق مختصر وسط الشاشة (IG / Strava Sticker)
-  if (st === 11) {
+  // ثيم 13: ملصق مختصر وسط الشاشة (IG / Strava Sticker)
+  if (st === 13) {
     drawHeaderBadges(c, 540, TOP + 20, 'center');
     drawVisualCenterpiece(c, 320, TOP + 65, 440, 340, S.accent, 11);
-    txt(c, M.title.toUpperCase(), 540, TOP + 465, 42, 800, S.accent, 'center', S.titleFont, 860);
+    txt(c, M.title, 540, TOP + 465, 42, 800, S.accent, 'center', S.titleFont, 860);
 
     let gridTop = TOP + 520;
     if (S.showMain) {
-      drawStatCell(c, 540, TOP + 515, M.mainLbl, M.dist, M.mainUnit, 'center', 130, 700);
+      drawStatCell(c, 540, TOP + 515, M.mainLbl, M.dist, M.mainUnit, 'center', 125, 700);
       gridTop = TOP + 740;
     }
 
     drawDynamicStatsGrid(c, M.activeStats, 90, gridTop, 900, BOT - gridTop, 3, 'center');
   }
 
-  // رسم خطوط المعاينة الآمنة للستوري (لا تطبع عند الحفظ النهائي)
   if (!isExport && w === W) {
     drawStorySafeOverlay(c);
   }
@@ -1632,7 +1957,9 @@ function syncInputsFromState() {
   sched();
 }
 
-/* قارئ ملفات .FIT مطور يدعم الجري والدراجة وتمارين الحديد (Strength Sets & Reps & Volume) */
+/* =========================================================================
+   قارئ ملفات .FIT الدقيق (يستبعد وقت الـ Pause + يستبعد جلسات الراحة)
+   ========================================================================= */
 function parseFitBuffer(buf) {
   const view = new DataView(buf);
   if (view.byteLength < 14) return null;
@@ -1643,12 +1970,21 @@ function parseFitBuffer(buf) {
   const defs = {};
   const pts = [];
   let hrSum = 0, hrCnt = 0, cadSum = 0, cadCnt = 0, pwrSum = 0, pwrCnt = 0;
-  let minTs = null, maxTs = null, lastAlt = null, elevGain = 0, maxDist = 0;
+  let minTs = null, maxTs = null, prevRecTs = null, movingRecSec = 0;
+  let lastAlt = null, elevGain = 0, maxDist = 0;
 
-  // متغيرات خاصة بتمارين الحديد والقوة داخل ملف FIT
-  let fitSport = null, fitSubSport = null, sessionCalories = 0;
-  let activeSets = 0, totalReps = 0, totalVolumeKg = 0;
+  let fitSport = null, fitSubSport = null;
+  let sessionTimerSec = 0; // total_timer_time (وقت التمرين الفعلي بدون Pause)
+  let sessionDistKm = 0;
+  let sessionCalories = 0;
+  let sessionAvgHr = 0;
+  let sessionAscent = 0;
+
+  let activeSetsCount = 0;
+  let totalRepsCount = 0;
+  let totalVolumeKg = 0;
   const setRepsList = [];
+  let activeLapsCount = 0;
 
   while (pos < end) {
     const hdr = view.getUint8(pos++);
@@ -1680,38 +2016,62 @@ function parseFitBuffer(buf) {
       const def = defs[localNum];
       if (!def) break;
       let lat = null, lon = null;
-      let setType = 1, setReps = 0, setWeight = 0;
+      let setType = null, setReps = null, setWeight = 0;
+      let lapIntensity = null;
 
       for (const f of def.fields) {
         if (pos + f.size > end) { pos = end; break; }
 
-        // Global Msg 18 = Session (نوع الرياضة والسعرات الإجمالية)
         if (def.gMsg === 18) {
           if (f.num === 5 && f.size === 1) fitSport = view.getUint8(pos);
           else if (f.num === 6 && f.size === 1) fitSubSport = view.getUint8(pos);
-          else if (f.num === 11 && f.size === 2) {
+          else if (f.num === 8 && f.size === 4) {
+            const t = view.getUint32(pos, def.le);
+            if (t !== 0xFFFFFFFF && t > 0) sessionTimerSec = t / 1000;
+          } else if (f.num === 9 && f.size === 4) {
+            const d = view.getUint32(pos, def.le);
+            if (d !== 0xFFFFFFFF && d > 0) sessionDistKm = d / 100000;
+          } else if (f.num === 11 && f.size === 2) {
             const c = view.getUint16(pos, def.le);
             if (c !== 0xFFFF) sessionCalories = c;
+          } else if (f.num === 16 && f.size === 1) {
+            const h = view.getUint8(pos);
+            if (h !== 0xFF && h > 30) sessionAvgHr = h;
+          } else if (f.num === 22 && f.size === 2) {
+            const asc = view.getUint16(pos, def.le);
+            if (asc !== 0xFFFF) sessionAscent = asc;
           }
         }
-        // Global Msg 225 = Set (جلسات تمرين الحديد والتكرارات والأوزان في COROS/Garmin)
         else if (def.gMsg === 225) {
           if (f.num === 0 && f.size === 1) {
             const st = view.getUint8(pos);
-            if (st !== 0xFF) setType = st; // 1 = Active Set, 0 = Rest
+            if (st !== 0xFF) setType = st; // 1 = Active, 0 = Rest
           } else if (f.num === 3 && f.size === 2) {
             const r = view.getUint16(pos, def.le);
             if (r !== 0xFFFF) setReps = r;
           } else if (f.num === 4 && f.size === 2) {
             const w = view.getUint16(pos, def.le);
-            if (w !== 0xFFFF) setWeight = w / 16; // مقسوم على 16 في معيار FIT
+            if (w !== 0xFFFF) setWeight = w / 16;
           }
         }
-        // Global Msg 20 = Record (نقاط التمرين والنبض والمسار)
+        else if (def.gMsg === 19) {
+          if (f.num === 23 && f.size === 1) {
+            const inten = view.getUint8(pos);
+            if (inten !== 0xFF) lapIntensity = inten;
+          }
+        }
         else if (def.gMsg === 20) {
           if (f.num === 253 && f.size === 4) {
             const ts = view.getUint32(pos, def.le);
-            if (ts !== 0xFFFFFFFF) { if (!minTs) minTs = ts; maxTs = ts; }
+            if (ts !== 0xFFFFFFFF) {
+              if (!minTs) minTs = ts;
+              maxTs = ts;
+              if (prevRecTs !== null) {
+                const delta = ts - prevRecTs;
+                if (delta > 0 && delta <= 15) movingRecSec += delta;
+              }
+              prevRecTs = ts;
+            }
           } else if (f.num === 0 && f.size === 4) {
             const v = view.getInt32(pos, def.le);
             if (v !== 0x7FFFFFFF) lat = v * (180 / 2147483648);
@@ -1742,11 +2102,19 @@ function parseFitBuffer(buf) {
         pos += f.size;
       }
 
-      if (def.gMsg === 225 && setType === 1) {
-        activeSets++;
-        totalReps += setReps;
-        if (setReps > 0) setRepsList.push(setReps);
-        if (setWeight > 0 && setReps > 0) totalVolumeKg += (setWeight * setReps);
+      if (def.gMsg === 225) {
+        const isActiveSet = (setType === 1) || (setType === null && setReps !== null && setReps > 0);
+        if (isActiveSet) {
+          activeSetsCount++;
+          const repsVal = setReps || 0;
+          totalRepsCount += repsVal;
+          if (repsVal > 0) setRepsList.push(repsVal);
+          if (setWeight > 0 && repsVal > 0) totalVolumeKg += (setWeight * repsVal);
+        }
+      }
+
+      if (def.gMsg === 19 && lapIntensity === 0) {
+        activeLapsCount++;
       }
 
       if (lat !== null && lon !== null && Math.abs(lat) <= 90 && Math.abs(lon) <= 180) {
@@ -1755,25 +2123,27 @@ function parseFitBuffer(buf) {
     }
   }
 
-  // تحديد ما إذا كان الملف لتمرين حديد/قوة
-  const isStrength = (fitSport === 10 || fitSubSport === 20 || activeSets > 0);
+  const finalSets = activeSetsCount > 0 ? activeSetsCount : activeLapsCount;
+  const isStrength = (fitSport === 10 || fitSubSport === 20 || activeSetsCount > 0);
+  const finalDurationSec = sessionTimerSec > 0 ? sessionTimerSec : (movingRecSec > 0 ? movingRecSec : ((minTs && maxTs) ? (maxTs - minTs) : 0));
+  const finalDistKm = sessionDistKm > 0 ? sessionDistKm : (maxDist > 0 ? maxDist / 1000 : 0);
 
   return {
     isStrength,
     fitSport,
-    activeSets,
-    totalReps,
+    activeSets: finalSets,
+    totalReps: totalRepsCount,
     totalVolumeKg: Math.round(totalVolumeKg),
     setRepsList,
     sessionCalories,
     pts,
-    distKm: maxDist > 0 ? maxDist / 1000 : 0,
-    durationSec: (minTs && maxTs && maxTs > minTs) ? (maxTs - minTs) : 0,
+    distKm: finalDistKm,
+    durationSec: Math.round(finalDurationSec),
     startEpochMs: minTs ? (minTs + 631065600) * 1000 : null,
-    avgHr: hrCnt ? Math.round(hrSum / hrCnt) : 0,
+    avgHr: sessionAvgHr > 0 ? sessionAvgHr : (hrCnt ? Math.round(hrSum / hrCnt) : 0),
     avgCad: cadCnt ? Math.round(cadSum / cadCnt) : 0,
     avgPwr: pwrCnt ? Math.round(pwrSum / pwrCnt) : 0,
-    elevGain: Math.round(elevGain)
+    elevGain: sessionAscent > 0 ? sessionAscent : Math.round(elevGain)
   };
 }
 
@@ -1781,7 +2151,7 @@ function parseFitBuffer(buf) {
 $('trackFile').onchange = async e => {
   const f = e.target.files[0];
   if (!f) return;
-  msg.textContent = 'جاري تحليل ملف التمرين واستخراج الجلسات والأرقام...';
+  msg.textContent = 'جاري تحليل ملف التمرين واستخراج الجلسات الفعالة ووقت التمرين الصافي...';
 
   try {
     if (f.name.toLowerCase().endsWith('.fit')) {
@@ -1790,11 +2160,10 @@ $('trackFile').onchange = async e => {
       if (res) {
         if (res.isStrength) {
           applySportMode('gym', true);
-          S.style = 1; // التبديل التلقائي لثيم بطاقة الحديد
-          S.dist = String(res.activeSets || 16);
+          S.dist = String(res.activeSets || 17);
           S.setReps = res.setRepsList;
-          if (res.totalReps > 0) setStatValue('pace', 'TOTAL REPS', res.totalReps, 'REPS');
-          if (res.totalVolumeKg > 0) setStatValue('elev', 'VOLUME', res.totalVolumeKg, 'KG');
+          if (res.totalReps > 0) setStatValue('pace', res.totalReps);
+          if (res.totalVolumeKg > 0) setStatValue('elev', res.totalVolumeKg);
         } else {
           if (res.fitSport === 2) applySportMode('bike', true);
           else applySportMode('run', true);
@@ -1804,28 +2173,28 @@ $('trackFile').onchange = async e => {
             S.route = res.pts.filter((_, idx) => idx % step === 0);
           }
           if (res.distKm > 0) S.dist = res.distKm.toFixed(2);
-          if (res.elevGain > 0) setStatValue('elev', 'ELEV GAIN', res.elevGain, 'M');
+          if (res.elevGain > 0) setStatValue('elev', res.elevGain);
         }
 
         if (res.durationSec > 0) {
-          setStatValue('time', 'TIME', formatDuration(res.durationSec), '');
+          setStatValue('time', formatDuration(res.durationSec));
           if (!res.isStrength && res.distKm > 0) {
             const pVal = S.sport === 'bike'
               ? (res.distKm / (res.durationSec / 3600)).toFixed(1)
               : formatPace(res.durationSec / res.distKm);
-            setStatValue('pace', sportDefaults[S.sport].paceLbl || 'AVG PACE', pVal, S.sport === 'bike' ? 'KM/H' : '/KM');
+            setStatValue('pace', pVal);
           }
         }
-        if (res.avgHr > 0) setStatValue('hr', 'AVG HR', res.avgHr, 'BPM');
-        if (res.sessionCalories > 0) setStatValue('cal', 'CALORIES', res.sessionCalories, 'KCAL');
-        if (res.avgCad > 0 && !res.isStrength) setStatValue('cad', 'CADENCE', res.avgCad, 'SPM');
-        if (res.avgPwr > 0) setStatValue('pwr', 'AVG POWER', res.avgPwr, 'W');
+        if (res.avgHr > 0) setStatValue('hr', res.avgHr);
+        if (res.sessionCalories > 0) setStatValue('cal', res.sessionCalories);
+        if (res.avgCad > 0 && !res.isStrength) setStatValue('cad', res.avgCad);
+        if (res.avgPwr > 0) setStatValue('pwr', res.avgPwr);
         if (res.startEpochMs) S.date = new Date(res.startEpochMs).toISOString().slice(0, 10);
 
-        e.target.parentNode.childNodes[0].nodeValue = '✓ تم استخراج بيانات FIT';
+        e.target.parentNode.childNodes[0].nodeValue = '✓ تم استخراج بيانات FIT بدقة';
         msg.textContent = res.isStrength
-          ? `تم اكتشاف تمرين حديد (${res.activeSets} جلسة / ${res.totalReps} عدة) وتعبئة البطاقة!`
-          : 'تم استخراج المسار والأرقام من ملف FIT بنجاح!';
+          ? `تم استخراج التمرين الصافي بدون التوقف: (${res.activeSets} جلسة فعلية / الزمن ${formatDuration(res.durationSec)})!`
+          : `تم استخراج المسار والزمن الصافي (${formatDuration(res.durationSec)}) بنجاح!`;
         syncInputsFromState();
         return;
       }
@@ -1837,7 +2206,7 @@ $('trackFile').onchange = async e => {
     const pts = [];
     let elevGain = 0, lastEle = null;
     let hrSum = 0, hrCount = 0;
-    let firstTime = null, lastTime = null;
+    let firstTime = null, prevTime = null, movingSec = 0;
 
     if (trkpts.length) {
       trkpts.forEach(pt => {
@@ -1855,36 +2224,18 @@ $('trackFile').onchange = async e => {
         const tEl = pt.querySelector('time');
         if (tEl) {
           const ts = Date.parse(tEl.textContent);
-          if (!isNaN(ts)) { if (!firstTime) firstTime = ts; lastTime = ts; }
+          if (!isNaN(ts)) {
+            if (!firstTime) firstTime = ts;
+            if (prevTime !== null) {
+              const dt = (ts - prevTime) / 1000;
+              if (dt > 0 && dt <= 15) movingSec += dt;
+            }
+            prevTime = ts;
+          }
         }
         const hrEl = pt.getElementsByTagName('gpxtpx:hr')[0] || pt.getElementsByTagName('ns3:hr')[0] || pt.querySelector('hr');
         if (hrEl) {
           const h = parseFloat(hrEl.textContent);
-          if (!isNaN(h)) { hrSum += h; hrCount++; }
-        }
-      });
-    } else {
-      const tcxPts = [...doc.querySelectorAll('Trackpoint')];
-      tcxPts.forEach(pt => {
-        const latEl = pt.querySelector('LatitudeDegrees');
-        const lonEl = pt.querySelector('LongitudeDegrees');
-        if (latEl && lonEl) pts.push([parseFloat(latEl.textContent), parseFloat(lonEl.textContent)]);
-        const altEl = pt.querySelector('AltitudeMeters');
-        if (altEl) {
-          const ele = parseFloat(altEl.textContent);
-          if (!isNaN(ele)) {
-            if (lastEle !== null && ele > lastEle) elevGain += (ele - lastEle);
-            lastEle = ele;
-          }
-        }
-        const tEl = pt.querySelector('Time');
-        if (tEl) {
-          const ts = Date.parse(tEl.textContent);
-          if (!isNaN(ts)) { if (!firstTime) firstTime = ts; lastTime = ts; }
-        }
-        const hrVal = pt.querySelector('HeartRateBpm Value');
-        if (hrVal) {
-          const h = parseFloat(hrVal.textContent);
           if (!isNaN(h)) { hrSum += h; hrCount++; }
         }
       });
@@ -1900,19 +2251,18 @@ $('trackFile').onchange = async e => {
       }
       if (totalKm > 0) S.dist = totalKm.toFixed(2);
 
-      if (firstTime && lastTime && lastTime > firstTime) {
-        const totalSec = (lastTime - firstTime) / 1000;
-        setStatValue('time', 'TIME', formatDuration(totalSec), '');
+      if (movingSec > 0) {
+        setStatValue('time', formatDuration(movingSec));
         if (totalKm > 0) {
           const pVal = S.sport === 'bike'
-            ? (totalKm / (totalSec / 3600)).toFixed(1)
-            : formatPace(totalSec / totalKm);
-          setStatValue('pace', S.sport === 'bike' ? 'AVG SPEED' : 'AVG PACE', pVal, S.sport === 'bike' ? 'KM/H' : '/KM');
+            ? (totalKm / (movingSec / 3600)).toFixed(1)
+            : formatPace(movingSec / totalKm);
+          setStatValue('pace', pVal);
         }
-        S.date = new Date(firstTime).toISOString().slice(0, 10);
+        if (firstTime) S.date = new Date(firstTime).toISOString().slice(0, 10);
       }
-      if (elevGain > 0) setStatValue('elev', 'ELEV GAIN', Math.round(elevGain), 'M');
-      if (hrCount > 0) setStatValue('hr', 'AVG HR', Math.round(hrSum / hrCount), 'BPM');
+      if (elevGain > 0) setStatValue('elev', Math.round(elevGain));
+      if (hrCount > 0) setStatValue('hr', Math.round(hrSum / hrCount));
 
       const nameEl = doc.querySelector('trk > name, Name');
       if (nameEl && nameEl.textContent.trim()) S.title = nameEl.textContent.trim();
@@ -1928,12 +2278,11 @@ $('trackFile').onchange = async e => {
   }
 };
 
-/* استخراج الأرقام من رابط أو نص مشاركة COROS (يدعم الجري والحديد والدراجة) */
+/* استخراج الأرقام من رابط أو نص مشاركة COROS */
 function parseCorosTextOrHtml(raw) {
   if (!raw) return false;
   let found = false;
 
-  // التحقق مما إذا كان النص لتمرين حديد / قوة
   const setsMatch = raw.match(/(\d{1,3})\s*(?:sets|set|جلسات|جلسة|جولات)/i);
   const repsMatch = raw.match(/(\d{1,4})\s*(?:reps|rep|عدات|عدة|تكرار)/i);
   const isStrengthText = /strength|gym|weight|muscle|حديد|مقاومة|قوة/i.test(raw) || (setsMatch && repsMatch);
@@ -1941,43 +2290,35 @@ function parseCorosTextOrHtml(raw) {
   if (isStrengthText) {
     applySportMode('gym', true);
     if (setsMatch) { S.dist = setsMatch[1]; found = true; }
-    if (repsMatch) { setStatValue('pace', 'TOTAL REPS', repsMatch[1], 'REPS'); found = true; }
+    if (repsMatch) { setStatValue('pace', repsMatch[1]); found = true; }
     const volMatch = raw.match(/(\d+(?:[.,]\d+)?)\s*(?:kg|كجم|كغ)/i);
-    if (volMatch) { setStatValue('elev', 'VOLUME', volMatch[1].replace(',', ''), 'KG'); found = true; }
+    if (volMatch) { setStatValue('elev', volMatch[1].replace(',', '')); found = true; }
   } else {
     const distMatch = raw.match(/(\d+(?:\.\d+)?)\s*(?:km|كم|kilometers)/i);
     if (distMatch) { S.dist = distMatch[1]; found = true; }
 
     const paceMatch = raw.match(/(\d{1,2})['’:](\d{2})(?:"|”)?\s*(?:\/km|\/كم|min\/km)?/i);
-    if (paceMatch) { setStatValue('pace', 'AVG PACE', `${paceMatch[1]}:${paceMatch[2]}`, '/KM'); found = true; }
+    if (paceMatch) { setStatValue('pace', `${paceMatch[1]}:${paceMatch[2]}`); found = true; }
   }
 
   const curPace = (S.stats.find(x => x.id === 'pace') || {}).val;
   const timeMatches = [...raw.matchAll(/\b(\d{1,2}:\d{2}(?::\d{2})?)\b/g)].map(m => m[1]);
   const durCandidate = timeMatches.find(t => t !== curPace && t.length >= 4);
-  if (durCandidate) { setStatValue('time', 'TIME', durCandidate.replace(/^00:/, ''), ''); found = true; }
+  if (durCandidate) { setStatValue('time', durCandidate.replace(/^00:/, '')); found = true; }
 
   const hrMatch = raw.match(/(\d{2,3})\s*(?:bpm|نبضة)/i);
-  if (hrMatch) { setStatValue('hr', 'AVG HR', hrMatch[1], 'BPM'); found = true; }
+  if (hrMatch) { setStatValue('hr', hrMatch[1]); found = true; }
 
   if (!isStrengthText) {
     const elevMatch = raw.match(/(?:elev(?:ation)?|ascent|الارتفاع)[^\d]{0,15}(\d{1,4})\s*(?:m|م)?/i);
-    if (elevMatch) { setStatValue('elev', 'ELEV GAIN', elevMatch[1], 'M'); found = true; }
+    if (elevMatch) { setStatValue('elev', elevMatch[1]); found = true; }
   }
 
   const calMatch = raw.match(/(\d{2,4})\s*(?:kcal|cal|سعرة)/i);
-  if (calMatch) { setStatValue('cal', 'CALORIES', calMatch[1], 'KCAL'); found = true; }
+  if (calMatch) { setStatValue('cal', calMatch[1]); found = true; }
 
   const tlMatch = raw.match(/(?:load|tl|حمل التدريب)[^\d]{0,10}(\d{1,3})/i);
-  if (tlMatch) { setStatValue('tl', 'TRAINING LOAD', tlMatch[1], 'TL'); found = true; }
-
-  const latMatches = [...raw.matchAll(/"lat(?:itude)?"\s*:\s*(-?\d+\.\d+)\s*,\s*"lon(?:gitude)?"\s*:\s*(-?\d+\.\d+)/gi)];
-  if (latMatches.length > 5) {
-    const pts = latMatches.map(m => [parseFloat(m[1]), parseFloat(m[2])]);
-    const step = Math.max(1, Math.floor(pts.length / 250));
-    S.route = pts.filter((_, i) => i % step === 0);
-    found = true;
-  }
+  if (tlMatch) { setStatValue('tl', tlMatch[1]); found = true; }
 
   if (found) syncInputsFromState();
   return found;
@@ -2031,22 +2372,24 @@ $('fetchBtn').onclick = async () => {
 };
 
 [
+  '700 40px "Cairo"',
+  '700 40px "Readex Pro"',
+  '700 40px "Changa"',
+  '700 40px "Alexandria"',
+  '700 40px "IBM Plex Sans Arabic"',
+  '700 40px "Tajawal"',
   '400 40px "Bebas Neue"',
   '400 40px "Archivo Black"',
   '700 40px "Chakra Petch"',
   '700 40px "JetBrains Mono"',
-  '700 40px "Oswald"',
-  '700 40px "Space Grotesk"',
-  '700 40px Inter',
-  '700 40px Tajawal'
+  '700 40px "Oswald"'
 ].forEach(f => document.fonts.load(f).then(sched).catch(() => {}));
 
 $('share').onclick = async () => {
   try {
-    // رسم نسخة التصدير النهائية بدون خطوط الإرشاد الحمراء
     drawCard(cv.getContext('2d'), W, S.style, true);
     const b = await new Promise(r => cv.toBlob(r, 'image/png'));
-    render(); // إعادة المعاينة الطبيعية
+    render();
     const file = new File([b], 'coros-activity.png', { type: 'image/png' });
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
       await navigator.share({ files: [file] });
