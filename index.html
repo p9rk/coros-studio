@@ -124,21 +124,18 @@ h1 {
 
 /* شريط القوالب */
 #strip {
-  display: flex;
-  gap: 10px;
-  overflow-x: auto;
-  padding: 8px 4px 12px;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 7px;
+  padding: 8px 2px 12px;
 }
-#strip::-webkit-scrollbar { display: none; }
 .th {
-  flex: 0 0 auto;
-  border-radius: 18px;
-  padding: 5px;
+  border-radius: 14px;
+  padding: 4px;
   color: var(--mut);
   font: inherit;
-  font-size: 11px;
+  font-size: 9.5px;
+  line-height: 1.25;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -150,15 +147,17 @@ h1 {
 }
 .th canvas {
   display: block;
-  width: 66px;
-  height: 118px;
-  border-radius: 13px;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 9 / 16;
+  border-radius: 12px;
   background: #141a22;
 }
 .th span {
   display: block;
   margin-top: 5px;
   font-weight: 600;
+  text-align: center;
 }
 
 /* أزرار اللغة ونوع الرياضة */
@@ -172,7 +171,47 @@ h1 {
   grid-template-columns: repeat(4, 1fr);
   gap: 8px;
 }
-.sport-pill, .lang-pill {
+.week-pills {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.week-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+.week-day { display: grid; gap: 4px; text-align: center; }
+.week-day span {
+  font-size: 10.5px;
+  color: var(--mut);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.week-day input {
+  padding: 8px 2px;
+  text-align: center;
+  font-size: 13px;
+  border-radius: 10px;
+  direction: ltr;
+  border: 1px solid var(--edge);
+  background: rgba(0, 0, 0, 0.35);
+  color: #fff;
+  font-family: inherit;
+  outline: none;
+  width: 100%;
+  min-width: 0;
+}
+.week-day input:focus { border-color: rgba(255, 255, 255, 0.6); }
+.week-day input::-webkit-outer-spin-button,
+.week-day input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.week-day.today span { color: #7dd3fc; font-weight: 700; }
+.week-day.today input {
+  border-color: rgba(125, 211, 252, 0.7);
+  background: rgba(125, 211, 252, 0.14);
+}
+.sport-pill, .lang-pill, .week-pill {
   padding: 10px 6px;
   border-radius: 14px;
   border: 1px solid var(--edge);
@@ -185,7 +224,7 @@ h1 {
   text-align: center;
   transition: all 0.15s;
 }
-.sport-pill.active, .lang-pill.active {
+.sport-pill.active, .lang-pill.active, .week-pill.active {
   background: rgba(255, 255, 255, 0.2);
   color: #fff;
   border-color: rgba(255, 255, 255, 0.7);
@@ -404,13 +443,13 @@ input[type=range] { accent-color: #7dd3fc; width: 100%; }
 <main>
   <div class="brand-head">
     <span class="brand-dot"></span>
-    <h1>COROS Liquid Glass Studio</h1>
+    <h1>COROS Activity Studio Pro</h1>
   </div>
 
   <div class="prev-wrap">
     <img id="prev" alt="معاينة بطاقة التمرين">
   </div>
-  <p class="hint">تصميم iOS Liquid Glass الحقيقي + تحكم كامل بالغراف والوحدات</p>
+  <p class="hint">11 ثيم للبطاقة + شريط نشاط الأسبوع + تحكم كامل بالغراف والوحدات</p>
   <div id="strip"></div>
 
   <p id="msg"></p>
@@ -502,6 +541,35 @@ input[type=range] { accent-color: #7dd3fc; width: 100%; }
     </div>
   </section>
 
+  <!-- قسم نشاط الأسبوع -->
+  <section class="panel">
+    <div class="section-head">
+      <b>نشاط الأسبوع (Weekly Activity)</b>
+      <span>يُرسم أسفل البطاقة</span>
+    </div>
+
+    <div class="chk-row">
+      <label class="chk"><input type="checkbox" data-k="showWeek" checked> إظهار شريط نشاط الأسبوع</label>
+    </div>
+
+    <label>شكل الشريط
+      <div class="week-pills">
+        <button type="button" class="week-pill active" data-w="bars">📊 أعمدة</button>
+        <button type="button" class="week-pill" data-w="line">📈 خط</button>
+        <button type="button" class="week-pill" data-w="dots">🔵 نقاط</button>
+      </div>
+    </label>
+
+    <div class="row">
+      <label>الهدف الأسبوعي<input type="text" data-k="weekGoal" value="300" placeholder="300"></label>
+      <label>وحدة الشريط<input type="text" data-k="weekUnit" class="rtl-in" value="دقيقة / MIN" placeholder="دقيقة / MIN"></label>
+    </div>
+
+    <label>القيم لكل يوم (الأحد ← السبت)</label>
+    <div class="week-grid" id="weekGrid"></div>
+    <p class="hint" style="margin:0;text-align:right;font-size:12px">تُلوّن خانة اليوم الحالي تلقائياً، والخط المتقطع يمثل متوسط هدفك اليومي.</p>
+  </section>
+
   <!-- قسم الخطوط والألوان والأبعاد -->
   <section class="panel">
     <div class="row">
@@ -569,7 +637,10 @@ const I18N = {
     },
     overviewHdr: 'نظرة عامة / Overview',
     activityHdr: 'تفاصيل التمرين / Activity Summary',
-    hrGraphTitle: 'منحنى نبض القلب / Heart Rate'
+    hrGraphTitle: 'منحنى نبض القلب / Heart Rate',
+    weekHdr: 'نشاط الأسبوع / WEEKLY ACTIVITY',
+    days: ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'],
+    unitMin: 'دقيقة / MIN'
   },
   ar: {
     sports: {
@@ -591,7 +662,10 @@ const I18N = {
     },
     overviewHdr: 'نظرة عامة على التمرين',
     activityHdr: 'ملخص الأداء والنبض',
-    hrGraphTitle: 'مخطط نبض القلب'
+    hrGraphTitle: 'مخطط نبض القلب',
+    weekHdr: 'نشاط الأسبوع',
+    days: ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'],
+    unitMin: 'دقيقة'
   },
   en: {
     sports: {
@@ -613,7 +687,10 @@ const I18N = {
     },
     overviewHdr: 'Overview',
     activityHdr: 'Recent Activity & Telemetry',
-    hrGraphTitle: 'Heart Rate Trend'
+    hrGraphTitle: 'Heart Rate Trend',
+    weekHdr: 'WEEKLY ACTIVITY',
+    days: ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'],
+    unitMin: 'MIN'
   }
 };
 
@@ -637,7 +714,13 @@ const S = {
   safeShift: 35,
   transparent: false,
   showSafeGuide: false,
+  showWeek: true,
+  weekStyle: 'bars',
+  week: [42, 0, 58, 35, 76, 0, 51],
+  weekGoal: 300,
+  weekUnit: 'دقيقة / MIN',
   bg: null,
+  bgVer: 0,
   route: [],
   hrSeries: [],
   maxHrVal: 0,
@@ -652,12 +735,17 @@ const S = {
 };
 
 const styleNames = [
-  'Liquid Glass (نفس الصورة) 💧',
-  'Liquid Glass (بطاقة مدمجة) 💧',
-  'Liquid Glass (بانوراما النبض) 📈',
-  'Liquid Glass (شفاف للصور) ✨',
-  'COROS داكن كلاسيك',
-  'تقرير تقني HUD'
+  'Liquid Glass 💧',
+  'Liquid مدمج 💧',
+  'Liquid بانوراما 📈',
+  'Liquid سفلي ✨',
+  'COROS كلاسيك',
+  'HUD تقني',
+  'Neon نيون ⚡',
+  'Aurora شفق 🌌',
+  'Light فاتح ☀️',
+  'Duotone لونان 🎨',
+  'Editorial مجلة 📰'
 ];
 
 const cv = document.createElement('canvas');
@@ -686,6 +774,12 @@ function applyLanguage(lang) {
   S.muscleTag = sp.badge;
   document.querySelector('[data-k="muscleTag"]').value = S.muscleTag;
 
+  const wkUnitInput = document.querySelector('[data-k="weekUnit"]');
+  if (wkUnitInput && Object.keys(I18N).some(k => I18N[k].unitMin === S.weekUnit)) {
+    S.weekUnit = dict.unitMin;
+    wkUnitInput.value = S.weekUnit;
+  }
+
   S.stats.forEach(st => {
     if (st.id === 'pace') {
       st.label = sp.paceLbl;
@@ -699,12 +793,47 @@ function applyLanguage(lang) {
     }
   });
 
+  buildWeekGrid();
   renderStatsManager();
   sched();
 }
 
 document.querySelectorAll('.lang-pill').forEach(btn => {
   btn.onclick = () => applyLanguage(btn.dataset.lang);
+});
+
+/* بناء حقول أيام الأسبوع */
+function buildWeekGrid() {
+  const box = $('weekGrid');
+  if (!box) return;
+  const days = (I18N[S.lang] || I18N.bi).days;
+  const today = new Date().getDay();
+  box.innerHTML = '';
+  S.week.forEach((v, i) => {
+    const wrap = document.createElement('label');
+    wrap.className = 'week-day' + (i === today ? ' today' : '');
+    const sp = document.createElement('span');
+    sp.textContent = days[i];
+    const inp = document.createElement('input');
+    inp.type = 'number';
+    inp.min = '0';
+    inp.max = '1440';
+    inp.value = v;
+    inp.oninput = e => {
+      S.week[i] = Math.max(0, Math.min(1440, +e.target.value || 0));
+      sched();
+    };
+    wrap.append(sp, inp);
+    box.appendChild(wrap);
+  });
+}
+
+document.querySelectorAll('.week-pill').forEach(btn => {
+  btn.onclick = () => {
+    S.weekStyle = btn.dataset.w;
+    document.querySelectorAll('.week-pill').forEach(x => x.classList.toggle('active', x.dataset.w === S.weekStyle));
+    sched();
+  };
 });
 
 /* بناء واجهة التحكم بالإحصائيات */
@@ -867,6 +996,50 @@ function cover(c, img, x, y, w, h) {
   c.drawImage(img, (img.width - iw) / 2, (img.height - ih) / 2, iw, ih, x, y, w, h);
 }
 
+/* أدوات لونية للثيمات الجديدة */
+function hexA(hex, a) {
+  let h = String(hex || '#ffffff').trim().replace('#', '');
+  if (h.length === 3) h = h.split('').map(x => x + x).join('');
+  const n = parseInt(h, 16);
+  if (isNaN(n) || h.length !== 6) return `rgba(255,255,255,${a})`;
+  return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${a})`;
+}
+
+function shade(hex, k) {
+  let h = String(hex || '#ffffff').trim().replace('#', '');
+  if (h.length === 3) h = h.split('').map(x => x + x).join('');
+  const n = parseInt(h, 16);
+  if (isNaN(n) || h.length !== 6) return hex;
+  const r = Math.min(255, Math.round(((n >> 16) & 255) * k));
+  const g = Math.min(255, Math.round(((n >> 8) & 255) * k));
+  const b = Math.min(255, Math.round((n & 255) * k));
+  return `rgb(${r}, ${g}, ${b})`;
+}
+
+function readableOn(hex) {
+  let h = String(hex || '#ffffff').trim().replace('#', '');
+  if (h.length === 3) h = h.split('').map(x => x + x).join('');
+  const n = parseInt(h, 16);
+  if (isNaN(n) || h.length !== 6) return '#08111a';
+  const r = ((n >> 16) & 255) / 255, g = ((n >> 8) & 255) / 255, b = (n & 255) / 255;
+  return (0.2126 * r + 0.7152 * g + 0.0722 * b) > 0.58 ? '#08111a' : '#ffffff';
+}
+
+function drawSoftCard(c, x, y, w, h, r = 40, o = {}) {
+  c.save();
+  c.shadowColor = o.shadow || 'rgba(18, 30, 48, 0.16)';
+  c.shadowBlur = 34;
+  c.shadowOffsetY = 14;
+  rr(c, x, y, w, h, r);
+  c.fillStyle = o.cardFill || 'rgba(255,255,255,0.88)';
+  c.fill();
+  c.restore();
+  rr(c, x + 0.8, y + 0.8, w - 1.6, h - 1.6, r);
+  c.strokeStyle = o.cardStroke || 'rgba(15,23,42,0.08)';
+  c.lineWidth = 1.6;
+  c.stroke();
+}
+
 function txt(c, s, x, y, size, wt, col, al = 'left', fam = S.titleFont, mw = null) {
   if (s === undefined || s === null || s === '') return;
   const str = String(s).trim();
@@ -889,45 +1062,203 @@ function txt(c, s, x, y, size, wt, col, al = 'left', fam = S.titleFont, mw = nul
 /* =========================================================================
    محرك الخلفية والزجاج السائل المطابق للصورة المرجعية (Pure Frosted Glass UI)
    ========================================================================= */
-function drawAtmosphericBackground(c, width, height) {
+function drawDefaultBackground(c, width, height) {
+  const base = c.createLinearGradient(0, 0, width, height);
+  base.addColorStop(0, '#68829e');
+  base.addColorStop(0.38, '#4e677f');
+  base.addColorStop(0.72, '#344759');
+  base.addColorStop(1, '#23313f');
+  c.fillStyle = base;
+  c.fillRect(0, 0, width, height);
+
+  const light = c.createRadialGradient(width * 0.85, height * 0.18, 20, width * 0.75, height * 0.25, width * 0.9);
+  light.addColorStop(0, 'rgba(225, 240, 255, 0.45)');
+  light.addColorStop(0.5, 'rgba(180, 210, 235, 0.15)');
+  light.addColorStop(1, 'transparent');
+  c.fillStyle = light;
+  c.fillRect(0, 0, width, height);
+
+  const leaf = c.createRadialGradient(width * 0.9, height * 0.42, 10, width * 0.88, height * 0.42, width * 0.45);
+  leaf.addColorStop(0, 'rgba(115, 155, 110, 0.28)');
+  leaf.addColorStop(1, 'transparent');
+  c.fillStyle = leaf;
+  c.fillRect(0, 0, width, height);
+}
+
+function drawNeonBackground(c, width, height) {
+  const a = S.accent;
+  const base = c.createLinearGradient(0, 0, width * 0.5, height);
+  base.addColorStop(0, '#080b14');
+  base.addColorStop(0.5, '#05070d');
+  base.addColorStop(1, '#0b0f1b');
+  c.fillStyle = base;
+  c.fillRect(0, 0, width, height);
+
+  let g = c.createRadialGradient(width * 0.86, height * 0.12, 10, width * 0.8, height * 0.2, width * 0.8);
+  g.addColorStop(0, hexA(a, 0.34));
+  g.addColorStop(1, 'transparent');
+  c.fillStyle = g;
+  c.fillRect(0, 0, width, height);
+
+  g = c.createRadialGradient(width * 0.1, height * 0.82, 10, width * 0.15, height * 0.8, width * 0.7);
+  g.addColorStop(0, hexA(a, 0.16));
+  g.addColorStop(1, 'transparent');
+  c.fillStyle = g;
+  c.fillRect(0, 0, width, height);
+
+  const step = width / 10;
+  c.strokeStyle = 'rgba(255,255,255,0.045)';
+  c.lineWidth = Math.max(1, width / 900);
+  c.beginPath();
+  for (let x = 0; x <= width; x += step) { c.moveTo(x, 0); c.lineTo(x, height); }
+  for (let y = 0; y <= height; y += step) { c.moveTo(0, y); c.lineTo(width, y); }
+  c.stroke();
+
+  const vig = c.createRadialGradient(width * 0.5, height * 0.42, width * 0.2, width * 0.5, height * 0.5, width * 0.95);
+  vig.addColorStop(0, 'transparent');
+  vig.addColorStop(1, 'rgba(0,0,0,0.62)');
+  c.fillStyle = vig;
+  c.fillRect(0, 0, width, height);
+}
+
+function drawAuroraBackground(c, width, height) {
+  const base = c.createLinearGradient(0, 0, width, height);
+  base.addColorStop(0, '#160f33');
+  base.addColorStop(0.55, '#0d1330');
+  base.addColorStop(1, '#070b1c');
+  c.fillStyle = base;
+  c.fillRect(0, 0, width, height);
+
+  const blobs = [
+    [0.18, 0.10, 0.85, 'rgba(124, 58, 237, 0.55)'],
+    [0.92, 0.22, 0.75, 'rgba(6, 182, 212, 0.45)'],
+    [0.78, 0.82, 0.9, 'rgba(244, 114, 182, 0.35)'],
+    [0.12, 0.72, 0.7, hexA(S.accent, 0.35)]
+  ];
+  blobs.forEach(([bx, by, br, col]) => {
+    const g = c.createRadialGradient(width * bx, height * by, 10, width * bx, height * by, width * br);
+    g.addColorStop(0, col);
+    g.addColorStop(1, 'transparent');
+    c.fillStyle = g;
+    c.fillRect(0, 0, width, height);
+  });
+
+  const streak = c.createLinearGradient(0, height * 0.1, width, height * 0.55);
+  streak.addColorStop(0, 'rgba(255,255,255,0)');
+  streak.addColorStop(0.5, 'rgba(255,255,255,0.07)');
+  streak.addColorStop(1, 'rgba(255,255,255,0)');
+  c.fillStyle = streak;
+  c.fillRect(0, 0, width, height);
+}
+
+function drawLightBackground(c, width, height) {
+  const base = c.createLinearGradient(0, 0, width, height);
+  base.addColorStop(0, '#f9f8f4');
+  base.addColorStop(0.55, '#eef1f4');
+  base.addColorStop(1, '#e2e8ee');
+  c.fillStyle = base;
+  c.fillRect(0, 0, width, height);
+
+  const g1 = c.createRadialGradient(width * 0.12, height * 0.08, 10, width * 0.2, height * 0.12, width * 0.75);
+  g1.addColorStop(0, hexA(S.accent, 0.35));
+  g1.addColorStop(1, 'transparent');
+  c.fillStyle = g1;
+  c.fillRect(0, 0, width, height);
+
+  const g2 = c.createRadialGradient(width * 0.9, height * 0.55, 10, width * 0.85, height * 0.55, width * 0.7);
+  g2.addColorStop(0, 'rgba(255, 196, 140, 0.45)');
+  g2.addColorStop(1, 'transparent');
+  c.fillStyle = g2;
+  c.fillRect(0, 0, width, height);
+
+  const g3 = c.createRadialGradient(width * 0.3, height * 0.95, 10, width * 0.35, height * 0.92, width * 0.65);
+  g3.addColorStop(0, 'rgba(150, 200, 255, 0.4)');
+  g3.addColorStop(1, 'transparent');
+  c.fillStyle = g3;
+  c.fillRect(0, 0, width, height);
+}
+
+function drawDuotoneBackground(c, width, height) {
+  const base = c.createLinearGradient(0, 0, width, height);
+  base.addColorStop(0, '#101319');
+  base.addColorStop(0.6, '#0b0e13');
+  base.addColorStop(1, '#070910');
+  c.fillStyle = base;
+  c.fillRect(0, 0, width, height);
+
+  const g = c.createRadialGradient(width * 0.5, height * 0.75, 10, width * 0.5, height * 0.7, width * 0.9);
+  g.addColorStop(0, hexA(S.accent, 0.12));
+  g.addColorStop(1, 'transparent');
+  c.fillStyle = g;
+  c.fillRect(0, 0, width, height);
+}
+
+function drawPaperBackground(c, width, height) {
+  const base = c.createLinearGradient(0, 0, width, height);
+  base.addColorStop(0, '#f7f3ea');
+  base.addColorStop(0.6, '#f1ece1');
+  base.addColorStop(1, '#e9e3d6');
+  c.fillStyle = base;
+  c.fillRect(0, 0, width, height);
+
+  const g1 = c.createRadialGradient(width * 0.9, height * 0.1, 10, width * 0.85, height * 0.12, width * 0.7);
+  g1.addColorStop(0, hexA(S.accent, 0.22));
+  g1.addColorStop(1, 'transparent');
+  c.fillStyle = g1;
+  c.fillRect(0, 0, width, height);
+
+  const g2 = c.createRadialGradient(width * 0.1, height * 0.9, 10, width * 0.12, height * 0.88, width * 0.6);
+  g2.addColorStop(0, 'rgba(210, 170, 120, 0.28)');
+  g2.addColorStop(1, 'transparent');
+  c.fillStyle = g2;
+  c.fillRect(0, 0, width, height);
+}
+
+function drawAtmosphericBackground(c, width, height, theme = 0) {
   if (S.bg) {
     cover(c, S.bg, 0, 0, width, height);
-  } else {
-    const base = c.createLinearGradient(0, 0, width, height);
-    base.addColorStop(0, '#68829e');
-    base.addColorStop(0.38, '#4e677f');
-    base.addColorStop(0.72, '#344759');
-    base.addColorStop(1, '#23313f');
-    c.fillStyle = base;
-    c.fillRect(0, 0, width, height);
-
-    const light = c.createRadialGradient(width * 0.85, height * 0.18, 20, width * 0.75, height * 0.25, width * 0.9);
-    light.addColorStop(0, 'rgba(225, 240, 255, 0.45)');
-    light.addColorStop(0.5, 'rgba(180, 210, 235, 0.15)');
-    light.addColorStop(1, 'transparent');
-    c.fillStyle = light;
-    c.fillRect(0, 0, width, height);
-
-    const leaf = c.createRadialGradient(width * 0.9, height * 0.42, 10, width * 0.88, height * 0.42, width * 0.45);
-    leaf.addColorStop(0, 'rgba(115, 155, 110, 0.28)');
-    leaf.addColorStop(1, 'transparent');
-    c.fillStyle = leaf;
-    c.fillRect(0, 0, width, height);
+    if (theme === 8 || theme === 10) {
+      c.fillStyle = 'rgba(255,255,255,0.42)';
+      c.fillRect(0, 0, width, height);
+    } else if (S.dark > 0) {
+      c.fillStyle = `rgba(6, 10, 15, ${S.dark / 100})`;
+      c.fillRect(0, 0, width, height);
+    }
+    return;
   }
 
-  if (S.dark > 0) {
+  if (theme === 6) drawNeonBackground(c, width, height);
+  else if (theme === 7) drawAuroraBackground(c, width, height);
+  else if (theme === 8) drawLightBackground(c, width, height);
+  else if (theme === 9) drawDuotoneBackground(c, width, height);
+  else if (theme === 10) drawPaperBackground(c, width, height);
+  else drawDefaultBackground(c, width, height);
+
+  if (S.dark > 0 && theme !== 8 && theme !== 10) {
     c.fillStyle = `rgba(6, 10, 15, ${S.dark / 100})`;
     c.fillRect(0, 0, width, height);
   }
 }
 
-function prepareBlurredBackdrop() {
+const blurCache = new Map();
+function prepareBlurredBackdrop(theme = 0) {
+  const key = `${theme}|${S.dark}|${S.bgVer}|${S.accent}`;
+  let src = blurCache.get(key);
+  if (!src) {
+    if (blurCache.size > 18) blurCache.clear();
+    src = document.createElement('canvas');
+    src.width = blurCv.width;
+    src.height = blurCv.height;
+    const sc = src.getContext('2d');
+    sc.save();
+    sc.filter = 'blur(22px) saturate(140%) brightness(1.06)';
+    drawAtmosphericBackground(sc, src.width, src.height, theme);
+    sc.restore();
+    blurCache.set(key, src);
+  }
   const bc = blurCv.getContext('2d');
   bc.clearRect(0, 0, blurCv.width, blurCv.height);
-  bc.save();
-  bc.filter = 'blur(22px) saturate(140%) brightness(1.06)';
-  drawAtmosphericBackground(bc, blurCv.width, blurCv.height);
-  bc.restore();
+  bc.drawImage(src, 0, 0);
 }
 
 function drawFrostedGlassWidget(c, x, y, w, h, r = 42, extraBright = 0) {
@@ -977,9 +1308,206 @@ function drawFrostedGlassWidget(c, x, y, w, h, r = 42, extraBright = 0) {
 }
 
 /* =========================================================================
+   شريط نشاط الأسبوع (7 أيام): أعمدة / خط / نقاط + تقدم الهدف
+   ========================================================================= */
+function drawWeekCard(c, x, y, w, h, o = {}) {
+  const ink = o.ink || '#ffffff';
+  const sub = o.sub || hexA(ink, 0.55);
+  const accent = o.accent || S.accent;
+  const mode = o.fill || 'glass';
+  const dict = I18N[S.lang];
+  const days = dict.days || I18N.bi.days;
+  const unit = (S.weekUnit || '').trim();
+
+  if (mode === 'glass') drawFrostedGlassWidget(c, x, y, w, h, o.radius || 42, 0.03);
+  else if (mode === 'solid') drawSoftCard(c, x, y, w, h, o.radius || 42, o);
+  else if (mode === 'dark') {
+    rr(c, x, y, w, h, o.radius || 42);
+    c.fillStyle = o.bg || 'rgba(10,14,20,0.5)';
+    c.fill();
+  }
+
+  if (mode === 'flat' || o.rule) {
+    c.fillStyle = hexA(ink, 0.2);
+    c.fillRect(x, y + 2, w, 1.6);
+  }
+
+  const pad = o.pad || 36;
+  const vals = S.week.map(v => Math.max(0, +v || 0));
+  const total = vals.reduce((a, b) => a + b, 0);
+  const goal = Math.max(0, +S.weekGoal || 0);
+  const today = new Date().getDay();
+
+  const hdrY = y + 40;
+  c.save();
+  c.shadowColor = accent;
+  c.shadowBlur = 10;
+  c.beginPath();
+  c.arc(x + pad + 5, hdrY - 8, 5, 0, Math.PI * 2);
+  c.fillStyle = accent;
+  c.fill();
+  c.restore();
+
+  txt(c, dict.weekHdr, x + pad + 22, hdrY, 23, 700, ink, 'left', S.titleFont, w * 0.56);
+  const sumStr = goal > 0 ? `${total} / ${goal} ${unit}`.trim() : `${total} ${unit}`.trim();
+  txt(c, sumStr, x + w - pad, hdrY, 21, 700, sub, 'right', S.numFont, w * 0.42);
+
+  const pgY = hdrY + 15;
+  const pgW = w - pad * 2;
+  rr(c, x + pad, pgY, pgW, 4, 2);
+  c.fillStyle = hexA(ink, 0.15);
+  c.fill();
+  if (goal > 0) {
+    const pw = Math.max(6, Math.min(1, total / goal) * pgW);
+    rr(c, x + pad, pgY, pw, 4, 2);
+    c.fillStyle = accent;
+    c.fill();
+  }
+
+  const chartTop = y + 82;
+  const chartBot = y + h - 44;
+  const chartH = Math.max(30, chartBot - chartTop);
+  const avail = w - pad * 2 - 16;
+  const colW = avail / 7;
+  const maxV = Math.max(...vals, 1);
+  const baseX = x + pad + 8;
+
+  c.fillStyle = hexA(ink, 0.14);
+  c.fillRect(x + pad, chartBot, pgW, 1.5);
+
+  if (goal > 0) {
+    const avg = goal / 7;
+    if (avg <= maxV * 1.2) {
+      const gy = chartBot - (avg / maxV) * chartH;
+      c.save();
+      c.setLineDash([7, 9]);
+      c.strokeStyle = hexA(ink, 0.28);
+      c.lineWidth = 1.5;
+      c.beginPath();
+      c.moveTo(x + pad, gy);
+      c.lineTo(x + pad + pgW, gy);
+      c.stroke();
+      c.restore();
+    }
+  }
+
+  const px = i => baseX + (i + 0.5) * colW;
+  const py = i => chartBot - (vals[i] / maxV) * chartH;
+
+  if (S.weekStyle === 'line') {
+    const pyL = i => chartBot - (vals[i] / maxV) * (chartH - 28);
+    const pts = vals.map((v, i) => [px(i), pyL(i)]);
+    c.save();
+    c.beginPath();
+    pts.forEach(([a, b], i) => i ? c.lineTo(a, b) : c.moveTo(a, b));
+    c.lineTo(pts[6][0], chartBot);
+    c.lineTo(pts[0][0], chartBot);
+    c.closePath();
+    const g = c.createLinearGradient(0, chartTop, 0, chartBot);
+    g.addColorStop(0, hexA(accent, 0.38));
+    g.addColorStop(1, hexA(accent, 0.02));
+    c.fillStyle = g;
+    c.fill();
+    c.restore();
+
+    c.save();
+    c.beginPath();
+    pts.forEach(([a, b], i) => i ? c.lineTo(a, b) : c.moveTo(a, b));
+    c.strokeStyle = accent;
+    c.lineWidth = 4;
+    c.lineJoin = 'round';
+    c.lineCap = 'round';
+    c.shadowColor = hexA(accent, 0.8);
+    c.shadowBlur = 14;
+    c.stroke();
+    c.restore();
+
+    pts.forEach(([a, b], i) => {
+      c.beginPath();
+      c.arc(a, b, i === today ? 6.5 : 4.5, 0, Math.PI * 2);
+      c.fillStyle = i === today ? accent : hexA(ink, 0.8);
+      c.fill();
+      if (i === today) {
+        c.beginPath();
+        c.arc(a, b, 10, 0, Math.PI * 2);
+        c.strokeStyle = hexA(accent, 0.85);
+        c.lineWidth = 2;
+        c.stroke();
+      }
+      if (vals[i] > 0) {
+        txt(c, String(vals[i]), a, b - 14, 16, 600, i === today ? accent : sub, 'center', S.numFont, colW - 2);
+      }
+    });
+  } else if (S.weekStyle === 'dots') {
+    c.save();
+    c.beginPath();
+    vals.forEach((v, i) => {
+      const a = px(i), b = chartBot - 6 - (v / maxV) * (chartH - 12);
+      i ? c.lineTo(a, b) : c.moveTo(a, b);
+    });
+    c.strokeStyle = hexA(accent, 0.45);
+    c.lineWidth = 2.5;
+    c.lineJoin = 'round';
+    c.stroke();
+    c.restore();
+
+    vals.forEach((v, i) => {
+      const r = 4 + (v / maxV) * 12;
+      const a = px(i), b = chartBot - 6 - Math.max(r, (v / maxV) * (chartH - 12));
+      c.beginPath();
+      c.arc(a, b, r, 0, Math.PI * 2);
+      c.fillStyle = hexA(accent, i === today ? 0.95 : 0.28 + 0.45 * (v / maxV));
+      c.fill();
+      if (i === today) {
+        c.beginPath();
+        c.arc(a, b, r + 4, 0, Math.PI * 2);
+        c.strokeStyle = hexA(accent, 0.7);
+        c.lineWidth = 1.8;
+        c.stroke();
+      }
+    });
+  } else {
+    const barW = Math.min(26, colW * 0.46);
+    vals.forEach((v, i) => {
+      const bh = v > 0 ? Math.max(8, (v / maxV) * chartH) : 3;
+      const bx = px(i) - barW / 2;
+      const by = chartBot - bh;
+      const isToday = i === today;
+
+      c.save();
+      if (isToday) {
+        c.shadowColor = hexA(accent, 0.9);
+        c.shadowBlur = 16;
+      }
+      rr(c, bx, by, barW, bh, barW / 2);
+      const g = c.createLinearGradient(0, by, 0, chartBot);
+      if (isToday) {
+        g.addColorStop(0, accent);
+        g.addColorStop(1, hexA(accent, 0.35));
+      } else {
+        g.addColorStop(0, hexA(ink, v > 0 ? 0.55 : 0.2));
+        g.addColorStop(1, hexA(ink, 0.14));
+      }
+      c.fillStyle = g;
+      c.fill();
+      c.restore();
+
+      if (v > 0) {
+        txt(c, String(v), px(i), by - 10, 17, 600, isToday ? accent : sub, 'center', S.numFont, colW - 2);
+      }
+    });
+  }
+
+  const lblY = y + h - 14;
+  vals.forEach((v, i) => {
+    txt(c, days[i] || '', px(i), lblY, 19, i === today ? 700 : 500, i === today ? accent : sub, 'center', S.titleFont, colW - 2);
+  });
+}
+
+/* =========================================================================
    رسم الغراف (منحنى نبض القلب أو مسار الـ GPS، أو عدم رسم أي شيء عند اختيار none)
    ========================================================================= */
-function drawSmoothHeartRateChart(c, gx, gy, gw, gh, strokeCol = S.accent) {
+function drawSmoothHeartRateChart(c, gx, gy, gw, gh, strokeCol = S.accent, lineCol = '#ffffff') {
   if (S.chartMode === 'none') return;
   c.save();
 
@@ -1024,7 +1552,7 @@ function drawSmoothHeartRateChart(c, gx, gy, gw, gh, strokeCol = S.accent) {
 
   c.beginPath();
   traceSmoothCurve();
-  c.strokeStyle = '#ffffff';
+  c.strokeStyle = lineCol;
   c.lineWidth = 4.2;
   c.lineCap = 'round';
   c.lineJoin = 'round';
@@ -1068,12 +1596,13 @@ function drawMiniRoute(c, boxX, boxY, boxW, boxH, color = '#ffffff') {
   c.restore();
 }
 
-function drawActiveChart(c, x, y, w, h) {
+function drawActiveChart(c, x, y, w, h, o = {}) {
   if (S.chartMode === 'none') return;
+  const lineCol = o.lineCol || '#ffffff';
   if (S.chartMode === 'route') {
-    drawMiniRoute(c, x, y, w, h, '#ffffff');
+    drawMiniRoute(c, x, y, w, h, lineCol);
   } else {
-    drawSmoothHeartRateChart(c, x, y, w, h, S.accent);
+    drawSmoothHeartRateChart(c, x, y, w, h, o.chartAccent || S.accent, lineCol);
   }
 }
 
@@ -1212,9 +1741,14 @@ function drawCard(c, w, st, isExport = false) {
   const TOP = 235 + (+S.safeShift || 0);
   const BOT = 1710;
 
-  prepareBlurredBackdrop();
+  const WEEK_H = 216;
+  const weekBottom = BOT - 20;
+  const weekY = weekBottom - WEEK_H;
+  const contentBot = S.showWeek ? weekY - 22 : BOT;
+
+  prepareBlurredBackdrop(st);
   if (!S.transparent) {
-    drawAtmosphericBackground(c, W, H);
+    drawAtmosphericBackground(c, W, H, st);
   }
 
   // =========================================================================
@@ -1223,6 +1757,10 @@ function drawCard(c, w, st, isExport = false) {
   if (st === 0) {
     const padX = 78;
     const fullW = W - padX * 2;
+    const wide = !S.showWeek;
+    const pillY = TOP + (wide ? 195 : 186);
+    const pillH = wide ? 96 : 90;
+    const ovH = wide ? 445 : 400;
 
     // 1. الهيدر العلوي
     txt(c, M.title, padX, TOP + 55, 76, 700, '#ffffff', 'left', S.titleFont, 720);
@@ -1233,15 +1771,13 @@ function drawCard(c, w, st, isExport = false) {
     drawMiniVectorIcon(c, S.sport === 'gym' ? 'dumbbell' : 'trend', W - padX - 44, TOP + 54, 22, '#ffffff');
 
     // 2. شريط الكبسولة الزجاجي
-    const pillY = TOP + 195;
-    drawFrostedGlassWidget(c, padX, pillY, fullW, 96, 48, 0.02);
-    drawMiniVectorIcon(c, 'heart', padX + 52, pillY + 48, 16, 'rgba(255,255,255,0.8)');
+    drawFrostedGlassWidget(c, padX, pillY, fullW, pillH, pillH / 2, 0.02);
+    drawMiniVectorIcon(c, 'heart', padX + 52, pillY + pillH / 2, 16, 'rgba(255,255,255,0.8)');
     const barText = [S.tag, M.dateStr].filter(Boolean).join('   ·   ');
-    txt(c, barText, padX + 92, pillY + 58, 28, 500, 'rgba(255,255,255,0.88)', 'left', S.titleFont, fullW - 130);
+    txt(c, barText, padX + 92, pillY + pillH / 2 + 10, 28, 500, 'rgba(255,255,255,0.88)', 'left', S.titleFont, fullW - 130);
 
     // 3. بطاقة الـ Overview الرئيسية الكبيرة
-    const ovY = pillY + 124;
-    const ovH = 445;
+    const ovY = pillY + pillH + 24;
     drawFrostedGlassWidget(c, padX, ovY, fullW, ovH, 48, 0.03);
 
     drawMiniVectorIcon(c, 'bars', padX + 56, ovY + 58, 16, 'rgba(255,255,255,0.85)');
@@ -1255,78 +1791,91 @@ function drawCard(c, w, st, isExport = false) {
 
     // رسم الغراف فقط إذا لم يكن مخفياً (chartMode !== 'none')
     if (M.hasChart) {
-      drawActiveChart(c, padX + 420, ovY + 75, 455, 195);
+      drawActiveChart(c, padX + 420, ovY + 72, 455, ovH - 238);
     }
 
+    const statRowY = ovY + ovH - 92;
     c.fillStyle = 'rgba(255, 255, 255, 0.22)';
-    c.fillRect(padX + 46, ovY + 292, fullW - 92, 1.8);
+    c.fillRect(padX + 46, statRowY - 40, fullW - 92, 1.8);
 
     const firstStat = M.activeStats[0];
     const secondStat = M.activeStats[1];
 
     if (firstStat) {
-      txt(c, `${firstStat.val} ${firstStat.unit}`.trim(), padX + 48, ovY + 362, 46, 700, '#ffffff', 'left', S.numFont, 400);
-      txt(c, firstStat.label, padX + 48, ovY + 402, 24, 400, 'rgba(255,255,255,0.72)', 'left', S.titleFont, 400);
+      txt(c, `${firstStat.val} ${firstStat.unit}`.trim(), padX + 48, statRowY + 28, 46, 700, '#ffffff', 'left', S.numFont, 380);
+      txt(c, firstStat.label, padX + 48, statRowY + 64, 24, 400, 'rgba(255,255,255,0.72)', 'left', S.titleFont, 380);
     }
     if (secondStat) {
-      txt(c, `${secondStat.val} ${secondStat.unit}`.trim(), padX + 430, ovY + 362, 46, 700, '#ffffff', 'left', S.numFont, 340);
-      txt(c, secondStat.label, padX + 430, ovY + 402, 24, 400, 'rgba(255,255,255,0.72)', 'left', S.titleFont, 340);
+      txt(c, `${secondStat.val} ${secondStat.unit}`.trim(), padX + 430, statRowY + 28, 46, 700, '#ffffff', 'left', S.numFont, 330);
+      txt(c, secondStat.label, padX + 430, statRowY + 64, 24, 400, 'rgba(255,255,255,0.72)', 'left', S.titleFont, 330);
     }
 
-    drawFrostedGlassWidget(c, padX + fullW - 118, ovY + 328, 74, 74, 37, 0.08);
-    drawMiniVectorIcon(c, 'trend', padX + fullW - 81, ovY + 365, 17, '#ffffff');
+    drawFrostedGlassWidget(c, padX + fullW - 118, statRowY - 8, 74, 74, 37, 0.08);
+    drawMiniVectorIcon(c, 'trend', padX + fullW - 81, statRowY + 29, 17, '#ffffff');
 
     // 4. بطاقتان زجاجيتان جنباً إلى جنب
-    const midY = ovY + ovH + 26;
-    const midH = 185;
+    const midY = ovY + ovH + 24;
+    const midH = wide ? 185 : 166;
     const gap = 24;
     const halfW = (fullW - gap) / 2;
+    const iconBox = wide ? 92 : 82;
+    const iconY = midY + (midH - iconBox) / 2;
 
     const statLeft = M.activeStats[2];
     const statRight = M.activeStats[3];
 
     if (statLeft) {
-      drawFrostedGlassWidget(c, padX, midY, statRight ? halfW : fullW, midH, 42, 0.03);
-      drawFrostedGlassWidget(c, padX + 28, midY + 45, 92, 92, 26, 0.08);
-      drawMiniVectorIcon(c, 'flame', padX + 74, midY + 91, 22, '#ffffff');
-      txt(c, statLeft.label, padX + 142, midY + 78, 25, 600, 'rgba(255,255,255,0.9)', 'left', S.titleFont, (statRight ? halfW : fullW) - 160);
-      txt(c, `${statLeft.val} ${statLeft.unit}`.trim(), padX + 142, midY + 128, 38, 700, '#ffffff', 'left', S.numFont, (statRight ? halfW : fullW) - 160);
+      const cw = statRight ? halfW : fullW;
+      drawFrostedGlassWidget(c, padX, midY, cw, midH, 42, 0.03);
+      drawFrostedGlassWidget(c, padX + 26, iconY, iconBox, iconBox, 24, 0.08);
+      drawMiniVectorIcon(c, 'flame', padX + 26 + iconBox / 2, iconY + iconBox / 2, 22, '#ffffff');
+      txt(c, statLeft.label, padX + 26 + iconBox + 24, midY + midH * 0.44, 25, 600, 'rgba(255,255,255,0.9)', 'left', S.titleFont, cw - iconBox - 70);
+      txt(c, `${statLeft.val} ${statLeft.unit}`.trim(), padX + 26 + iconBox + 24, midY + midH * 0.76, 38, 700, '#ffffff', 'left', S.numFont, cw - iconBox - 70);
     }
 
     if (statRight) {
       const rightX = padX + halfW + gap;
       drawFrostedGlassWidget(c, rightX, midY, halfW, midH, 42, 0.03);
-      drawFrostedGlassWidget(c, rightX + 28, midY + 45, 92, 92, 26, 0.08);
-      drawMiniVectorIcon(c, 'check', rightX + 74, midY + 91, 22, '#ffffff');
-      txt(c, statRight.label, rightX + 142, midY + 78, 25, 600, 'rgba(255,255,255,0.9)', 'left', S.titleFont, halfW - 160);
-      txt(c, `${statRight.val} ${statRight.unit}`.trim(), rightX + 142, midY + 128, 38, 700, '#ffffff', 'left', S.numFont, halfW - 160);
+      drawFrostedGlassWidget(c, rightX + 26, iconY, iconBox, iconBox, 24, 0.08);
+      drawMiniVectorIcon(c, 'check', rightX + 26 + iconBox / 2, iconY + iconBox / 2, 22, '#ffffff');
+      txt(c, statRight.label, rightX + 26 + iconBox + 24, midY + midH * 0.44, 25, 600, 'rgba(255,255,255,0.9)', 'left', S.titleFont, halfW - iconBox - 70);
+      txt(c, `${statRight.val} ${statRight.unit}`.trim(), rightX + 26 + iconBox + 24, midY + midH * 0.76, 38, 700, '#ffffff', 'left', S.numFont, halfW - iconBox - 70);
     }
 
     // 5. البطاقة السفلية لباقي الإحصائيات المفعلة
     const remainingStats = M.activeStats.slice(4);
     if (remainingStats.length > 0) {
-      const botY = midY + (statLeft ? midH + 26 : 0);
-      const rowsToShow = remainingStats.slice(0, 2);
-      const botH = rowsToShow.length === 1 ? 225 : 335;
+      const botY = midY + midH + 22;
+      const avail = contentBot - botY;
+      let rowsToShow = remainingStats.slice(0, wide ? 2 : 1);
+      if (avail < 170) rowsToShow = [];
+      const rowStep = 115;
+      const botH = Math.min(190 + (rowsToShow.length - 1) * rowStep, avail);
 
-      drawFrostedGlassWidget(c, padX, botY, fullW, botH, 46, 0.03);
-      txt(c, M.dict.activityHdr, padX + 44, botY + 62, 27, 600, 'rgba(255,255,255,0.92)', 'left', S.titleFont, fullW - 90);
+      if (rowsToShow.length) {
+        drawFrostedGlassWidget(c, padX, botY, fullW, botH, 46, 0.03);
+        txt(c, M.dict.activityHdr, padX + 44, botY + 60, 27, 600, 'rgba(255,255,255,0.92)', 'left', S.titleFont, fullW - 90);
 
-      rowsToShow.forEach((item, idx) => {
-        const ry = botY + 95 + idx * 115;
-        if (idx > 0) {
-          c.fillStyle = 'rgba(255, 255, 255, 0.18)';
-          c.fillRect(padX + 44, ry - 12, fullW - 88, 1.5);
-        }
-        drawFrostedGlassWidget(c, padX + 44, ry + 8, 74, 74, 22, 0.07);
-        drawMiniVectorIcon(c, idx === 0 ? 'dumbbell' : 'clock', padX + 81, ry + 45, 18, '#ffffff');
+        rowsToShow.forEach((item, idx) => {
+          const ry = botY + 84 + idx * rowStep;
+          if (idx > 0) {
+            c.fillStyle = 'rgba(255, 255, 255, 0.18)';
+            c.fillRect(padX + 44, ry - 10, fullW - 88, 1.5);
+          }
+          drawFrostedGlassWidget(c, padX + 44, ry + 6, 74, 74, 22, 0.07);
+          drawMiniVectorIcon(c, idx === 0 ? 'dumbbell' : 'clock', padX + 81, ry + 43, 18, '#ffffff');
 
-        txt(c, `${item.val} ${item.unit}`.trim(), padX + 142, ry + 45, 34, 700, '#ffffff', 'left', S.numFont, fullW - 280);
-        txt(c, item.label, padX + 142, ry + 80, 23, 400, 'rgba(255,255,255,0.68)', 'left', S.titleFont, fullW - 280);
+          txt(c, `${item.val} ${item.unit}`.trim(), padX + 142, ry + 43, 34, 700, '#ffffff', 'left', S.numFont, fullW - 280);
+          txt(c, item.label, padX + 142, ry + 78, 23, 400, 'rgba(255,255,255,0.68)', 'left', S.titleFont, fullW - 280);
 
-        drawFrostedGlassWidget(c, padX + fullW - 114, ry + 11, 68, 68, 34, 0.08);
-        drawMiniVectorIcon(c, idx === 0 ? 'arrowUpRight' : 'check', padX + fullW - 80, ry + 45, 16, '#ffffff');
-      });
+          drawFrostedGlassWidget(c, padX + fullW - 114, ry + 9, 68, 68, 34, 0.08);
+          drawMiniVectorIcon(c, idx === 0 ? 'arrowUpRight' : 'check', padX + fullW - 80, ry + 43, 16, '#ffffff');
+        });
+      }
+    }
+
+    if (S.showWeek) {
+      drawWeekCard(c, padX, weekY, fullW, WEEK_H, { fill: 'glass', ink: '#ffffff', accent: S.accent });
     }
   }
 
@@ -1335,51 +1884,63 @@ function drawCard(c, w, st, isExport = false) {
   // =========================================================================
   if (st === 1) {
     const padX = 75, fullW = W - padX * 2;
-    const cardY = TOP + 140;
+    const pillH = 104;
+    const mainH = S.showWeek ? 430 : 520;
+    const subH = 186;
+    const hasRest = M.activeStats.length > 3;
+    const totalH = pillH + 24 + mainH + (hasRest ? 22 + subH : 0) + (S.showWeek ? 22 + WEEK_H : 0);
+    const cardY = Math.max(TOP + 12, (TOP + BOT - totalH) / 2);
 
-    drawFrostedGlassWidget(c, padX, cardY, fullW, 108, 54, 0.04);
-    drawMiniVectorIcon(c, 'dumbbell', padX + 58, cardY + 54, 20, '#ffffff');
+    drawFrostedGlassWidget(c, padX, cardY, fullW, pillH, 52, 0.04);
+    drawMiniVectorIcon(c, 'dumbbell', padX + 56, cardY + pillH / 2, 20, '#ffffff');
     const topPillTxt = [M.title, S.tag].filter(Boolean).join('   ·   ');
-    txt(c, topPillTxt, padX + 100, cardY + 64, 30, 700, '#ffffff', 'left', S.titleFont, fullW - 140);
+    txt(c, topPillTxt, padX + 98, cardY + pillH / 2 + 10, 30, 700, '#ffffff', 'left', S.titleFont, fullW - 140);
 
-    const mainBoxY = cardY + 135;
-    drawFrostedGlassWidget(c, padX, mainBoxY, fullW, 520, 50, 0.04);
+    const mainBoxY = cardY + pillH + 24;
+    drawFrostedGlassWidget(c, padX, mainBoxY, fullW, mainH, 50, 0.04);
 
-    drawMiniVectorIcon(c, 'bars', padX + 56, mainBoxY + 64, 16, 'rgba(255,255,255,0.85)');
-    txt(c, S.muscleTag || M.dict.overviewHdr, padX + 86, mainBoxY + 72, 28, 600, 'rgba(255,255,255,0.9)', 'left', S.titleFont, 500);
-    if (M.dateStr) txt(c, M.dateStr, padX + fullW - 48, mainBoxY + 72, 24, 500, 'rgba(255,255,255,0.7)', 'right', S.titleFont);
+    drawMiniVectorIcon(c, 'bars', padX + 56, mainBoxY + 62, 16, 'rgba(255,255,255,0.85)');
+    txt(c, S.muscleTag || M.dict.overviewHdr, padX + 86, mainBoxY + 70, 28, 600, 'rgba(255,255,255,0.9)', 'left', S.titleFont, 500);
+    if (M.dateStr) txt(c, M.dateStr, padX + fullW - 48, mainBoxY + 70, 24, 500, 'rgba(255,255,255,0.7)', 'right', S.titleFont);
 
     if (M.dist) {
       const maxNumW = M.hasChart ? 400 : (fullW - 100);
-      txt(c, M.dist, padX + 48, mainBoxY + 235, 140, 700, '#ffffff', 'left', S.numFont, maxNumW);
-      txt(c, M.fullMainLabel, padX + 50, mainBoxY + 290, 26, 500, 'rgba(255,255,255,0.8)', 'left', S.titleFont, maxNumW);
+      txt(c, M.dist, padX + 48, mainBoxY + mainH * 0.45, 140, 700, '#ffffff', 'left', S.numFont, maxNumW);
+      txt(c, M.fullMainLabel, padX + 50, mainBoxY + mainH * 0.45 + 55, 26, 500, 'rgba(255,255,255,0.8)', 'left', S.titleFont, maxNumW);
     }
 
+    const dv = mainBoxY + mainH * 0.66;
     if (M.hasChart) {
-      drawActiveChart(c, padX + 430, mainBoxY + 95, 445, 215);
+      drawActiveChart(c, padX + 430, mainBoxY + 88, 445, Math.max(90, mainH * 0.66 - 118));
     }
 
     c.fillStyle = 'rgba(255, 255, 255, 0.22)';
-    c.fillRect(padX + 48, mainBoxY + 335, fullW - 96, 1.8);
+    c.fillRect(padX + 48, dv, fullW - 96, 1.8);
 
     const top3 = M.activeStats.slice(0, 3);
-    const colW = (fullW - 96) / Math.max(1, top3.length);
+    const colGap = 22;
+    const colW = (fullW - 96 - colGap * Math.max(0, top3.length - 1)) / Math.max(1, top3.length);
     top3.forEach((it, idx) => {
-      const cx = padX + 48 + idx * colW;
-      txt(c, it.label, cx, mainBoxY + 390, 23, 500, 'rgba(255,255,255,0.72)', 'left', S.titleFont, colW - 15);
-      txt(c, `${it.val} ${it.unit}`.trim(), cx, mainBoxY + 455, 48, 700, '#ffffff', 'left', S.numFont, colW - 15);
+      const cx = padX + 48 + idx * (colW + colGap);
+      txt(c, it.label, cx, dv + 52, 23, 500, 'rgba(255,255,255,0.72)', 'left', S.titleFont, colW);
+      txt(c, `${it.val} ${it.unit}`.trim(), cx, dv + 118, 46, 700, '#ffffff', 'left', S.numFont, colW);
     });
 
     const rest = M.activeStats.slice(3, 5);
+    let subY = mainBoxY + mainH + 22;
     if (rest.length) {
-      const subY = mainBoxY + 550;
       const gap = 24, hw = rest.length === 1 ? fullW : (fullW - gap) / 2;
       rest.forEach((it, idx) => {
         const bx = padX + idx * (hw + gap);
-        drawFrostedGlassWidget(c, bx, subY, hw, 190, 42, 0.04);
-        txt(c, it.label, bx + 42, subY + 72, 25, 500, 'rgba(255,255,255,0.75)', 'left', S.titleFont, hw - 80);
-        txt(c, `${it.val} ${it.unit}`.trim(), bx + 42, subY + 138, 48, 700, '#ffffff', 'left', S.numFont, hw - 80);
+        drawFrostedGlassWidget(c, bx, subY, hw, subH, 42, 0.04);
+        txt(c, it.label, bx + 42, subY + subH * 0.4, 25, 500, 'rgba(255,255,255,0.75)', 'left', S.titleFont, hw - 80);
+        txt(c, `${it.val} ${it.unit}`.trim(), bx + 42, subY + subH * 0.74, 48, 700, '#ffffff', 'left', S.numFont, hw - 80);
       });
+      subY += subH + 22;
+    }
+
+    if (S.showWeek) {
+      drawWeekCard(c, padX, subY, fullW, WEEK_H, { fill: 'glass', ink: '#ffffff', accent: S.accent });
     }
   }
 
@@ -1393,7 +1954,7 @@ function drawCard(c, w, st, isExport = false) {
     txt(c, subHead, padX, TOP + 115, 28, 500, 'rgba(255,255,255,0.78)', 'left', S.titleFont, 700);
 
     const boxY = TOP + 160;
-    const boxH = M.hasChart ? 640 : 280;
+    const boxH = M.hasChart ? (S.showWeek ? 540 : 640) : 280;
     drawFrostedGlassWidget(c, padX, boxY, fullW, boxH, 50, 0.04);
 
     txt(c, M.mainLbl, padX + 52, boxY + 75, 28, 600, 'rgba(255,255,255,0.8)', 'left', S.titleFont);
@@ -1401,19 +1962,25 @@ function drawCard(c, w, st, isExport = false) {
 
     if (M.hasChart) {
       txt(c, M.dict.hrGraphTitle, padX + 52, boxY + 275, 25, 500, 'rgba(255,255,255,0.72)', 'left', S.titleFont);
-      drawActiveChart(c, padX + 45, boxY + 300, fullW - 90, 290);
+      drawActiveChart(c, padX + 45, boxY + 300, fullW - 90, Math.max(120, boxH - 350));
     }
 
-    const gY = boxY + boxH + 30;
-    const cols = 2, gap = 22;
-    const cw = (fullW - gap) / 2, ch = 185;
-    M.activeStats.slice(0, 6).forEach((it, idx) => {
+    const gY = boxY + boxH + 26;
+    const cols = 2, gap = 20;
+    const cw = (fullW - gap) / 2;
+    const ch = S.showWeek ? 166 : 185;
+    const maxStats = (S.showWeek ? 2 : 3) * cols;
+    M.activeStats.slice(0, maxStats).forEach((it, idx) => {
       const r = Math.floor(idx / cols), cl = idx % cols;
       const bx = padX + cl * (cw + gap), by = gY + r * (ch + gap);
       drawFrostedGlassWidget(c, bx, by, cw, ch, 40, 0.04);
-      txt(c, it.label, bx + 40, by + 68, 25, 500, 'rgba(255,255,255,0.75)', 'left', S.titleFont, cw - 75);
-      txt(c, `${it.val} ${it.unit}`.trim(), bx + 40, by + 135, 48, 700, '#ffffff', 'left', S.numFont, cw - 75);
+      txt(c, it.label, bx + 40, by + ch * 0.38, 25, 500, 'rgba(255,255,255,0.75)', 'left', S.titleFont, cw - 75);
+      txt(c, `${it.val} ${it.unit}`.trim(), bx + 40, by + ch * 0.74, 48, 700, '#ffffff', 'left', S.numFont, cw - 75);
     });
+
+    if (S.showWeek) {
+      drawWeekCard(c, padX, weekY, fullW, WEEK_H, { fill: 'glass', ink: '#ffffff', accent: S.accent });
+    }
   }
 
   // =========================================================================
@@ -1421,9 +1988,10 @@ function drawCard(c, w, st, isExport = false) {
   // =========================================================================
   if (st === 3) {
     const padX = 65, fullW = W - padX * 2;
-    const boxY = BOT - 690;
+    const dockH = S.showWeek ? 890 : 670;
+    const boxY = BOT - dockH;
 
-    drawFrostedGlassWidget(c, padX, boxY, fullW, 670, 52, 0.05);
+    drawFrostedGlassWidget(c, padX, boxY, fullW, dockH, 52, 0.05);
     txt(c, M.title, padX + 50, boxY + 78, 52, 700, '#ffffff', 'left', S.titleFont, 550);
     txt(c, M.dateStr || S.tag, padX + fullW - 50, boxY + 75, 25, 500, 'rgba(255,255,255,0.75)', 'right', S.titleFont);
 
@@ -1441,14 +2009,21 @@ function drawCard(c, w, st, isExport = false) {
     c.fillRect(padX + 50, boxY + 330, fullW - 100, 1.8);
 
     const list = M.activeStats.slice(0, 6);
-    const cols = 3, cw = (fullW - 100) / cols;
+    const cols = 3, colGap = 24;
+    const cw = (fullW - 100 - colGap * (cols - 1)) / cols;
     list.forEach((it, idx) => {
       const r = Math.floor(idx / cols), cl = idx % cols;
-      const cx = padX + 50 + cl * cw;
+      const cx = padX + 50 + cl * (cw + colGap);
       const cy = boxY + 385 + r * 140;
-      txt(c, it.label, cx, cy, 22, 500, 'rgba(255,255,255,0.72)', 'left', S.titleFont, cw - 15);
-      txt(c, `${it.val} ${it.unit}`.trim(), cx, cy + 56, 44, 700, '#ffffff', 'left', S.numFont, cw - 15);
+      txt(c, it.label, cx, cy, 22, 500, 'rgba(255,255,255,0.72)', 'left', S.titleFont, cw);
+      txt(c, `${it.val} ${it.unit}`.trim(), cx, cy + 56, 44, 700, '#ffffff', 'left', S.numFont, cw);
     });
+
+    if (S.showWeek) {
+      drawWeekCard(c, padX + 24, boxY + 605, fullW - 48, WEEK_H, {
+        fill: 'flat', ink: '#ffffff', accent: S.accent, pad: 26, rule: true
+      });
+    }
   }
 
   // =========================================================================
@@ -1466,28 +2041,36 @@ function drawCard(c, w, st, isExport = false) {
 
     let curY = TOP + 160;
     if (M.hasChart) {
-      drawActiveChart(c, padX, curY, fullW, 380);
-      curY += 460;
+      const chartH = S.showWeek ? 330 : 380;
+      drawActiveChart(c, padX, curY, fullW, chartH);
+      curY += chartH + 80;
     } else {
-      curY += 80;
+      curY += 60;
     }
 
     if (M.dist) {
       txt(c, M.mainLbl, padX, curY, 28, 600, 'rgba(255,255,255,0.7)', 'left', S.titleFont);
-      txt(c, M.distWithUnit, padX, curY + 150, 150, 700, '#ffffff', 'left', S.numFont, fullW);
-      curY += 200;
+      txt(c, M.distWithUnit, padX, curY + 145, 150, 700, '#ffffff', 'left', S.numFont, fullW);
+      curY += 195;
     }
 
     c.fillStyle = 'rgba(255,255,255,0.15)';
     c.fillRect(padX, curY, fullW, 2);
 
-    const cols = 3, cw = fullW / cols;
-    M.activeStats.forEach((it, idx) => {
+    const cols = 3, colGap = 24;
+    const cw = (fullW - colGap * (cols - 1)) / cols;
+    const rowH = 185;
+    const maxRows = Math.max(1, Math.floor((contentBot - (curY + 40)) / rowH));
+    M.activeStats.slice(0, maxRows * cols).forEach((it, idx) => {
       const r = Math.floor(idx / cols), cl = idx % cols;
-      const cx = padX + cl * cw, cy = curY + 70 + r * 190;
-      txt(c, it.label, cx, cy, 24, 500, 'rgba(255,255,255,0.6)', 'left', S.titleFont, cw - 20);
-      txt(c, `${it.val} ${it.unit}`.trim(), cx, cy + 68, 54, 700, '#ffffff', 'left', S.numFont, cw - 20);
+      const cx = padX + cl * (cw + colGap), cy = curY + 62 + r * rowH;
+      txt(c, it.label, cx, cy, 24, 500, 'rgba(255,255,255,0.6)', 'left', S.titleFont, cw);
+      txt(c, `${it.val} ${it.unit}`.trim(), cx, cy + 66, 46, 700, '#ffffff', 'left', S.numFont, cw);
     });
+
+    if (S.showWeek) {
+      drawWeekCard(c, padX, weekY, fullW, WEEK_H, { fill: 'flat', ink: '#ffffff', accent: S.accent, rule: true });
+    }
   }
 
   // =========================================================================
@@ -1495,21 +2078,21 @@ function drawCard(c, w, st, isExport = false) {
   // =========================================================================
   if (st === 5) {
     const padX = 75, fullW = W - padX * 2;
-    drawFrostedGlassWidget(c, padX, TOP, fullW, BOT - TOP, 48, 0.02);
+    drawFrostedGlassWidget(c, padX, TOP, fullW, contentBot - TOP, 48, 0.02);
     txt(c, `TELEMETRY // ${S.tag}`, padX + 50, TOP + 68, 25, 700, S.accent, 'left', S.numFont);
     txt(c, M.title, padX + 50, TOP + 135, 58, 800, '#ffffff', 'left', S.titleFont, fullW - 100);
 
     let listStartY = TOP + 210;
     if (M.hasChart) {
-      drawActiveChart(c, padX + 50, TOP + 190, fullW - 100, 320);
-      listStartY = TOP + 565;
+      drawActiveChart(c, padX + 50, TOP + 190, fullW - 100, S.showWeek ? 280 : 320);
+      listStartY = TOP + (S.showWeek ? 505 : 565);
     }
 
     const all = M.dist
       ? [{ label: M.mainLbl, val: M.dist, unit: M.mainUnit }, ...M.activeStats]
       : [...M.activeStats];
 
-    const rowStep = Math.min(155, (BOT - listStartY - 40) / Math.max(1, all.length));
+    const rowStep = Math.min(155, (contentBot - listStartY - 40) / Math.max(1, all.length));
     all.slice(0, 7).forEach((it, idx) => {
       const ry = listStartY + idx * rowStep;
       c.fillStyle = 'rgba(255,255,255,0.14)';
@@ -1517,6 +2100,327 @@ function drawCard(c, w, st, isExport = false) {
       txt(c, it.label, padX + 50, ry + 55, 28, 500, 'rgba(255,255,255,0.8)', 'left', S.titleFont, 460);
       txt(c, `${it.val} ${it.unit}`.trim(), padX + fullW - 50, ry + 58, 52, 700, '#ffffff', 'right', S.numFont, 420);
     });
+
+    if (S.showWeek) {
+      drawWeekCard(c, padX, weekY, fullW, WEEK_H, { fill: 'glass', ink: '#ffffff', accent: S.accent });
+    }
+  }
+
+  // =========================================================================
+  // ثيم 6: Neon نيون
+  // =========================================================================
+  if (st === 6) {
+    const padX = 82, fullW = W - padX * 2;
+    const accent = S.accent;
+
+    txt(c, `// ${S.tag || 'COROS'}`, padX, TOP + 4, 24, 700, accent, 'left', S.numFont, fullW * 0.62);
+    if (M.dateStr) txt(c, M.dateStr, W - padX, TOP + 4, 22, 500, 'rgba(255,255,255,0.5)', 'right', S.numFont);
+
+    txt(c, M.title, padX, TOP + 104, 92, 700, '#ffffff', 'left', S.numFont, fullW);
+    txt(c, S.muscleTag, padX, TOP + 150, 26, 500, 'rgba(255,255,255,0.58)', 'left', S.titleFont, fullW);
+
+    const ruleG = c.createLinearGradient(padX, 0, padX + 210, 0);
+    ruleG.addColorStop(0, accent);
+    ruleG.addColorStop(1, hexA(accent, 0));
+    c.fillStyle = ruleG;
+    c.fillRect(padX, TOP + 172, 210, 4);
+
+    let contentY = TOP + 330;
+    if (M.dist) {
+      txt(c, M.fullMainLabel, padX, TOP + 240, 24, 600, 'rgba(255,255,255,0.5)', 'left', S.numFont, fullW);
+      c.save();
+      c.shadowColor = hexA(accent, 0.8);
+      c.shadowBlur = 42;
+      txt(c, M.dist, padX, TOP + 410, 172, 700, '#ffffff', 'left', S.numFont, fullW);
+      c.restore();
+      contentY = TOP + 460;
+    }
+
+    if (M.hasChart) {
+      drawActiveChart(c, padX, contentY, fullW, 250);
+      contentY += 300;
+    }
+
+    c.fillStyle = 'rgba(255,255,255,0.12)';
+    c.fillRect(padX, contentY, fullW, 1.5);
+    contentY += 22;
+
+    const stats = M.activeStats.slice(0, 6);
+    const rows = Math.ceil(stats.length / 2);
+    const bottomLimit = S.showWeek ? weekY - 20 : contentBot;
+    const rowH = Math.max(96, Math.min(210, (bottomLimit - contentY - 10) / Math.max(1, rows)));
+    stats.forEach((it, idx) => {
+      const r = Math.floor(idx / 2), cl = idx % 2;
+      const cx = padX + cl * (fullW / 2);
+      const y0 = contentY + r * rowH;
+      txt(c, it.label, cx, y0 + 24, 21, 500, 'rgba(255,255,255,0.45)', 'left', S.numFont, fullW / 2 - 34);
+      txt(c, `${it.val} ${it.unit}`.trim(), cx, y0 + 72, 44, 700, '#ffffff', 'left', S.numFont, fullW / 2 - 34);
+      c.fillStyle = 'rgba(255,255,255,0.09)';
+      c.fillRect(cx, y0 + 92, fullW / 2 - 40, 1.2);
+    });
+
+    if (S.showWeek) {
+      drawWeekCard(c, padX, weekY, fullW, WEEK_H, { fill: 'flat', ink: '#ffffff', accent, rule: true });
+    }
+  }
+
+  // =========================================================================
+  // ثيم 7: Aurora شفق
+  // =========================================================================
+  if (st === 7) {
+    const padX = 72, fullW = W - padX * 2;
+    const accent = S.accent;
+
+    txt(c, M.title, padX, TOP + 62, 80, 800, '#ffffff', 'left', S.titleFont, fullW);
+    const sub = [S.tag, M.dateStr].filter(Boolean).join('  ·  ');
+    txt(c, sub, padX, TOP + 112, 26, 500, 'rgba(255,255,255,0.75)', 'left', S.titleFont, fullW);
+
+    c.save();
+    c.font = `600 24px ${S.titleFont}`;
+    const bw = Math.min(fullW, c.measureText(S.muscleTag || '').width + 58);
+    c.restore();
+    drawFrostedGlassWidget(c, padX, TOP + 140, bw, 62, 31, 0.06);
+    txt(c, S.muscleTag, padX + 29, TOP + 181, 24, 600, '#ffffff', 'left', S.titleFont, bw - 50);
+
+    const weekTop = S.showWeek ? weekY - 22 : contentBot;
+    const stats = M.activeStats.slice(0, 4);
+    const rows = Math.ceil(stats.length / 2);
+    const statsH = rows * 168 + (rows - 1) * 20;
+    const heroY = TOP + 226;
+    const heroH = Math.max(360, weekTop - heroY - statsH - 26);
+
+    drawFrostedGlassWidget(c, padX, heroY, fullW, heroH, 50, 0.05);
+
+    drawMiniVectorIcon(c, 'bars', padX + 56, heroY + 58, 16, 'rgba(255,255,255,0.85)');
+    txt(c, M.dict.overviewHdr, padX + 86, heroY + 66, 26, 500, 'rgba(255,255,255,0.85)', 'left', S.titleFont, 520);
+
+    if (M.dist) {
+      const maxNumW = M.hasChart ? 380 : (fullW - 100);
+      txt(c, M.dist, padX + 46, heroY + 196, 118, 700, '#ffffff', 'left', S.numFont, maxNumW);
+      txt(c, M.fullMainLabel, padX + 48, heroY + 246, 24, 500, 'rgba(255,255,255,0.75)', 'left', S.titleFont, maxNumW);
+    }
+
+    if (M.hasChart) {
+      drawActiveChart(c, padX + 420, heroY + 70, 460, Math.min(210, heroH - 250));
+    }
+
+    c.fillStyle = 'rgba(255,255,255,0.2)';
+    c.fillRect(padX + 46, heroY + heroH - 150, fullW - 92, 1.6);
+
+    const sA = M.activeStats[0], sB = M.activeStats[1];
+    if (sA) {
+      txt(c, `${sA.val} ${sA.unit}`.trim(), padX + 48, heroY + heroH - 92, 42, 700, '#ffffff', 'left', S.numFont, 380);
+      txt(c, sA.label, padX + 48, heroY + heroH - 54, 22, 500, 'rgba(255,255,255,0.7)', 'left', S.titleFont, 380);
+    }
+    if (sB) {
+      txt(c, `${sB.val} ${sB.unit}`.trim(), padX + 430, heroY + heroH - 92, 42, 700, '#ffffff', 'left', S.numFont, 340);
+      txt(c, sB.label, padX + 430, heroY + heroH - 54, 22, 500, 'rgba(255,255,255,0.7)', 'left', S.titleFont, 340);
+    }
+
+    const gY = heroY + heroH + 22;
+    const gap = 22, cw = (fullW - gap) / 2;
+    stats.forEach((it, idx) => {
+      const r = Math.floor(idx / 2), cl = idx % 2;
+      const bx = padX + cl * (cw + gap), by = gY + r * 188;
+      drawFrostedGlassWidget(c, bx, by, cw, 168, 42, 0.05);
+      txt(c, it.label, bx + 38, by + 62, 23, 500, 'rgba(255,255,255,0.72)', 'left', S.titleFont, cw - 72);
+      txt(c, `${it.val} ${it.unit}`.trim(), bx + 38, by + 118, 44, 700, '#ffffff', 'left', S.numFont, cw - 72);
+    });
+
+    if (S.showWeek) {
+      drawWeekCard(c, padX, weekY, fullW, WEEK_H, { fill: 'glass', ink: '#ffffff', accent });
+    }
+  }
+
+  // =========================================================================
+  // ثيم 8: Light فاتح
+  // =========================================================================
+  if (st === 8) {
+    const padX = 72, fullW = W - padX * 2;
+    const ink = '#0f1720';
+    const sub = 'rgba(15,23,32,0.56)';
+    const accent = S.accent;
+    const accentInk = shade(accent, 0.58);
+
+    txt(c, (S.tag || 'COROS').toUpperCase(), padX, TOP + 4, 22, 700, accentInk, 'left', S.numFont, fullW * 0.6);
+    if (M.dateStr) txt(c, M.dateStr, W - padX, TOP + 4, 21, 500, sub, 'right', S.titleFont);
+    txt(c, M.title, padX, TOP + 96, 82, 800, ink, 'left', S.titleFont, fullW);
+    txt(c, S.muscleTag, padX, TOP + 142, 26, 500, sub, 'left', S.titleFont, fullW);
+
+    const weekTop = S.showWeek ? weekY - 22 : contentBot;
+    const stats = M.activeStats.slice(0, 4);
+    const rows = Math.ceil(stats.length / 2);
+    const statsH = rows * 170 + (rows - 1) * 18;
+    const heroY = TOP + 178;
+    const heroH = Math.max(340, weekTop - heroY - statsH - 22);
+
+    drawSoftCard(c, padX, heroY, fullW, heroH, 46);
+
+    drawMiniVectorIcon(c, 'bars', padX + 54, heroY + 56, 15, 'rgba(15,23,32,0.55)');
+    txt(c, M.dict.overviewHdr, padX + 82, heroY + 64, 25, 600, 'rgba(15,23,32,0.62)', 'left', S.titleFont, 500);
+
+    if (M.dist) {
+      const maxNumW = M.hasChart ? 380 : (fullW - 100);
+      txt(c, M.dist, padX + 46, heroY + 196, 120, 700, ink, 'left', S.numFont, maxNumW);
+      txt(c, M.fullMainLabel, padX + 48, heroY + 244, 24, 500, sub, 'left', S.titleFont, maxNumW);
+    }
+
+    if (M.hasChart) {
+      if (heroH > 660) {
+        drawActiveChart(c, padX + 46, heroY + 280, fullW - 92, Math.max(200, heroH - 470), { chartAccent: accent, lineCol: accentInk });
+      } else {
+        drawActiveChart(c, padX + 420, heroY + 84, 460, Math.min(320, heroH - 270), { chartAccent: accent, lineCol: accentInk });
+      }
+    }
+
+    c.fillStyle = 'rgba(15,23,32,0.12)';
+    c.fillRect(padX + 46, heroY + heroH - 150, fullW - 92, 1.5);
+
+    const sA = M.activeStats[0], sB = M.activeStats[1];
+    if (sA) {
+      txt(c, `${sA.val} ${sA.unit}`.trim(), padX + 48, heroY + heroH - 92, 42, 700, ink, 'left', S.numFont, 380);
+      txt(c, sA.label, padX + 48, heroY + heroH - 54, 22, 500, sub, 'left', S.titleFont, 380);
+    }
+    if (sB) {
+      txt(c, `${sB.val} ${sB.unit}`.trim(), padX + 430, heroY + heroH - 92, 42, 700, ink, 'left', S.numFont, 340);
+      txt(c, sB.label, padX + 430, heroY + heroH - 54, 22, 500, sub, 'left', S.titleFont, 340);
+    }
+
+    const gY = heroY + heroH + 20;
+    const gap = 20, cw = (fullW - gap) / 2;
+    stats.forEach((it, idx) => {
+      const r = Math.floor(idx / 2), cl = idx % 2;
+      const bx = padX + cl * (cw + gap), by = gY + r * 188;
+      drawSoftCard(c, bx, by, cw, 170, 40);
+      txt(c, it.label, bx + 36, by + 62, 22, 500, sub, 'left', S.titleFont, cw - 70);
+      txt(c, `${it.val} ${it.unit}`.trim(), bx + 36, by + 120, 42, 700, ink, 'left', S.numFont, cw - 70);
+    });
+
+    if (S.showWeek) {
+      drawWeekCard(c, padX, weekY, fullW, WEEK_H, {
+        fill: 'solid', ink, sub, accent, cardFill: 'rgba(255,255,255,0.94)'
+      });
+    }
+  }
+
+  // =========================================================================
+  // ثيم 9: Duotone لونان
+  // =========================================================================
+  if (st === 9) {
+    const padX = 78, fullW = W - padX * 2;
+    const accent = S.accent;
+    const onAccent = readableOn(accent);
+    const blockY = TOP - 40;
+    const blockH = 500;
+
+    c.save();
+    const g = c.createLinearGradient(0, blockY, W, blockY + blockH);
+    g.addColorStop(0, accent);
+    g.addColorStop(1, shade(accent, 0.6));
+    c.fillStyle = g;
+    c.beginPath();
+    c.moveTo(0, blockY);
+    c.lineTo(W, blockY);
+    c.lineTo(W, blockY + blockH - 60);
+    c.quadraticCurveTo(W, blockY + blockH, W - 60, blockY + blockH);
+    c.lineTo(60, blockY + blockH);
+    c.quadraticCurveTo(0, blockY + blockH, 0, blockY + blockH - 60);
+    c.closePath();
+    c.fill();
+    c.restore();
+
+    const onSub = onAccent === '#08111a' ? 'rgba(8,17,26,0.6)' : 'rgba(255,255,255,0.65)';
+    txt(c, [S.tag, M.dateStr].filter(Boolean).join('  ·  '), padX, blockY + 56, 23, 600, onSub, 'left', S.numFont, fullW);
+    txt(c, M.title, padX, blockY + 150, 86, 800, onAccent, 'left', S.titleFont, fullW);
+    txt(c, S.muscleTag, padX, blockY + 192, 25, 500, onSub, 'left', S.titleFont, fullW);
+
+    if (M.dist) {
+      txt(c, M.fullMainLabel, padX, blockY + 268, 23, 600, onSub, 'left', S.numFont, fullW);
+      txt(c, M.dist, padX, blockY + 420, 168, 700, onAccent, 'left', S.numFont, fullW);
+    }
+
+    let y = blockY + blockH + 40;
+    if (M.hasChart) {
+      drawActiveChart(c, padX, y, fullW, 210);
+      y += 260;
+    }
+
+    c.fillStyle = 'rgba(255,255,255,0.12)';
+    c.fillRect(padX, y, fullW, 1.5);
+    y += 20;
+
+    const stats = M.activeStats.slice(0, 6);
+    const rows = Math.ceil(stats.length / 2);
+    const bottomLimit = S.showWeek ? weekY - 20 : contentBot;
+    const rowH = Math.max(92, Math.min(170, (bottomLimit - y - 10) / Math.max(1, rows)));
+    stats.forEach((it, idx) => {
+      const r = Math.floor(idx / 2), cl = idx % 2;
+      const cx = padX + cl * (fullW / 2);
+      const y0 = y + r * rowH;
+      txt(c, it.label, cx, y0 + 26, 21, 500, 'rgba(255,255,255,0.45)', 'left', S.titleFont, fullW / 2 - 30);
+      txt(c, `${it.val} ${it.unit}`.trim(), cx, y0 + 74, 44, 700, '#ffffff', 'left', S.numFont, fullW / 2 - 30);
+      c.fillStyle = 'rgba(255,255,255,0.08)';
+      c.fillRect(cx, y0 + 92, fullW / 2 - 36, 1.2);
+    });
+
+    if (S.showWeek) {
+      drawWeekCard(c, padX, weekY, fullW, WEEK_H, { fill: 'flat', ink: '#ffffff', accent, rule: true });
+    }
+  }
+
+  // =========================================================================
+  // ثيم 10: Editorial مجلة
+  // =========================================================================
+  if (st === 10) {
+    const padX = 84, fullW = W - padX * 2;
+    const ink = '#15120c';
+    const sub = 'rgba(21,18,12,0.55)';
+    const accent = S.accent;
+
+    txt(c, (S.tag || 'COROS').toUpperCase(), padX, TOP + 2, 21, 700, ink, 'left', S.numFont, fullW * 0.55);
+    if (M.dateStr) txt(c, M.dateStr, W - padX, TOP + 2, 20, 500, sub, 'right', S.numFont);
+    c.fillStyle = 'rgba(21,18,12,0.8)';
+    c.fillRect(padX, TOP + 18, fullW, 2.5);
+
+    txt(c, M.title, padX, TOP + 112, 96, 800, ink, 'left', S.titleFont, fullW);
+    txt(c, S.muscleTag, padX, TOP + 156, 25, 500, sub, 'left', S.titleFont, fullW);
+
+    c.fillStyle = 'rgba(21,18,12,0.22)';
+    c.fillRect(padX, TOP + 184, fullW, 1.5);
+
+    if (M.dist) {
+      txt(c, M.fullMainLabel, padX, TOP + 230, 22, 600, sub, 'left', S.numFont, fullW);
+      txt(c, M.dist, padX, TOP + 372, 168, 700, ink, 'left', S.numFont, fullW);
+    }
+
+    let y = TOP + 400;
+    if (M.hasChart) {
+      drawActiveChart(c, padX, y, fullW, S.showWeek ? 200 : 260, { chartAccent: accent, lineCol: shade(accent, 0.5) });
+      y += S.showWeek ? 240 : 300;
+    }
+    c.fillStyle = 'rgba(21,18,12,0.22)';
+    c.fillRect(padX, y, fullW, 1.5);
+    y += 18;
+
+    const stats = M.activeStats.slice(0, 6);
+    const rows = Math.ceil(stats.length / 2);
+    const bottomLimit = S.showWeek ? weekY - 18 : contentBot;
+    const rowH = Math.max(100, Math.min(260, (bottomLimit - y - 10) / Math.max(1, rows)));
+    stats.forEach((it, idx) => {
+      const r = Math.floor(idx / 2), cl = idx % 2;
+      const cx = padX + cl * (fullW / 2);
+      const y0 = y + r * rowH;
+      txt(c, it.label, cx, y0 + 26, 20, 600, sub, 'left', S.numFont, fullW / 2 - 30);
+      txt(c, `${it.val} ${it.unit}`.trim(), cx, y0 + 72, 42, 700, ink, 'left', S.numFont, fullW / 2 - 30);
+      c.fillStyle = 'rgba(21,18,12,0.16)';
+      c.fillRect(cx, y0 + 90, fullW / 2 - 36, 1.2);
+    });
+
+    if (S.showWeek) {
+      drawWeekCard(c, padX, weekY, fullW, WEEK_H, {
+        fill: 'flat', ink: '#15120c', sub: 'rgba(21,18,12,0.55)', accent, rule: true
+      });
+    }
   }
 
   if (!isExport && w === W) {
@@ -1575,6 +2479,7 @@ $('bgFile').onchange = e => {
   const img = new Image();
   img.onload = () => {
     S.bg = img;
+    S.bgVer++;
     e.target.parentNode.childNodes[0].nodeValue = '✓ تم رفع الخلفية';
     sched();
   };
@@ -2063,6 +2968,7 @@ $('share').onclick = async () => {
   }
 };
 
+buildWeekGrid();
 renderStatsManager();
 render();
 </script>
