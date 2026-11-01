@@ -3648,4 +3648,38 @@ updateBeltVisibility();
 
 [
   '700 40px "Inter"',
-  '700 40px "
+  '700 40px "Readex Pro"',
+  '700 40px "Cairo"',
+  '700 40px "Alexandria"',
+  '700 40px "Tajawal"',
+  '700 40px "Chakra Petch"',
+  '700 40px "JetBrains Mono"'
+].forEach(f => document.fonts.load(f).then(sched).catch(() => {}));
+
+$('share').onclick = async () => {
+  try {
+    drawCard(cv.getContext('2d'), W, S.style, true);
+    const b = await new Promise(r => cv.toBlob(r, 'image/png'));
+    render();
+    const file = new File([b], 'traincard-story.png', { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file] });
+      msg.textContent = '';
+    } else {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(file);
+      a.download = 'traincard-story.png';
+      a.click();
+      msg.textContent = 'تم بدء التنزيل بصيغة PNG.';
+    }
+  } catch (err) {
+    msg.textContent = 'اضغط مطولاً على البطاقة بالأعلى واختر "حفظ الصورة".';
+  }
+};
+
+buildWeekGrid();
+renderStatsManager();
+render();
+</script>
+</body>
+</html>
