@@ -359,6 +359,11 @@ input[type=range] { accent-color: #7dd3fc; width: 100%; }
   border-color: rgba(125, 211, 252, 0.55);
   background: rgba(125, 211, 252, 0.1);
 }
+.file.dragging {
+  border-color: #7dd3fc;
+  background: rgba(125, 211, 252, 0.22);
+  box-shadow: 0 0 0 2px rgba(125, 211, 252, 0.35) inset;
+}
 .chk-row { display: flex; flex-wrap: wrap; gap: 12px; }
 .chk {
   display: flex;
@@ -503,7 +508,7 @@ input[type=range] { accent-color: #7dd3fc; width: 100%; }
   <div class="prev-wrap">
     <img id="prev" alt="معاينة بطاقة التمرين">
   </div>
-  <p class="hint">17 ثيم للبطاقة + شريط نشاط الأسبوع + استيراد من ملف .FIT / .GPX / .TCX</p>
+  <p class="hint">17 ثيم للبطاقة + شريط نشاط الأسبوع + استيراد من ملف .FIT / .GPX / .TCX <span id="buildTag" style="opacity:.55"></span></p>
   <div id="strip"></div>
 
   <p id="msg"></p>
@@ -524,12 +529,12 @@ input[type=range] { accent-color: #7dd3fc; width: 100%; }
     </label>
 
     <div class="row">
-      <label class="file track-file">
-        📍 رفع ملف (.FIT / .GPX / .TCX)
-        <input type="file" id="trackFile" accept=".fit,.gpx,.tcx,application/gpx+xml,application/octet-stream">
+      <label class="file track-file" id="trackDrop">
+        <span id="trackFileLabel">📍 رفع ملف (.FIT / .GPX / .TCX) أو اسحبه هنا</span>
+        <input type="file" id="trackFile" accept=".fit,.gpx,.tcx,.fit.gz,application/gpx+xml,application/octet-stream">
       </label>
       <label class="file">
-        🖼️ رفع صورة خلفية للتمرين
+        <span id="bgFileLabel">🖼️ رفع صورة خلفية للتمرين</span>
         <input type="file" id="bgFile" accept="image/*">
       </label>
     </div>
@@ -678,6 +683,13 @@ input[type=range] { accent-color: #7dd3fc; width: 100%; }
 <script>
 const W = 1080, H = 1920;
 const BRAND = 'TRAINCARD';
+
+// إن فشل أي شيء أثناء التهيئة، أظهر رسالة بدل صفحة صامتة
+window.addEventListener('error', () => {
+  if (window.__tcReady) return;
+  const m = document.getElementById('msg');
+  if (m) m.textContent = 'تعذر تشغيل المحرر — أعد تحميل الصفحة (Ctrl+F5). إن تكرر الخطأ أبلغني برسالة الكونسول.';
+});
 
 /* قواميس اللغات الثلاث */
 const I18N = {
@@ -3119,7 +3131,12 @@ const thumbs = styleNames.map((n, i) => {
   const l = document.createElement('span');
   l.textContent = n;
   b.append(k, l);
-  b.onclick = () => { S.style = i; sched(); };
+  b.onclick = () => {
+    S.style = i;
+    strip.querySelectorAll('.th').forEach((el, j) => el.classList.toggle('on', j === i));
+    msg.textContent = 'تم تطبيق الثيم: ' + n;
+    sched();
+  };
   strip.appendChild(b);
   return { b, k };
 });
@@ -3165,8 +3182,12 @@ $('bgFile').onchange = e => {
   img.onload = () => {
     S.bg = img;
     S.bgVer++;
-    e.target.parentNode.childNodes[0].nodeValue = '✓ تم رفع الخلفية';
+    $('bgFileLabel').textContent = '✓ تم رفع الخلفية';
     sched();
+  };
+  img.onerror = () => {
+    $('bgFileLabel').textContent = '⚠️ تعذر فتح الصورة';
+    msg.textContent = 'تعذر فتح الصورة، جرّب صورة JPG أو PNG أخرى.';
   };
   img.src = URL.createObjectURL(f);
 };
@@ -3185,15 +3206,19 @@ function haversineKm(lat1, lon1, lat2, lon2) {
 function parseFitBuffer(buf) {
   const view = new DataView(buf);
   if (view.byteLength < 14) return null;
+  // كل ملف FIT صالح يبدأ بترويسة تحمل التوقيع ".FIT" في البايتات 8..11
+  if (view.getUint8(8) !== 0x2e || view.getUint8(9) !== 0x46 || view.getUint8(10) !== 0x49 || view.getUint8(11) !== 0x54) return null;
   const hdrSize = view.getUint8(0);
+  if (hdrSize < 12 || hdrSize > 14) return null;
   const dataLen = view.getUint32(4, true);
   let pos = hdrSize;
-  const end = Math.min(view.byteLength, hdrSize + dataLen);
+  const end = Math.min(view.byteLength, hdrSize + (dataLen || (view.byteLength - hdrSize)));
   const defs = {};
   const pts = [];
   const rawHrList = [];
   let hrSum = 0, hrCnt = 0, cadSum = 0, cadCnt = 0, pwrSum = 0, pwrCnt = 0;
   let minTs = null, maxTs = null, prevRecTs = null, movingRecSec = 0;
+  let lastFullTs = null;
   let lastAlt = null, elevGain = 0, maxDist = 0;
 
   let fitSport = null, fitSubSport = null;
@@ -3210,10 +3235,20 @@ function parseFitBuffer(buf) {
 
   while (pos < end) {
     const hdr = view.getUint8(pos++);
-    if (hdr & 0x80) continue;
-    const isDef = (hdr & 0x40) !== 0;
-    const hasDev = (hdr & 0x20) !== 0;
-    const localNum = hdr & 0x0f;
+    // ترويسة الطابع الزمني المضغوط: النوع في البتات 5-6 والإزاحة في 0-4
+    const compressed = (hdr & 0x80) !== 0;
+    let timeOffset = -1;
+    let localNum;
+    let isDef = false;
+    let hasDev = false;
+    if (compressed) {
+      localNum = (hdr >> 5) & 0x03;
+      timeOffset = hdr & 0x1f;
+    } else {
+      isDef = (hdr & 0x40) !== 0;
+      hasDev = (hdr & 0x20) !== 0;
+      localNum = hdr & 0x0f;
+    }
 
     if (isDef) {
       pos++;
@@ -3242,6 +3277,8 @@ function parseFitBuffer(buf) {
       let lapIntensity = null;
 
       for (const f of def.fields) {
+        // في الترويسة المضغوطة يُحذف حقل الطابع الزمني من البيانات
+        if (compressed && f.num === 253) continue;
         if (pos + f.size > end) { pos = end; break; }
 
         if (def.gMsg === 18) {
@@ -3286,6 +3323,7 @@ function parseFitBuffer(buf) {
           if (f.num === 253 && f.size === 4) {
             const ts = view.getUint32(pos, def.le);
             if (ts !== 0xFFFFFFFF) {
+              lastFullTs = ts;
               if (!minTs) minTs = ts;
               maxTs = ts;
               if (prevRecTs !== null) {
@@ -3342,6 +3380,20 @@ function parseFitBuffer(buf) {
         activeLapsCount++;
       }
 
+      // إعادة بناء الطابع الزمني من الترويسة المضغوطة
+      if (compressed && timeOffset >= 0 && lastFullTs !== null && def.gMsg === 20) {
+        let ts = (lastFullTs & ~0x1f) | timeOffset;
+        if (ts < lastFullTs) ts += 0x20;
+        lastFullTs = ts;
+        if (minTs === null) minTs = ts;
+        maxTs = ts;
+        if (prevRecTs !== null) {
+          const delta = ts - prevRecTs;
+          if (delta > 0 && delta <= 15) movingRecSec += delta;
+        }
+        prevRecTs = ts;
+      }
+
       if (lat !== null && lon !== null && Math.abs(lat) <= 90 && Math.abs(lon) <= 180) {
         pts.push([lat, lon]);
       }
@@ -3365,7 +3417,16 @@ function parseFitBuffer(buf) {
   const finalSets = activeSetsCount > 0 ? activeSetsCount : activeLapsCount;
   const isStrength = (fitSport === 10 || fitSubSport === 20 || activeSetsCount > 0);
   const finalDurationSec = sessionTimerSec > 0 ? sessionTimerSec : (movingRecSec > 0 ? movingRecSec : ((minTs && maxTs) ? (maxTs - minTs) : 0));
-  const finalDistKm = sessionDistKm > 0 ? sessionDistKm : (maxDist > 0 ? maxDist / 1000 : 0);
+  let finalDistKm = sessionDistKm > 0 ? sessionDistKm : (maxDist > 0 ? maxDist / 1000 : 0);
+  // إن خلا الملف من رسالة الجلسة، احسب المسافة من نقاط الـ GPS
+  if (!finalDistKm && pts.length > 1) {
+    let km = 0;
+    for (let i = 1; i < pts.length; i++) km += haversineKm(pts[i - 1][0], pts[i - 1][1], pts[i][0], pts[i][1]);
+    finalDistKm = km;
+  }
+
+  // ملف بدون أي بيانات قابلة للقراءة = فشل صريح، لا نجاح صامت
+  if (!pts.length && !rawHrList.length && !finalDurationSec && !finalDistKm && !finalSets && !sessionCalories) return null;
 
   return {
     isStrength,
@@ -3389,15 +3450,24 @@ function parseFitBuffer(buf) {
 }
 
 /* رفع وقراءة ملفات التمرين (.FIT / .GPX / .TCX) */
-$('trackFile').onchange = async e => {
-  const f = e.target.files[0];
-  if (!f) return;
-  e.target.value = '';
+const setTrackLabel = t => { const el = $('trackFileLabel'); if (el) el.textContent = t; };
+
+async function handleTrackFile(f) {
+  setTrackLabel(`⏳ جاري قراءة ${f.name}`);
   msg.textContent = 'جاري تحليل ملف التمرين ورسم منحنى نبض القلب...';
+  const lname = f.name.toLowerCase();
 
   try {
-    if (f.name.toLowerCase().endsWith('.fit')) {
-      const buf = await f.arrayBuffer();
+    if (lname.endsWith('.fit') || lname.endsWith('.fit.gz') || lname.endsWith('.gz')) {
+      let buf = await f.arrayBuffer();
+      if (lname.endsWith('.gz')) {
+        if (typeof DecompressionStream === 'undefined') {
+          setTrackLabel('⚠️ ملف مضغوط (.gz)');
+          msg.textContent = 'هذا الملف مضغوط بصيغة .gz. فك الضغط أولاً ثم ارفع ملف .FIT.';
+          return;
+        }
+        buf = await new Response(new Blob([buf]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer();
+      }
       const res = parseFitBuffer(buf);
       if (res) {
         if (res.hrSeries && res.hrSeries.length >= 6) {
@@ -3435,17 +3505,31 @@ $('trackFile').onchange = async e => {
         if (res.sessionCalories > 0) setStatValue('cal', res.sessionCalories);
         if (res.startEpochMs) S.date = new Date(res.startEpochMs).toISOString().slice(0, 10);
 
-        e.target.parentNode.childNodes[0].nodeValue = '✓ تم استخراج النبض والبيانات';
-        msg.textContent = `تم رسم منحنى نبض القلب واستخراج التمرين الصافي (${formatDuration(res.durationSec)})!`;
+        setTrackLabel('✓ تم استخراج النبض والبيانات');
+        msg.textContent = `تم تحليل ${f.name} · ${formatDuration(res.durationSec)}${res.distKm > 0 ? ' · ' + res.distKm.toFixed(2) + ' كم' : ''}${res.avgHr > 0 ? ' · متوسط النبض ' + res.avgHr : ''}`;
         syncInputsFromState();
         return;
       }
+      setTrackLabel('⚠️ تعذر تحليل ملف FIT');
+      msg.textContent = 'الملف بصيغة FIT لكن تعذر استخراج بياناته. صدّر التمرين من ساعتك بصيغة .TCX أو .GPX وارفعه.';
+      return;
     }
 
     const text = await f.text();
     const doc = new DOMParser().parseFromString(text, 'text/xml');
+    if (doc.querySelector('parsererror')) {
+      setTrackLabel('⚠️ الملف غير صالح');
+      msg.textContent = 'تعذر قراءة محتوى الملف. تأكد أنه ملف GPX أو TCX سليم.';
+      return;
+    }
     let trkpts = [...doc.querySelectorAll('trkpt')];
     if (!trkpts.length) trkpts = [...doc.querySelectorAll('Trackpoint')];
+    if (!trkpts.length) trkpts = [...doc.querySelectorAll('rtept, wpt')];
+    if (!trkpts.length) {
+      setTrackLabel('⚠️ لا توجد نقاط مسار بالملف');
+      msg.textContent = 'الملف لا يحتوي على نقاط مسار أو نبض قابل للقراءة.';
+      return;
+    }
 
     // نوع الرياضة من ملف TCX، وافتراض الجري لملف GPS إن كان النوع المختار ليس مسافة
     const isTcx = f.name.toLowerCase().endsWith('.tcx');
@@ -3510,27 +3594,59 @@ $('trackFile').onchange = async e => {
       });
     }
 
+    let totalKm = 0;
     if (pts.length > 1) {
       const step = Math.max(1, Math.floor(pts.length / 250));
       S.route = pts.filter((_, idx) => idx % step === 0);
-      let totalKm = 0;
       for (let i = 1; i < pts.length; i++) totalKm += haversineKm(pts[i - 1][0], pts[i - 1][1], pts[i][0], pts[i][1]);
       if (totalKm > 0) S.dist = totalKm.toFixed(2);
-      if (movingSec > 0) {
-        setStatValue('time', formatDuration(movingSec));
-        if (totalKm > 0) setStatValue('pace', S.sport === 'bike' ? (totalKm / (movingSec / 3600)).toFixed(1) : formatPace(movingSec / totalKm));
-        if (firstTime) S.date = new Date(firstTime).toISOString().slice(0, 10);
-      }
-      if (elevGain > 0) setStatValue('elev', Math.round(elevGain));
-      if (hrCount > 0) setStatValue('hr', Math.round(hrSum / hrCount));
-      e.target.parentNode.childNodes[0].nodeValue = '✓ تم استخراج البيانات';
-      msg.textContent = 'تم استخراج البيانات ومنحنى النبض بنجاح!';
+    }
+    if (movingSec > 0) {
+      setStatValue('time', formatDuration(movingSec));
+      if (totalKm > 0) setStatValue('pace', S.sport === 'bike' ? (totalKm / (movingSec / 3600)).toFixed(1) : formatPace(movingSec / totalKm));
+    }
+    if (firstTime) S.date = new Date(firstTime).toISOString().slice(0, 10);
+    if (elevGain > 0) setStatValue('elev', Math.round(elevGain));
+    if (hrCount > 0) setStatValue('hr', Math.round(hrSum / hrCount));
+
+    if (pts.length > 1 || rawHr.length >= 8 || movingSec > 0 || hrCount > 0) {
+      setTrackLabel('✓ تم استخراج البيانات');
+      msg.textContent = `تم استخراج البيانات من ${f.name}${totalKm > 0 ? ' · ' + totalKm.toFixed(2) + ' كم' : ''}${movingSec > 0 ? ' · ' + formatDuration(movingSec) : ''}${hrCount > 0 ? ' · متوسط النبض ' + Math.round(hrSum / hrCount) : ''}`;
       syncInputsFromState();
+    } else {
+      setTrackLabel('⚠️ لا توجد بيانات قابلة للاستخدام');
+      msg.textContent = 'تم العثور على نقاط لكن بدون مسافة أو نبض أو وقت قابل للاستخدام.';
     }
   } catch (err) {
-    msg.textContent = 'تعذر قراءة الملف، تأكد أنه بصيغة FIT أو GPX أو TCX.';
+    setTrackLabel('⚠️ تعذر قراءة الملف');
+    msg.textContent = 'تعذر قراءة الملف (' + (err && err.message ? err.message : 'سبب غير معروف') + '). تأكد أنه بصيغة FIT أو GPX أو TCX.';
   }
+}
+
+$('trackFile').onchange = e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  e.target.value = '';
+  handleTrackFile(f);
 };
+
+const dropEl = $('trackDrop');
+if (dropEl) {
+  ['dragenter', 'dragover'].forEach(t => dropEl.addEventListener(t, ev => {
+    ev.preventDefault();
+    dropEl.classList.add('dragging');
+  }));
+  ['dragleave', 'drop'].forEach(t => dropEl.addEventListener(t, ev => {
+    ev.preventDefault();
+    dropEl.classList.remove('dragging');
+  }));
+  dropEl.addEventListener('drop', ev => {
+    // الإفلات فوق حقل الملف نفسه يتكفل به المتصفح عبر حدث change
+    if (ev.target && ev.target.id === 'trackFile') return;
+    const f = ev.dataTransfer && ev.dataTransfer.files && ev.dataTransfer.files[0];
+    if (f) handleTrackFile(f);
+  });
+}
 
 function parseCorosTextOrHtml(raw) {
   if (!raw) return false;
@@ -3680,6 +3796,8 @@ $('share').onclick = async () => {
 buildWeekGrid();
 renderStatsManager();
 render();
+$('buildTag').textContent = '· إصدار 2026-11-01';
+window.__tcReady = true;
 </script>
 </body>
 </html>
