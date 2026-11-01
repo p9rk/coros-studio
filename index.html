@@ -6,8 +6,8 @@
 <meta name="theme-color" content="#080b10">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="COROS Studio">
-<title>COROS Activity Studio Pro</title>
+<meta name="apple-mobile-web-app-title" content="TrainCard Studio">
+<title>TrainCard Studio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@500;700;800;900&family=Archivo+Black&family=Bebas+Neue&family=Cairo:wght@600;700;800;900&family=Chakra+Petch:ital,wght@0,600;0,700;1,700&family=Changa:wght@600;700;800&family=IBM+Plex+Sans+Arabic:wght@500;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&family=Oswald:wght@500;700&family=Readex+Pro:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -18,8 +18,6 @@
   --edge: rgba(255, 255, 255, 0.16);
   --edge-bright: rgba(255, 255, 255, 0.35);
   --glass-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
-  --coros: #38bdf8;
-  --strava: #fc4c02;
   --ok: #00e054;
   color-scheme: dark;
   box-sizing: border-box;
@@ -90,18 +88,6 @@ h1 {
   display: grid;
   gap: 14px;
 }
-summary {
-  cursor: pointer;
-  font-weight: 700;
-  list-style: none;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-summary::-webkit-details-marker { display: none; }
-summary::after { content: "▾"; color: var(--mut); font-size: 14px; transition: transform 0.2s; }
-details[open] summary::after { transform: rotate(180deg); }
-details.panel[open] summary { margin-bottom: 12px; }
 
 /* معاينة البطاقة */
 .prev-wrap {
@@ -173,7 +159,7 @@ details.panel[open] summary { margin-bottom: 12px; }
   text-align: center;
 }
 
-/* أزرار اللغة ونوع الرياضة (5 رياضات شاملة الكاراتيه ونط الحبل) */
+/* أزرار اللغة ونوع الرياضة */
 .lang-pills {
   display: grid;
   grid-template-columns: 1.25fr 1fr 1fr;
@@ -181,8 +167,156 @@ details.panel[open] summary { margin-bottom: 12px; }
 }
 .sport-pills {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
+  gap: 8px;
+}
+.icon-pills {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
+  gap: 8px;
+}
+.icon-pill {
+  padding: 10px 6px;
+  border-radius: 14px;
+  border: 1px solid var(--edge);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--mut);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.icon-pill.active {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.7);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.4);
+}
+.strava-badge {
+  display: inline-flex;
+  align-items: center;
   gap: 6px;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  color: #ff7a45;
+  background: rgba(252, 76, 2, 0.12);
+  border: 1px solid rgba(252, 76, 2, 0.4);
+  border-radius: 999px;
+  padding: 3px 9px;
+  margin-inline-start: 8px;
+}
+.strava-login {
+  background: linear-gradient(180deg, #ff6a2a, #fc4c02);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: #fff;
+  font-weight: 800;
+  letter-spacing: .01em;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35), 0 10px 24px rgba(252, 76, 2, 0.32);
+}
+.strava-login:disabled { opacity: .55; cursor: progress; }
+.strava-account {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(252, 76, 2, 0.32);
+  background: linear-gradient(120deg, rgba(252, 76, 2, 0.16), rgba(255, 255, 255, 0.04));
+}
+.strava-avatar {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  font-weight: 900;
+  color: #fff;
+  background: linear-gradient(140deg, #ff7a45, #fc4c02);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.45);
+}
+.strava-account-info { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.strava-account-info b {
+  font-size: 14.5px;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.strava-account-info span { font-size: 11.5px; color: var(--mut); }
+.mini-btn {
+  flex: 0 0 auto;
+  padding: 7px 12px;
+  border-radius: 11px;
+  border: 1px solid var(--edge);
+  background: rgba(0, 0, 0, 0.3);
+  color: var(--mut);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.mini-btn:hover { color: #fff; border-color: rgba(255, 255, 255, 0.5); }
+.strava-note {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--mut);
+  text-align: right;
+}
+.strava-note.warn { color: #ffb27a; }
+.strava-note.ok { color: #9ef0c0; }
+.strava-note code {
+  direction: ltr;
+  display: inline-block;
+  unicode-bidi: embed;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 6px;
+  padding: 1px 6px;
+  font-size: 11.5px;
+}
+.strava-steps {
+  margin: 0;
+  padding-inline-start: 18px;
+  display: grid;
+  gap: 5px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--mut);
+}
+.strava-steps a { color: #7dd3fc; }
+#beltGroup { display: grid; gap: 12px; }
+.belt-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.belt-swatch {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.28), inset 0 -2px 4px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  padding: 0;
+  transition: transform .12s, box-shadow .12s, border-color .12s;
+}
+.belt-swatch:hover { transform: translateY(-1px); }
+.belt-swatch.active {
+  border-color: #fff;
+  box-shadow: 0 0 0 3px rgba(125, 211, 252, 0.45), inset 0 2px 4px rgba(255, 255, 255, 0.3);
+}
+#stravaLoggedOut, #stravaLoggedIn {
+  display: grid;
+  gap: 12px;
+}
+.strava-actions {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
 }
 .week-grid {
   display: grid;
@@ -236,13 +370,13 @@ details.panel[open] summary { margin-bottom: 12px; }
 .week-day.today span { color: #7dd3fc; font-weight: 700; }
 .week-day.today .wd-check { border-color: rgba(125, 211, 252, 0.55); }
 .sport-pill, .lang-pill {
-  padding: 10px 4px;
+  padding: 10px 6px;
   border-radius: 14px;
   border: 1px solid var(--edge);
   background: rgba(255, 255, 255, 0.05);
   color: var(--mut);
   font: inherit;
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 700;
   cursor: pointer;
   text-align: center;
@@ -316,10 +450,6 @@ input[type=range] { accent-color: #7dd3fc; width: 100%; }
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-}
-.file.coros-file {
-  border-color: rgba(125, 211, 252, 0.55);
-  background: rgba(125, 211, 252, 0.1);
 }
 .file input {
   position: absolute;
@@ -446,12 +576,6 @@ input[type=range] { accent-color: #7dd3fc; width: 100%; }
 }
 .go:active { transform: scale(0.98); }
 .go:disabled { opacity: 0.5; cursor: wait; }
-.go.strava-btn {
-  color: #ffffff;
-  border-color: rgba(255, 130, 80, 0.7);
-  background: linear-gradient(180deg, #fc4c02, #d43b00);
-  box-shadow: 0 8px 24px rgba(252, 76, 2, 0.28);
-}
 .go.alt {
   color: #fff;
   border-color: var(--edge-bright);
@@ -467,167 +591,66 @@ input[type=range] { accent-color: #7dd3fc; width: 100%; }
   min-height: 20px;
   margin: 8px 0 0;
 }
-
-/* النافذة المنبثقة السفلية لتمارين Strava */
-.sheet-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 999;
-  background: rgba(0, 0, 0, 0.72);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.25s ease;
-}
-.sheet-backdrop.open {
-  opacity: 1;
-  pointer-events: auto;
-}
-.sheet {
-  width: 100%;
-  max-width: 500px;
-  max-height: 82vh;
-  background: linear-gradient(180deg, rgba(22, 28, 38, 0.96), rgba(10, 14, 20, 0.99));
-  border-top: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: 28px 28px 0 0;
-  box-shadow: 0 -12px 48px rgba(0, 0, 0, 0.9);
-  display: flex;
-  flex-direction: column;
-  transform: translateY(100%);
-  transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
-  padding-bottom: env(safe-area-inset-bottom, 16px);
-}
-.sheet-backdrop.open .sheet { transform: translateY(0); }
-.sheet-handle {
-  width: 40px;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.25);
-  border-radius: 99px;
-  margin: 10px auto 4px;
-}
-.sheet-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 18px 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-.sheet-title { font-size: 16px; font-weight: 700; margin: 0; }
-.sheet-close {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #fff;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  font-size: 16px;
-  cursor: pointer;
-}
-.sheet-body {
-  padding: 14px 18px 24px;
-  overflow-y: auto;
-  display: grid;
-  gap: 10px;
-}
-.act-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  width: 100%;
-  padding: 12px 14px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #fff;
-  font: inherit;
-  text-align: right;
-  cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
-}
-.act-item:active, .act-item.on {
-  background: rgba(252, 76, 2, 0.18);
-  border-color: var(--strava);
-}
-.act-meta b { display: block; font-size: 15px; }
-.act-meta span { display: block; font-size: 12.5px; color: var(--mut); margin-top: 2px; direction: ltr; text-align: right; }
-.act-badge {
-  padding: 5px 10px;
-  border-radius: 10px;
-  background: rgba(252, 76, 2, 0.16);
-  border: 1px solid rgba(252, 76, 2, 0.4);
-  color: #ff986b;
-  font-size: 12px;
-  font-weight: 700;
-  white-space: nowrap;
-}
 </style>
 </head>
 <body>
 <main>
   <div class="brand-head">
     <span class="brand-dot"></span>
-    <h1>COROS Activity Studio Pro</h1>
+    <h1>TrainCard Studio</h1>
   </div>
 
   <div class="prev-wrap">
     <img id="prev" alt="معاينة بطاقة التمرين">
   </div>
-  <p class="hint">14 ثيم للبطاقة + ربط Strava التلقائي + علامات الكاراتيه ونط الحبل</p>
+  <p class="hint">17 ثيم للبطاقة + شريط نشاط الأسبوع + استيراد مباشر من Strava</p>
   <div id="strip"></div>
 
   <p id="msg"></p>
 
-  <!-- قسم استيراد بيانات التمرين + حركة سترافا التلقائية -->
+  <!-- قسم حساب Strava -->
   <section class="panel">
-    <div class="row">
-      <button class="go strava-btn" id="stravaFetchBtn" type="button">🟠 جلب تماريني من Strava</button>
-      <button class="go alt" id="stravaListBtn" type="button" hidden>📋 قائمة تمارين Strava</button>
+    <div class="section-head">
+      <b>حساب Strava <span class="strava-badge">STRAVA</span></b>
+      <span>تسجيل دخول مباشر</span>
     </div>
 
-    <details id="stravaConfigBox">
-      <summary style="font-size:13px;color:var(--mut)">⚙️ إعدادات الربط التلقائي مع Strava (تُحفظ بجهازك مرة واحدة)</summary>
-      <div style="display:grid;gap:10px;margin-top:10px">
-        <p class="hint" style="margin:0;text-align:right;font-size:12px">
-          من صفحة <a href="https://www.strava.com/settings/api" target="_blank" style="color:#7dd3fc">Strava API Settings</a>، يمكنك وضع الـ Access Token مباشرة، أو وضع Client ID + Secret + Refresh Token ليتجدد تلقائياً مدى الحياة:
-        </p>
-        <div class="row">
-          <label>Client ID (اختياري للتجديد التلقائي)<input type="text" id="stClientId" placeholder="مثال: 123456"></label>
-          <label>Client Secret (اختياري)<input type="password" id="stClientSecret" placeholder="Client Secret"></label>
-        </div>
-        <div class="row">
-          <label>Refresh Token (يتجدد تلقائياً)<input type="password" id="stRefreshToken" placeholder="Refresh Token"></label>
-          <label>أو Access Token مباشر<input type="password" id="stAccessToken" placeholder="Access Token"></label>
-        </div>
-        <div class="row">
-          <button class="go alt" id="stravaOAuthBtn" type="button" style="font-size:12.5px;padding:10px">🔑 تفويض سريع عبر متصفح Strava</button>
-          <button class="go alt" id="saveStravaCfgBtn" type="button" style="font-size:12.5px;padding:10px">💾 حفظ الإعدادات بجهازي</button>
-        </div>
+    <div id="stravaLoggedOut">
+      <div class="row">
+        <label>Client ID<input type="text" id="stravaClientId" inputmode="numeric" placeholder="12345" autocomplete="off"></label>
+        <label>Client Secret<input type="password" id="stravaClientSecret" placeholder="••••••••••" autocomplete="new-password"></label>
       </div>
-    </details>
+      <button class="go strava-login" id="stravaLogin" type="button">تسجيل الدخول بحساب Strava</button>
+      <ol class="strava-steps">
+        <li>افتح <a href="https://www.strava.com/settings/api" target="_blank" rel="noopener">strava.com/settings/api</a> وأنشئ تطبيقاً واحداً لمرة واحدة، وخذ منه Client ID و Client Secret.</li>
+        <li>ضع Authorization Callback Domain = <code id="stravaHostHint">localhost</code>.</li>
+        <li>سجّل الدخول واختر من آخر أنشطتك لاستيرادها مباشرة.</li>
+      </ol>
+      <p class="strava-note" id="stravaNote"></p>
+    </div>
 
-    <label>
-      أو الصق رابط تمرين COROS / نص التمرين
-      <div class="input-group">
-        <input type="text" id="corosUrl" placeholder="https://t.coros.com/... أو الصق نص التمرين" autocomplete="off">
-        <button class="go inline" id="fetchBtn" type="button">جلب البيانات</button>
+    <div id="stravaLoggedIn" hidden>
+      <div class="strava-account">
+        <div class="strava-avatar" id="stravaInitial">S</div>
+        <div class="strava-account-info">
+          <b id="stravaName">—</b>
+          <span id="stravaMeta">متصل بـ Strava</span>
+        </div>
+        <button class="mini-btn" id="stravaLogout" type="button">خروج</button>
       </div>
+      <label>آخر الأنشطة<select id="stravaActivities"></select></label>
+      <div class="strava-actions">
+        <button class="go inline" id="stravaImport" type="button">استيراد التمرين المحدد</button>
+        <button class="mini-btn" id="stravaRefresh" type="button">تحديث</button>
+      </div>
+      <label class="chk"><input type="checkbox" id="stravaStreams" checked> استيراد منحنى النبض والمسار من Strava</label>
+      <p class="strava-note" id="stravaLoginNote"></p>
+    </div>
+
+    <label class="file">
+      🖼️ رفع صورة خلفية للتمرين
+      <input type="file" id="bgFile" accept="image/*">
     </label>
-
-    <div class="row">
-      <label class="file coros-file">
-        📍 رفع ملف (.FIT / .GPX / .TCX)
-        <input type="file" id="trackFile" accept=".fit,.gpx,.tcx,.json,application/gpx+xml,application/octet-stream">
-      </label>
-      <label class="file">
-        🖼️ رفع صورة خلفية للتمرين
-        <input type="file" id="bgFile" accept="image/*">
-      </label>
-    </div>
   </section>
 
   <!-- قسم اللغة ونوع الرياضة والرقم الرئيسي -->
@@ -639,22 +662,38 @@ input[type=range] { accent-color: #7dd3fc; width: 100%; }
       <button type="button" class="lang-pill" data-lang="en">🇬🇧 English</button>
     </div>
 
-    <label>نوع التمرين (يغير العلامة والرسومات تلقائياً)</label>
+    <label>نوع التمرين</label>
     <div class="sport-pills" id="sportPills">
       <button type="button" class="sport-pill active" data-sport="gym">🏋️ حديد</button>
-      <button type="button" class="sport-pill" data-sport="karate">🥋 كاراتيه</button>
-      <button type="button" class="sport-pill" data-sport="rope">⚡ نط حبل</button>
       <button type="button" class="sport-pill" data-sport="run">🏃 جري</button>
       <button type="button" class="sport-pill" data-sport="bike">🚴 دراجة</button>
+      <button type="button" class="sport-pill" data-sport="rope">⚡ نط حبل</button>
+      <button type="button" class="sport-pill" data-sport="karate">🥋 كاراتيه</button>
+    </div>
+
+    <label>أيقونة الرياضة على البطاقة</label>
+    <div class="icon-pills" id="iconPills">
+      <button type="button" class="icon-pill active" data-icon="auto">تلقائي (حسب النوع)</button>
+      <button type="button" class="icon-pill" data-icon="dumbbell">🏋️ حديد</button>
+      <button type="button" class="icon-pill" data-icon="run">🏃 جري</button>
+      <button type="button" class="icon-pill" data-icon="bike">🚴 دراجة</button>
+      <button type="button" class="icon-pill" data-icon="rope">🪢 نط حبل</button>
+      <button type="button" class="icon-pill" data-icon="karate">🥋 كاراتيه</button>
+    </div>
+
+    <div id="beltGroup" hidden>
+      <label>لون حزام الكاراتيه</label>
+      <div class="belt-row" id="beltRow"></div>
+      <p class="hint" style="margin:0;text-align:right;font-size:12px">اختيار لون الحزام يحوّل أيقونة الرياضة إلى حزام كاراتيه بلون رتبتك.</p>
     </div>
 
     <div class="row">
-      <label>عنوان التمرين<input type="text" data-k="title" value="UPPER 1" placeholder="UPPER 1 / كاراتيه شوتوكان"></label>
-      <label>الجهاز / الوصف الفرعي<input type="text" data-k="tag" value="COROS PACE 4" placeholder="COROS PACE 4"></label>
+      <label>عنوان التمرين<input type="text" data-k="title" value="UPPER 1" placeholder="UPPER 1 / جري مسائي"></label>
+      <label>الجهاز / الوصف الفرعي<input type="text" data-k="tag" value="TRAINING SESSION" placeholder="TRAINING SESSION"></label>
     </div>
 
     <div id="gymExtraRow" class="row">
-      <label>العضلات المستهدفة / نوع الجلسة<input type="text" data-k="muscleTag" value="تمرين حديد / STRENGTH" placeholder="علوي / كيهون وكاتا / نط حبل"></label>
+      <label>العضلات المستهدفة / نوع الجلسة<input type="text" data-k="muscleTag" value="تمرين حديد / STRENGTH" placeholder="علوي / UPPER BODY"></label>
       <label>نوع الغراف في البطاقة الرئيسية
         <select data-k="chartMode">
           <option value="hr">📈 منحنى نبض القلب (Heart Rate)</option>
@@ -721,7 +760,7 @@ input[type=range] { accent-color: #7dd3fc; width: 100%; }
           <option value="'Readex Pro', 'Inter', sans-serif">Readex Pro (عصري حاد وواضح)</option>
           <option value="'Cairo', 'Inter', sans-serif">Cairo (القاهرة - عربي/رقمي فخم)</option>
           <option value="'Space Grotesk', 'Cairo', sans-serif">Space Grotesk (تقني نظيف)</option>
-          <option value="'Chakra Petch', 'Cairo', sans-serif">Chakra Petch (رقمي COROS)</option>
+          <option value="'Chakra Petch', 'Cairo', sans-serif">Chakra Petch (رقمي تقني)</option>
           <option value="'JetBrains Mono', monospace">JetBrains Mono (أرقام هندسية)</option>
           <option value="'Bebas Neue', 'Cairo', sans-serif">Bebas Neue (طولي ضخم)</option>
         </select>
@@ -754,30 +793,19 @@ input[type=range] { accent-color: #7dd3fc; width: 100%; }
   <button class="go" id="share" type="button">حفظ / مشاركة البطاقة (PNG)</button>
 </main>
 
-<!-- نافذة الجوال المنبثقة لاختيار تمرين من Strava -->
-<div class="sheet-backdrop" id="stravaSheet">
-  <div class="sheet">
-    <div class="sheet-handle"></div>
-    <div class="sheet-header">
-      <h3 class="sheet-title">🟠 اختر تمرينك من Strava</h3>
-      <button class="sheet-close" id="stravaSheetClose" type="button">✕</button>
-    </div>
-    <div class="sheet-body" id="stravaListBox"></div>
-  </div>
-</div>
-
 <script>
 const W = 1080, H = 1920;
+const BRAND = 'TRAINCARD';
 
-/* قواميس اللغات الثلاث (بما فيها الكاراتيه ونط الحبل) */
+/* قواميس اللغات الثلاث */
 const I18N = {
   bi: {
     sports: {
-      gym:    { mainLbl: 'الجلسات / TOTAL SETS', mainUnit: 'جلسة / SET', defTitle: 'UPPER 1', badge: 'تمرين حديد / STRENGTH', paceLbl: 'العدات / TOTAL REPS', paceUnit: 'عدة / REP', elevLbl: 'الحجم / VOLUME', elevUnit: 'كجم / KG' },
-      karate: { mainLbl: 'الجولات / ROUNDS', mainUnit: 'جولة / ROUND', defTitle: 'SHOTOKAN KARATE', badge: 'كاراتيه / KARATE DOJO', paceLbl: 'كاتا وكوميتيه / KATA', paceUnit: 'فئة / SET', elevLbl: 'الشدة / INTENSITY', elevUnit: 'TL' },
-      rope:   { mainLbl: 'القفزات / TOTAL JUMPS', mainUnit: 'قفزة / JUMP', defTitle: 'JUMP ROPE', badge: 'نط حبل / JUMP ROPE', paceLbl: 'السرعة / AVG RATE', paceUnit: 'ق/د · JPM', elevLbl: 'أعلى تتابع / STREAK', elevUnit: 'قفزة / JUMP' },
-      run:    { mainLbl: 'المسافة / DISTANCE', mainUnit: 'كم / KM', defTitle: 'OUTDOOR RUN', badge: 'جري / RUN SESSION', paceLbl: 'البيس / AVG PACE', paceUnit: '/كم · KM', elevLbl: 'الارتفاع / ELEV GAIN', elevUnit: 'م / M' },
-      bike:   { mainLbl: 'المسافة / DISTANCE', mainUnit: 'كم / KM', defTitle: 'ROAD CYCLING', badge: 'دراجة / CYCLING', paceLbl: 'السرعة / AVG SPEED', paceUnit: 'كم/س · KPH', elevLbl: 'الارتفاع / ELEV GAIN', elevUnit: 'م / M' }
+      gym:  { mainLbl: 'الجلسات / TOTAL SETS', mainUnit: 'جلسة / SET', defTitle: 'UPPER 1', badge: 'تمرين حديد / STRENGTH', paceLbl: 'العدات / TOTAL REPS', paceUnit: 'عدة / REP', elevLbl: 'الحجم / VOLUME', elevUnit: 'كجم / KG' },
+      run:  { mainLbl: 'المسافة / DISTANCE', mainUnit: 'كم / KM', defTitle: 'OUTDOOR RUN', badge: 'جري / RUN SESSION', paceLbl: 'البيس / AVG PACE', paceUnit: '/كم · KM', elevLbl: 'الارتفاع / ELEV GAIN', elevUnit: 'م / M' },
+      bike: { mainLbl: 'المسافة / DISTANCE', mainUnit: 'كم / KM', defTitle: 'ROAD CYCLING', badge: 'دراجة / CYCLING', paceLbl: 'السرعة / AVG SPEED', paceUnit: 'كم/س · KPH', elevLbl: 'الارتفاع / ELEV GAIN', elevUnit: 'م / M' },
+      rope: { mainLbl: 'القفزات / TOTAL JUMPS', mainUnit: 'قفزة / JUMP', defTitle: 'JUMP ROPE', badge: 'نط حبل / CARDIO', paceLbl: 'السرعة / AVG RATE', paceUnit: 'ق/د · JPM', elevLbl: 'أعلى تتابع / STREAK', elevUnit: 'قفزة / JUMP' },
+      karate: { mainLbl: 'الجولات / TOTAL ROUNDS', mainUnit: 'جولة / ROUND', defTitle: 'KARATE', badge: 'كاراتيه / KARATE', paceLbl: 'التكرارات / TOTAL REPS', paceUnit: 'مرة / REP', elevLbl: 'الحجم / VOLUME', elevUnit: 'كجم / KG' }
     },
     stats: {
       time:  { label: 'الوقت / TIME', unit: '' },
@@ -798,11 +826,11 @@ const I18N = {
   },
   ar: {
     sports: {
-      gym:    { mainLbl: 'إجمالي الجلسات', mainUnit: 'جلسة', defTitle: 'تمرين حديد علوي', badge: 'تمرين حديد ومقاومة', paceLbl: 'مجموع العدات', paceUnit: 'عدة', elevLbl: 'الحجم العضلي', elevUnit: 'كجم' },
-      karate: { mainLbl: 'عدد الجولات', mainUnit: 'جولة', defTitle: 'تمرين كاراتيه (شوتوكان)', badge: 'كاراتيه دوجو', paceLbl: 'كيهون وكاتا', paceUnit: 'جولة', elevLbl: 'الشدة والتركيز', elevUnit: 'TL' },
-      rope:   { mainLbl: 'إجمالي القفزات', mainUnit: 'قفزة', defTitle: 'تمرين نط حبل', badge: 'نط حبل ولياقة', paceLbl: 'سرعة القفز', paceUnit: 'ق/د', elevLbl: 'أعلى تتابع', elevUnit: 'قفزة' },
-      run:    { mainLbl: 'المسافة الكلية', mainUnit: 'كم', defTitle: 'جري خارجي', badge: 'تمرين جري', paceLbl: 'متوسط البيس', paceUnit: '/كم', elevLbl: 'الارتفاع المكتسب', elevUnit: 'م' },
-      bike:   { mainLbl: 'المسافة الكلية', mainUnit: 'كم', defTitle: 'جولة دراجة', badge: 'تمرين دراجة', paceLbl: 'متوسط السرعة', paceUnit: 'كم/س', elevLbl: 'الارتفاع المكتسب', elevUnit: 'م' }
+      gym:  { mainLbl: 'إجمالي الجلسات', mainUnit: 'جلسة', defTitle: 'تمرين حديد علوي', badge: 'تمرين حديد ومقاومة', paceLbl: 'مجموع العدات', paceUnit: 'عدة', elevLbl: 'الحجم العضلي', elevUnit: 'كجم' },
+      run:  { mainLbl: 'المسافة الكلية', mainUnit: 'كم', defTitle: 'جري خارجي', badge: 'تمرين جري', paceLbl: 'متوسط البيس', paceUnit: '/كم', elevLbl: 'الارتفاع المكتسب', elevUnit: 'م' },
+      bike: { mainLbl: 'المسافة الكلية', mainUnit: 'كم', defTitle: 'جولة دراجة', badge: 'تمرين دراجة', paceLbl: 'متوسط السرعة', paceUnit: 'كم/س', elevLbl: 'الارتفاع المكتسب', elevUnit: 'م' },
+      rope: { mainLbl: 'إجمالي القفزات', mainUnit: 'قفزة', defTitle: 'تمرين نط حبل', badge: 'لياقة وحبل', paceLbl: 'سرعة القفز', paceUnit: 'ق/د', elevLbl: 'أعلى تتابع', elevUnit: 'قفزة' },
+      karate: { mainLbl: 'إجمالي الجولات', mainUnit: 'جولة', defTitle: 'تمرين كاراتيه', badge: 'كاراتيه', paceLbl: 'مجموع التكرارات', paceUnit: 'مرة', elevLbl: 'الحجم العضلي', elevUnit: 'كجم' }
     },
     stats: {
       time:  { label: 'وقت التمرين', unit: '' },
@@ -823,11 +851,11 @@ const I18N = {
   },
   en: {
     sports: {
-      gym:    { mainLbl: 'Total Sets', mainUnit: 'SETS', defTitle: 'UPPER 1', badge: 'Strength Training', paceLbl: 'Total Reps', paceUnit: 'REPS', elevLbl: 'Total Volume', elevUnit: 'KG' },
-      karate: { mainLbl: 'Total Rounds', mainUnit: 'ROUNDS', defTitle: 'SHOTOKAN KARATE', badge: 'Karate Dojo', paceLbl: 'Kata & Kumite', paceUnit: 'SETS', elevLbl: 'Session Load', elevUnit: 'TL' },
-      rope:   { mainLbl: 'Total Jumps', mainUnit: 'JUMPS', defTitle: 'Jump Rope', badge: 'Jump Rope Session', paceLbl: 'Avg Rate', paceUnit: 'JPM', elevLbl: 'Max Streak', elevUnit: 'JUMPS' },
-      run:    { mainLbl: 'Total Distance', mainUnit: 'KM', defTitle: 'Outdoor Run', badge: 'Running Session', paceLbl: 'Avg Pace', paceUnit: '/KM', elevLbl: 'Elev Gain', elevUnit: 'M' },
-      bike:   { mainLbl: 'Total Distance', mainUnit: 'KM', defTitle: 'Road Cycling', badge: 'Cycling Session', paceLbl: 'Avg Speed', paceUnit: 'KM/H', elevLbl: 'Elev Gain', elevUnit: 'M' }
+      gym:  { mainLbl: 'Total Sets', mainUnit: 'SETS', defTitle: 'UPPER 1', badge: 'Strength Training', paceLbl: 'Total Reps', paceUnit: 'REPS', elevLbl: 'Total Volume', elevUnit: 'KG' },
+      run:  { mainLbl: 'Total Distance', mainUnit: 'KM', defTitle: 'Outdoor Run', badge: 'Running Session', paceLbl: 'Avg Pace', paceUnit: '/KM', elevLbl: 'Elev Gain', elevUnit: 'M' },
+      bike: { mainLbl: 'Total Distance', mainUnit: 'KM', defTitle: 'Road Cycling', badge: 'Cycling Session', paceLbl: 'Avg Speed', paceUnit: 'KM/H', elevLbl: 'Elev Gain', elevUnit: 'M' },
+      rope: { mainLbl: 'Total Jumps', mainUnit: 'JUMPS', defTitle: 'Jump Rope', badge: 'Cardio Session', paceLbl: 'Avg Rate', paceUnit: 'JPM', elevLbl: 'Max Streak', elevUnit: 'JUMPS' },
+      karate: { mainLbl: 'Total Rounds', mainUnit: 'ROUNDS', defTitle: 'Karate', badge: 'Martial Arts', paceLbl: 'Total Reps', paceUnit: 'REPS', elevLbl: 'Volume', elevUnit: 'KG' }
     },
     stats: {
       time:  { label: 'Workout Time', unit: '' },
@@ -851,8 +879,10 @@ const I18N = {
 const S = {
   lang: 'bi',
   sport: 'gym',
+  icon: 'auto',
+  belt: '#f4f1ea',
   title: 'UPPER 1',
-  tag: 'COROS PACE 4',
+  tag: 'TRAINING SESSION',
   muscleTag: 'تمرين حديد / STRENGTH',
   chartMode: 'hr', // 'hr' | 'route' | 'none'
   dist: '17',
@@ -890,7 +920,7 @@ const styleNames = [
   'Liquid مدمج 💧',
   'Liquid بانوراما 📈',
   'Liquid سفلي ✨',
-  'COROS كلاسيك',
+  'كلاسيك داكن',
   'HUD تقني',
   'Neon نيون ⚡',
   'Aurora شفق 🌌',
@@ -899,7 +929,10 @@ const styleNames = [
   'Editorial مجلة 📰',
   'Blueprint مخطط 📐',
   'Poster ملصق 🖼️',
-  'Clay طيني 🫧'
+  'Clay طيني 🫧',
+  'Simple فاتح ☁️',
+  'Simple داكن 🌙',
+  'Simple ملوّن 🎯'
 ];
 
 const cv = document.createElement('canvas');
@@ -911,15 +944,6 @@ const $ = id => document.getElementById(id);
 const prev = $('prev'), strip = $('strip'), msg = $('msg');
 document.querySelector('[data-k="date"]').value = S.date;
 
-/* تحديد أيقونة الرياضة المناسبة للبطاقة (حديد / كاراتيه / نط حبل / جري / دراجة) */
-function getSportIconName() {
-  if (S.sport === 'gym') return 'dumbbell';
-  if (S.sport === 'karate') return 'karate';
-  if (S.sport === 'rope') return 'rope';
-  if (S.sport === 'bike') return 'bike';
-  return 'trend';
-}
-
 /* تبديل اللغة */
 function applyLanguage(lang) {
   S.lang = lang;
@@ -928,6 +952,7 @@ function applyLanguage(lang) {
   const sp = dict.sports[S.sport] || dict.sports.gym;
 
   S.mainLbl = sp.mainLbl;
+  // لا نعيد فرض الوحدة إذا كان المستخدم قد مسحها عمداً
   const unitInput = document.querySelector('[data-k="mainUnit"]');
   if (unitInput.value.trim() !== '') {
     S.mainUnit = sp.mainUnit;
@@ -1084,6 +1109,58 @@ document.querySelectorAll('.chip-btn').forEach(chip => {
   };
 });
 
+function sportGlyph() {
+  if (S.icon && S.icon !== 'auto') return S.icon;
+  if (S.sport === 'bike') return 'bike';
+  if (S.sport === 'run') return 'run';
+  if (S.sport === 'rope' || S.sport === 'karate') return S.sport;
+  return 'dumbbell';
+}
+
+const KARATE_BELTS = [
+  { c: '#f4f1ea', n: 'أبيض / WHITE' },
+  { c: '#f2d13c', n: 'أصفر / YELLOW' },
+  { c: '#f08a24', n: 'برتقالي / ORANGE' },
+  { c: '#3fae5a', n: 'أخضر / GREEN' },
+  { c: '#2f6fd0', n: 'أزرق / BLUE' },
+  { c: '#7b4bc4', n: 'بنفسجي / PURPLE' },
+  { c: '#7a4a2b', n: 'بني / BROWN' },
+  { c: '#161616', n: 'أسود / BLACK' },
+  { c: '#d7382f', n: 'أحمر / RED' }
+];
+
+function buildBeltRow() {
+  const box = $('beltRow');
+  if (!box) return;
+  box.innerHTML = '';
+  KARATE_BELTS.forEach(belt => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'belt-swatch' + (S.belt === belt.c ? ' active' : '');
+    btn.style.background = belt.c;
+    btn.title = belt.n;
+    btn.setAttribute('aria-label', belt.n);
+    btn.onclick = () => {
+      S.belt = belt.c;
+      box.querySelectorAll('.belt-swatch').forEach(x => x.classList.toggle('active', x === btn));
+      applyIconMode('karate');
+    };
+    box.appendChild(btn);
+  });
+}
+
+function updateBeltVisibility() {
+  const group = $('beltGroup');
+  if (group) group.hidden = !(S.sport === 'karate' || S.icon === 'karate');
+}
+
+function applyIconMode(icon) {
+  S.icon = icon;
+  document.querySelectorAll('.icon-pill').forEach(b => b.classList.toggle('active', b.dataset.icon === icon));
+  updateBeltVisibility();
+  sched();
+}
+
 function applySportMode(sport) {
   S.sport = sport;
   document.querySelectorAll('.sport-pill').forEach(b => b.classList.toggle('active', b.dataset.sport === sport));
@@ -1104,12 +1181,17 @@ function applySportMode(sport) {
   const elevIt = S.stats.find(x => x.id === 'elev');
   if (elevIt) { elevIt.label = sp.elevLbl; if (elevIt.unit !== '') elevIt.unit = sp.elevUnit; }
 
+  updateBeltVisibility();
   renderStatsManager();
   sched();
 }
 
 document.querySelectorAll('.sport-pill').forEach(btn => {
   btn.onclick = () => applySportMode(btn.dataset.sport);
+});
+
+document.querySelectorAll('.icon-pill').forEach(btn => {
+  btn.onclick = () => applyIconMode(btn.dataset.icon);
 });
 
 function setStatValue(id, val) {
@@ -1148,6 +1230,7 @@ function cover(c, img, x, y, w, h) {
   c.drawImage(img, (img.width - iw) / 2, (img.height - ih) / 2, iw, ih, x, y, w, h);
 }
 
+/* أدوات لونية للثيمات الجديدة */
 function hexA(hex, a) {
   let h = String(hex || '#ffffff').trim().replace('#', '');
   if (h.length === 3) h = h.split('').map(x => x + x).join('');
@@ -1236,7 +1319,7 @@ function txt(c, s, x, y, size, wt, col, al = 'left', fam = S.titleFont, mw = nul
 }
 
 /* =========================================================================
-   محرك الخلفيات والزجاج السائل
+   محرك الخلفية والزجاج السائل المطابق للصورة المرجعية (Pure Frosted Glass UI)
    ========================================================================= */
 function drawDefaultBackground(c, width, height) {
   const base = c.createLinearGradient(0, 0, width, height);
@@ -1318,6 +1401,13 @@ function drawAuroraBackground(c, width, height) {
     c.fillStyle = g;
     c.fillRect(0, 0, width, height);
   });
+
+  const streak = c.createLinearGradient(0, height * 0.1, width, height * 0.55);
+  streak.addColorStop(0, 'rgba(255,255,255,0)');
+  streak.addColorStop(0.5, 'rgba(255,255,255,0.07)');
+  streak.addColorStop(1, 'rgba(255,255,255,0)');
+  c.fillStyle = streak;
+  c.fillRect(0, 0, width, height);
 }
 
 function drawLightBackground(c, width, height) {
@@ -1333,6 +1423,18 @@ function drawLightBackground(c, width, height) {
   g1.addColorStop(1, 'transparent');
   c.fillStyle = g1;
   c.fillRect(0, 0, width, height);
+
+  const g2 = c.createRadialGradient(width * 0.9, height * 0.55, 10, width * 0.85, height * 0.55, width * 0.7);
+  g2.addColorStop(0, 'rgba(255, 196, 140, 0.45)');
+  g2.addColorStop(1, 'transparent');
+  c.fillStyle = g2;
+  c.fillRect(0, 0, width, height);
+
+  const g3 = c.createRadialGradient(width * 0.3, height * 0.95, 10, width * 0.35, height * 0.92, width * 0.65);
+  g3.addColorStop(0, 'rgba(150, 200, 255, 0.4)');
+  g3.addColorStop(1, 'transparent');
+  c.fillStyle = g3;
+  c.fillRect(0, 0, width, height);
 }
 
 function drawDuotoneBackground(c, width, height) {
@@ -1342,6 +1444,12 @@ function drawDuotoneBackground(c, width, height) {
   base.addColorStop(1, '#070910');
   c.fillStyle = base;
   c.fillRect(0, 0, width, height);
+
+  const g = c.createRadialGradient(width * 0.5, height * 0.75, 10, width * 0.5, height * 0.7, width * 0.9);
+  g.addColorStop(0, hexA(S.accent, 0.12));
+  g.addColorStop(1, 'transparent');
+  c.fillStyle = g;
+  c.fillRect(0, 0, width, height);
 }
 
 function drawPaperBackground(c, width, height) {
@@ -1350,6 +1458,18 @@ function drawPaperBackground(c, width, height) {
   base.addColorStop(0.6, '#f1ece1');
   base.addColorStop(1, '#e9e3d6');
   c.fillStyle = base;
+  c.fillRect(0, 0, width, height);
+
+  const g1 = c.createRadialGradient(width * 0.9, height * 0.1, 10, width * 0.85, height * 0.12, width * 0.7);
+  g1.addColorStop(0, hexA(S.accent, 0.22));
+  g1.addColorStop(1, 'transparent');
+  c.fillStyle = g1;
+  c.fillRect(0, 0, width, height);
+
+  const g2 = c.createRadialGradient(width * 0.1, height * 0.9, 10, width * 0.12, height * 0.88, width * 0.6);
+  g2.addColorStop(0, 'rgba(210, 170, 120, 0.28)');
+  g2.addColorStop(1, 'transparent');
+  c.fillStyle = g2;
   c.fillRect(0, 0, width, height);
 }
 
@@ -1361,6 +1481,12 @@ function drawBlueprintBackground(c, width, height) {
   c.fillStyle = base;
   c.fillRect(0, 0, width, height);
 
+  const glow = c.createRadialGradient(width * 0.5, height * 0.08, 10, width * 0.5, height * 0.14, width * 0.95);
+  glow.addColorStop(0, 'rgba(120, 205, 255, 0.22)');
+  glow.addColorStop(1, 'transparent');
+  c.fillStyle = glow;
+  c.fillRect(0, 0, width, height);
+
   const step = 54;
   c.strokeStyle = 'rgba(130, 195, 255, 0.085)';
   c.lineWidth = 1;
@@ -1368,6 +1494,19 @@ function drawBlueprintBackground(c, width, height) {
   for (let x = 0; x <= width; x += step) { c.moveTo(x, 0); c.lineTo(x, height); }
   for (let y = 0; y <= height; y += step) { c.moveTo(0, y); c.lineTo(width, y); }
   c.stroke();
+
+  c.strokeStyle = 'rgba(150, 210, 255, 0.22)';
+  c.lineWidth = 1.6;
+  c.beginPath();
+  for (let x = 0; x <= width; x += step * 5) { c.moveTo(x, 0); c.lineTo(x, height); }
+  for (let y = 0; y <= height; y += step * 5) { c.moveTo(0, y); c.lineTo(width, y); }
+  c.stroke();
+
+  const vig = c.createRadialGradient(width * 0.5, height * 0.42, width * 0.28, width * 0.5, height * 0.5, width * 0.95);
+  vig.addColorStop(0, 'transparent');
+  vig.addColorStop(1, 'rgba(2, 9, 16, 0.55)');
+  c.fillStyle = vig;
+  c.fillRect(0, 0, width, height);
 }
 
 function drawPosterBackground(c, width, height) {
@@ -1376,6 +1515,12 @@ function drawPosterBackground(c, width, height) {
   base.addColorStop(0.6, '#f2ebdd');
   base.addColorStop(1, '#eae1cf');
   c.fillStyle = base;
+  c.fillRect(0, 0, width, height);
+
+  const g = c.createRadialGradient(width * 0.15, height * 0.2, 10, width * 0.18, height * 0.22, width * 0.8);
+  g.addColorStop(0, 'rgba(255, 214, 160, 0.28)');
+  g.addColorStop(1, 'transparent');
+  c.fillStyle = g;
   c.fillRect(0, 0, width, height);
 }
 
@@ -1386,12 +1531,72 @@ function drawClayBackground(c, width, height) {
   base.addColorStop(1, '#ffeade');
   c.fillStyle = base;
   c.fillRect(0, 0, width, height);
+
+  const blobs = [
+    [0.16, 0.12, 0.8, 'rgba(162, 140, 255, 0.42)'],
+    [0.9, 0.3, 0.7, 'rgba(255, 168, 150, 0.36)'],
+    [0.55, 0.9, 0.9, 'rgba(145, 220, 230, 0.32)']
+  ];
+  blobs.forEach(([bx, by, br, col]) => {
+    const g = c.createRadialGradient(width * bx, height * by, 10, width * bx, height * by, width * br);
+    g.addColorStop(0, col);
+    g.addColorStop(1, 'transparent');
+    c.fillStyle = g;
+    c.fillRect(0, 0, width, height);
+  });
+}
+
+function drawSimpleLightBackground(c, width, height) {
+  const base = c.createLinearGradient(0, 0, width * 0.35, height);
+  base.addColorStop(0, '#fcfcfb');
+  base.addColorStop(0.55, '#f5f5f2');
+  base.addColorStop(1, '#ecece7');
+  c.fillStyle = base;
+  c.fillRect(0, 0, width, height);
+
+  const g = c.createRadialGradient(width * 0.88, height * 0.06, 10, width * 0.88, height * 0.08, width * 0.7);
+  g.addColorStop(0, hexA(S.accent, 0.09));
+  g.addColorStop(1, 'transparent');
+  c.fillStyle = g;
+  c.fillRect(0, 0, width, height);
+}
+
+function drawSimpleDarkBackground(c, width, height) {
+  const base = c.createLinearGradient(0, 0, 0, height);
+  base.addColorStop(0, '#111318');
+  base.addColorStop(0.6, '#0c0e12');
+  base.addColorStop(1, '#090a0d');
+  c.fillStyle = base;
+  c.fillRect(0, 0, width, height);
+
+  const g = c.createRadialGradient(width * 0.15, height * 0.08, 10, width * 0.15, height * 0.1, width * 0.62);
+  g.addColorStop(0, hexA(S.accent, 0.1));
+  g.addColorStop(1, 'transparent');
+  c.fillStyle = g;
+  c.fillRect(0, 0, width, height);
+}
+
+function drawSimpleTintBackground(c, width, height) {
+  const base = c.createLinearGradient(0, 0, width, height);
+  base.addColorStop(0, '#fafbfc');
+  base.addColorStop(0.55, '#f1f3f6');
+  base.addColorStop(1, '#e7ecf1');
+  c.fillStyle = base;
+  c.fillRect(0, 0, width, height);
+
+  [[0.9, 0.05, 0.75, 0.24], [0.08, 0.95, 0.7, 0.16], [0.5, 0.5, 0.9, 0.06]].forEach(([bx, by, br, a]) => {
+    const g = c.createRadialGradient(width * bx, height * by, 10, width * bx, height * by, width * br);
+    g.addColorStop(0, hexA(S.accent, a));
+    g.addColorStop(1, 'transparent');
+    c.fillStyle = g;
+    c.fillRect(0, 0, width, height);
+  });
 }
 
 function drawAtmosphericBackground(c, width, height, theme = 0) {
   if (S.bg) {
     cover(c, S.bg, 0, 0, width, height);
-    if (theme === 8 || theme === 10 || theme === 12 || theme === 13) {
+    if (theme === 8 || theme === 10 || theme === 12 || theme === 13 || theme === 14 || theme === 16) {
       c.fillStyle = 'rgba(255,255,255,0.42)';
       c.fillRect(0, 0, width, height);
     } else if (S.dark > 0) {
@@ -1409,9 +1614,12 @@ function drawAtmosphericBackground(c, width, height, theme = 0) {
   else if (theme === 11) drawBlueprintBackground(c, width, height);
   else if (theme === 12) drawPosterBackground(c, width, height);
   else if (theme === 13) drawClayBackground(c, width, height);
+  else if (theme === 14) drawSimpleLightBackground(c, width, height);
+  else if (theme === 15) drawSimpleDarkBackground(c, width, height);
+  else if (theme === 16) drawSimpleTintBackground(c, width, height);
   else drawDefaultBackground(c, width, height);
 
-  if (S.dark > 0 && theme !== 8 && theme !== 10 && theme !== 12 && theme !== 13) {
+  if (S.dark > 0 && theme !== 8 && theme !== 10 && theme !== 12 && theme !== 13 && theme !== 14 && theme !== 16) {
     c.fillStyle = `rgba(6, 10, 15, ${S.dark / 100})`;
     c.fillRect(0, 0, width, height);
   }
@@ -1485,7 +1693,7 @@ function drawFrostedGlassWidget(c, x, y, w, h, r = 42, extraBright = 0) {
 }
 
 /* =========================================================================
-   شريط نشاط الأسبوع (7 أيام)
+   شريط نشاط الأسبوع (7 أيام): أعمدة / خط / نقاط + تقدم الهدف
    ========================================================================= */
 function drawWeekCard(c, x, y, w, h, o = {}) {
   const ink = o.ink || '#ffffff';
@@ -1620,7 +1828,7 @@ function drawWeekCard(c, x, y, w, h, o = {}) {
 }
 
 /* =========================================================================
-   رسم الغراف (منحنى نبض القلب أو مسار الـ GPS)
+   رسم الغراف (منحنى نبض القلب أو مسار الـ GPS، أو عدم رسم أي شيء عند اختيار none)
    ========================================================================= */
 function drawSmoothHeartRateChart(c, gx, gy, gw, gh, strokeCol = S.accent, lineCol = '#ffffff') {
   if (S.chartMode === 'none') return;
@@ -1721,9 +1929,6 @@ function drawActiveChart(c, x, y, w, h, o = {}) {
   }
 }
 
-/* =========================================================================
-   رسم الأيقونات الفيكتورية النظيفة (شاملة الكاراتيه 🥋 ونط الحبل ⚡ والدامبل 🏋️)
-   ========================================================================= */
 function drawMiniVectorIcon(c, type, cx, cy, r = 16, col = '#ffffff') {
   c.save();
   c.translate(cx, cy);
@@ -1733,70 +1938,7 @@ function drawMiniVectorIcon(c, type, cx, cy, r = 16, col = '#ffffff') {
   c.lineCap = 'round';
   c.lineJoin = 'round';
 
-  if (type === 'karate') {
-    // رسم بدلة الكاراتيه (Karate Gi) مع الحزام المعقود في المنتصف
-    c.lineWidth = Math.max(2.6, r * 0.14);
-    // الأكتاف والأكمام والجاكيت
-    c.beginPath();
-    c.moveTo(-r * 0.42, -r * 0.72);
-    c.lineTo(-r * 0.88, -r * 0.22);
-    c.lineTo(-r * 0.65, r * 0.02);
-    c.lineTo(-r * 0.45, -r * 0.18);
-    c.lineTo(-r * 0.45, r * 0.72);
-    c.lineTo(r * 0.45, r * 0.72);
-    c.lineTo(r * 0.45, -r * 0.18);
-    c.lineTo(r * 0.65, r * 0.02);
-    c.lineTo(r * 0.88, -r * 0.22);
-    c.lineTo(r * 0.42, -r * 0.72);
-    c.closePath();
-    c.stroke();
-
-    // ياقة البدلة المتقاطعة (V-Neck Collar)
-    c.beginPath();
-    c.moveTo(-r * 0.42, -r * 0.72);
-    c.lineTo(0, -r * 0.08);
-    c.lineTo(r * 0.42, -r * 0.72);
-    c.stroke();
-
-    // الحزام المعقود (Obi Belt & Knot)
-    c.lineWidth = Math.max(3, r * 0.17);
-    c.beginPath();
-    c.moveTo(-r * 0.5, r * 0.18);
-    c.lineTo(r * 0.5, r * 0.18);
-    c.stroke();
-    c.beginPath();
-    c.arc(0, r * 0.18, r * 0.13, 0, Math.PI * 2);
-    c.fill();
-    // طرفا الحزام المتدليان
-    c.lineWidth = Math.max(2.6, r * 0.14);
-    c.beginPath();
-    c.moveTo(0, r * 0.22);
-    c.lineTo(-r * 0.28, r * 0.62);
-    c.moveTo(0, r * 0.22);
-    c.lineTo(r * 0.28, r * 0.62);
-    c.stroke();
-  } else if (type === 'rope') {
-    // رسم حبل القفز (Jump Rope) مع المقبضين وقوس الحبل العلوي
-    c.lineWidth = Math.max(2.6, r * 0.14);
-    c.beginPath();
-    c.moveTo(-r * 0.52, r * 0.18);
-    c.bezierCurveTo(-r * 0.65, -r * 0.92, r * 0.65, -r * 0.92, r * 0.52, r * 0.18);
-    c.stroke();
-    // المقبض الأيسر والأيمن
-    rr(c, -r * 0.66, r * 0.16, r * 0.28, r * 0.62, 4);
-    c.fill();
-    rr(c, r * 0.38, r * 0.16, r * 0.28, r * 0.62, 4);
-    c.fill();
-  } else if (type === 'bike') {
-    c.lineWidth = Math.max(2.4, r * 0.13);
-    c.beginPath(); c.arc(-r * 0.48, r * 0.22, r * 0.34, 0, Math.PI * 2); c.stroke();
-    c.beginPath(); c.arc(r * 0.48, r * 0.22, r * 0.34, 0, Math.PI * 2); c.stroke();
-    c.beginPath();
-    c.moveTo(-r * 0.48, r * 0.22);
-    c.lineTo(-r * 0.05, -r * 0.32);
-    c.lineTo(r * 0.48, r * 0.22);
-    c.stroke();
-  } else if (type === 'bars') {
+  if (type === 'bars') {
     c.fillRect(-r * 0.7, r * 0.1, 4, r * 0.6);
     c.fillRect(-r * 0.15, -r * 0.4, 4, r * 1.1);
     c.fillRect(r * 0.4, -r * 0.15, 4, r * 0.85);
@@ -1812,6 +1954,122 @@ function drawMiniVectorIcon(c, type, cx, cy, r = 16, col = '#ffffff') {
     c.lineTo(r * 0.55, -r * 0.35);
     c.lineTo(r * 0.55, 0);
     c.stroke();
+  } else if (type === 'run') {
+    c.lineWidth = Math.max(2, r * 0.17);
+    c.beginPath(); c.arc(-r * 0.08, -r * 0.58, r * 0.16, 0, Math.PI * 2); c.fill();
+    c.beginPath();
+    c.moveTo(-r * 0.06, -r * 0.38);
+    c.lineTo(-r * 0.22, r * 0.02);
+    c.lineTo(r * 0.12, r * 0.22);
+    c.moveTo(-r * 0.22, r * 0.02);
+    c.lineTo(-r * 0.52, r * 0.5);
+    c.moveTo(r * 0.12, r * 0.22);
+    c.lineTo(r * 0.42, r * 0.16);
+    c.lineTo(r * 0.58, r * 0.52);
+    c.moveTo(-r * 0.04, -r * 0.3);
+    c.lineTo(-r * 0.5, -r * 0.5);
+    c.moveTo(-r * 0.04, -r * 0.26);
+    c.lineTo(r * 0.46, -r * 0.08);
+    c.stroke();
+  } else if (type === 'bike') {
+    c.lineWidth = Math.max(1.8, r * 0.13);
+    c.beginPath(); c.arc(-r * 0.55, r * 0.3, r * 0.3, 0, Math.PI * 2); c.stroke();
+    c.beginPath(); c.arc(r * 0.55, r * 0.3, r * 0.3, 0, Math.PI * 2); c.stroke();
+    c.beginPath();
+    c.moveTo(-r * 0.55, r * 0.3);
+    c.lineTo(-r * 0.1, r * 0.3);
+    c.lineTo(r * 0.12, -r * 0.2);
+    c.lineTo(-r * 0.3, -r * 0.2);
+    c.lineTo(-r * 0.1, r * 0.3);
+    c.moveTo(r * 0.12, -r * 0.2);
+    c.lineTo(r * 0.55, r * 0.3);
+    c.moveTo(-r * 0.38, -r * 0.44);
+    c.lineTo(-r * 0.3, -r * 0.2);
+    c.moveTo(r * 0.05, -r * 0.3);
+    c.lineTo(r * 0.19, -r * 0.3);
+    c.stroke();
+  } else if (type === 'rope') {
+    c.lineWidth = Math.max(1.8, r * 0.12);
+    c.beginPath();
+    c.ellipse(0, r * 0.12, r * 0.72, r * 0.78, 0, Math.PI * 0.92, Math.PI * 2.08);
+    c.stroke();
+    c.beginPath(); c.arc(-r * 0.62, r * 0.42, r * 0.09, 0, Math.PI * 2); c.fill();
+    c.beginPath(); c.arc(r * 0.62, r * 0.42, r * 0.09, 0, Math.PI * 2); c.fill();
+    c.beginPath(); c.arc(0, -r * 0.22, r * 0.14, 0, Math.PI * 2); c.fill();
+    c.beginPath();
+    c.moveTo(0, -r * 0.06);
+    c.lineTo(0, r * 0.34);
+    c.moveTo(0, r * 0.02);
+    c.lineTo(-r * 0.3, r * 0.24);
+    c.moveTo(0, r * 0.02);
+    c.lineTo(r * 0.3, r * 0.24);
+    c.moveTo(0, r * 0.34);
+    c.lineTo(-r * 0.22, r * 0.62);
+    c.moveTo(0, r * 0.34);
+    c.lineTo(r * 0.22, r * 0.62);
+    c.stroke();
+  } else if (type === 'karate') {
+    const belt = S.belt || '#f4f1ea';
+    const dark = shade(belt, 0.58);
+    const lightBelt = readableOn(belt) === '#08111a';
+    const outline = lightBelt ? 'rgba(10,14,20,0.38)' : 'rgba(255,255,255,0.55)';
+    const ow = Math.max(1.8, r * 0.1);
+    const pts = (list) => {
+      c.beginPath();
+      c.moveTo(list[0][0] * r, list[0][1] * r);
+      for (let i = 1; i < list.length; i++) c.lineTo(list[i][0] * r, list[i][1] * r);
+      c.closePath();
+    };
+
+    // ذيلا الحزام المتدليان
+    const leftTail = [[-0.36, 0.14], [-0.19, 0.28], [-0.40, 0.96], [-0.72, 0.80]];
+    const rightTail = leftTail.map(([x, y]) => [-x, y]);
+    c.lineJoin = 'round';
+    [leftTail, rightTail].forEach(t => {
+      pts(t);
+      c.strokeStyle = outline;
+      c.lineWidth = ow * 2.2;
+      c.stroke();
+      c.fillStyle = belt;
+      c.fill();
+      c.strokeStyle = dark;
+      c.globalAlpha = 0.32;
+      c.lineWidth = Math.max(1, r * 0.05);
+      c.beginPath();
+      c.moveTo(t[0][0] * r * 0.97, t[0][1] * r);
+      c.lineTo(t[2][0] * r * 0.94, t[2][1] * r);
+      c.stroke();
+      c.globalAlpha = 1;
+    });
+
+    // شريط الحزام حول الوسط
+    rr(c, -r * 1.02, -r * 0.52, r * 2.04, r * 0.44, r * 0.17);
+    c.fillStyle = belt;
+    c.fill();
+    c.strokeStyle = outline;
+    c.lineWidth = ow;
+    c.stroke();
+    c.globalAlpha = 0.3;
+    c.fillStyle = dark;
+    c.fillRect(-r * 0.92, -r * 0.2, r * 1.84, r * 0.1);
+    c.globalAlpha = 1;
+    c.fillStyle = 'rgba(255,255,255,0.3)';
+    c.fillRect(-r * 0.88, -r * 0.44, r * 0.66, r * 0.07);
+
+    // العقدة في المنتصف
+    rr(c, -r * 0.34, -r * 0.38, r * 0.68, r * 0.66, r * 0.16);
+    c.fillStyle = belt;
+    c.fill();
+    c.strokeStyle = outline;
+    c.lineWidth = ow;
+    c.stroke();
+    c.globalAlpha = 0.5;
+    c.fillStyle = dark;
+    c.fillRect(-r * 0.15, -r * 0.3, r * 0.09, r * 0.52);
+    c.fillRect(r * 0.07, -r * 0.3, r * 0.06, r * 0.52);
+    c.globalAlpha = 1;
+    c.fillStyle = 'rgba(255,255,255,0.32)';
+    c.fillRect(-r * 0.24, -r * 0.3, r * 0.14, r * 0.1);
   } else if (type === 'clock') {
     c.beginPath(); c.arc(0, 0, r * 0.75, 0, Math.PI * 2); c.stroke();
     c.beginPath(); c.moveTo(0, -r * 0.45); c.lineTo(0, 0); c.lineTo(r * 0.35, r * 0.2); c.stroke();
@@ -1845,6 +2103,49 @@ function drawMiniVectorIcon(c, type, cx, cy, r = 16, col = '#ffffff') {
   c.restore();
 }
 
+function drawSportBadge(c, cx, cy, r, o = {}) {
+  const glyphInk = sportGlyph() === 'karate' ? (S.belt || '#f4f1ea') : (o.ink || '#ffffff');
+  const lightGlyph = readableOn(glyphInk) === '#08111a';
+
+  if (o.glass) {
+    // القرص يتبع لون الأيقونة: خلفية داكنة للأيقونة الفاتحة وخلفية زجاجية للأيقونة الغامقة
+    if (lightGlyph) {
+      c.save();
+      c.shadowColor = 'rgba(0, 8, 20, 0.34)';
+      c.shadowBlur = r * 0.9;
+      c.shadowOffsetY = r * 0.26;
+      c.beginPath();
+      c.arc(cx, cy, r, 0, Math.PI * 2);
+      c.fillStyle = o.fill || 'rgba(9, 13, 19, 0.62)';
+      c.fill();
+      c.restore();
+      c.beginPath();
+      c.arc(cx, cy, r - 0.6, 0, Math.PI * 2);
+      c.strokeStyle = o.stroke || 'rgba(255, 255, 255, 0.30)';
+      c.lineWidth = 1.5;
+      c.stroke();
+    } else {
+      drawFrostedGlassWidget(c, cx - r, cy - r, r * 2, r * 2, r, o.alpha === undefined ? 0.06 : o.alpha);
+      c.beginPath();
+      c.arc(cx, cy, r - 0.6, 0, Math.PI * 2);
+      c.strokeStyle = o.stroke || 'rgba(10, 14, 20, 0.16)';
+      c.lineWidth = 1.2;
+      c.stroke();
+    }
+  } else if (o.fill || o.stroke) {
+    const fill = lightGlyph && o.fillDark ? o.fillDark : o.fill;
+    const stroke = lightGlyph && o.strokeDark ? o.strokeDark : o.stroke;
+    c.save();
+    c.beginPath();
+    c.arc(cx, cy, r, 0, Math.PI * 2);
+    if (fill) { c.fillStyle = fill; c.fill(); }
+    if (stroke) { c.strokeStyle = stroke; c.lineWidth = o.lineWidth || 1.6; c.stroke(); }
+    c.restore();
+  }
+  drawMiniVectorIcon(c, sportGlyph(), cx, cy, r * (o.iconScale || 0.52), o.ink || '#ffffff');
+}
+
+/* تجهيز القيم الحالية مع احترام المسح اليدوي للوحدة أو الرقم الرئيسي (بدون إعادة فرض النص المحذوف!) */
 function getCardState() {
   const dict = I18N[S.lang];
   const cfg = dict.sports[S.sport] || dict.sports.gym;
@@ -1864,6 +2165,7 @@ function getCardState() {
   const activeStats = S.stats.filter(x => x.on);
   const cleanUnit = (S.mainUnit || '').trim();
   const cleanLbl = (S.mainLbl || cfg.mainLbl).trim();
+  // إذا مسح المستخدم الوحدة، لا نظهر أقواس فارغة ولا نعيد وضع الوحدة الافتراضية!
   const fullMainLabel = cleanUnit ? `${cleanLbl} (${cleanUnit})` : cleanLbl;
   const distWithUnit = cleanUnit ? `${S.dist} ${cleanUnit}`.trim() : String(S.dist || '').trim();
 
@@ -1902,8 +2204,63 @@ function drawStorySafeOverlay(c) {
   c.restore();
 }
 
+/* الثيمات البسيطة: تخطيط واحد نظيف بثلاث لوحات ألوان */
+function drawSimpleTheme(c, top, contentBot, weekY, weekH, M, o) {
+  const padX = 84, fullW = W - padX * 2;
+  const ink = o.ink, sub = o.sub, rule = o.rule;
+  const accent = o.accent || S.accent;
+
+  txt(c, (S.tag || BRAND).toUpperCase(), padX, top + 34, 21, 700, o.tagInk || sub, 'left', S.numFont, fullW - 220);
+  txt(c, M.dateStr, W - padX - 84, top + 34, 19, 500, sub, 'right', S.numFont, 240);
+  drawSportBadge(c, W - padX - 32, top + 36, 30, {
+    fill: o.badgeFill, stroke: o.badgeStroke, ink: o.iconInk, iconScale: 0.5,
+    fillDark: o.badgeFillDark, strokeDark: o.badgeStrokeDark
+  });
+
+  txt(c, M.title, padX, top + 140, 84, 800, ink, 'left', S.titleFont, fullW - 70);
+  txt(c, S.muscleTag, padX, top + 184, 25, 500, sub, 'left', S.titleFont, fullW);
+
+  c.fillStyle = rule;
+  c.fillRect(padX, top + 216, fullW, 1.6);
+
+  let y = top + 278;
+  txt(c, M.mainLbl, padX, y, 22, 600, sub, 'left', S.numFont, M.hasChart ? 380 : fullW);
+  if (M.dist) txt(c, M.dist, padX, y + 146, 136, 700, ink, 'left', S.numFont, M.hasChart ? 400 : fullW);
+  if (M.hasChart) {
+    drawActiveChart(c, padX + 430, y - 18, fullW - 430, 186, {
+      chartAccent: accent, lineCol: o.lineCol || accent
+    });
+  }
+  y += M.hasChart ? 236 : (M.dist ? 232 : 36);
+
+  const stats = M.activeStats.slice(0, 6);
+  const rows = Math.ceil(stats.length / 2);
+  const bottomLimit = S.showWeek ? weekY - 30 : contentBot;
+  const availH = Math.max(140, bottomLimit - y);
+  const rowH = Math.max(130, Math.min(300, availH / Math.max(1, rows)));
+  const off = Math.max(0, Math.min(56, (availH - rows * rowH) / 2));
+  const colW = fullW / 2;
+  stats.forEach((it, idx) => {
+    const col = idx % 2, row = Math.floor(idx / 2);
+    const cx = padX + col * colW;
+    const y0 = y + off + row * rowH;
+    const inner = Math.min(rowH, 172);
+    const padT = (rowH - inner) / 2;
+    if (row > 0) {
+      c.fillStyle = rule;
+      c.fillRect(cx, y0 + 6, colW - 46, 1.2);
+    }
+    txt(c, it.label, cx, y0 + padT + 34, 20, 600, sub, 'left', S.numFont, colW - 46);
+    txt(c, `${it.val} ${it.unit}`.trim(), cx, y0 + padT + 84, 44, 700, ink, 'left', S.numFont, colW - 46);
+  });
+
+  if (S.showWeek) {
+    drawWeekCard(c, padX, weekY, fullW, weekH, { fill: 'flat', ink, sub, accent, rule: true });
+  }
+}
+
 /* =========================================================================
-   رسم الثيمات الـ 14 (بعد إزالة علامة القلب وإضافة علامات الكاراتيه ونط الحبل)
+   رسم الثيمات (مع دعم إخفاء الوحدة وإخفاء الغراف بالكامل)
    ========================================================================= */
 function drawCard(c, w, st, isExport = false) {
   const u = w / W;
@@ -1919,15 +2276,13 @@ function drawCard(c, w, st, isExport = false) {
   const weekY = weekBottom - WEEK_H;
   const contentBot = S.showWeek ? weekY - 22 : BOT;
 
-  const sportIcon = getSportIconName();
-
   prepareBlurredBackdrop(st);
   if (!S.transparent) {
     drawAtmosphericBackground(c, W, H, st);
   }
 
   // =========================================================================
-  // ثيم 0: Liquid Glass UI Adoption (تم حذف علامة القلب تماماً من الكبسولة العلوية)
+  // ثيم 0: Liquid Glass UI Adoption (نفس الصورة المرجعية)
   // =========================================================================
   if (st === 0) {
     const padX = 78;
@@ -1937,18 +2292,17 @@ function drawCard(c, w, st, isExport = false) {
     const pillH = wide ? 96 : 90;
     const ovH = wide ? 445 : 400;
 
-    // 1. الهيدر العلوي + أيقونة الرياضة الدائرية (حديد / كاراتيه / نط حبل / جري / دراجة)
+    // 1. الهيدر العلوي
     txt(c, M.title, padX, TOP + 55, 76, 700, '#ffffff', 'left', S.titleFont, 720);
     txt(c, S.muscleTag, padX, TOP + 112, 34, 500, 'rgba(255,255,255,0.85)', 'left', S.titleFont, 720);
     txt(c, M.dateStr || S.tag, padX, TOP + 158, 25, 400, 'rgba(255,255,255,0.68)', 'left', S.titleFont, 720);
 
-    drawFrostedGlassWidget(c, W - padX - 88, TOP + 10, 88, 88, 44, 0.05);
-    drawMiniVectorIcon(c, sportIcon, W - padX - 44, TOP + 54, 22, '#ffffff');
+    drawSportBadge(c, W - padX - 44, TOP + 54, 44, { glass: true, ink: '#ffffff', iconScale: 0.5 });
 
-    // 2. شريط الكبسولة الزجاجي (بدون علامة القلب التي كانت فوق يسار!)
+    // 2. شريط الكبسولة الزجاجي
     drawFrostedGlassWidget(c, padX, pillY, fullW, pillH, pillH / 2, 0.02);
     const barText = [S.tag, M.dateStr].filter(Boolean).join('   ·   ');
-    txt(c, barText, padX + 46, pillY + pillH / 2 + 10, 28, 500, 'rgba(255,255,255,0.88)', 'left', S.titleFont, fullW - 92);
+    txt(c, barText, padX + 44, pillY + pillH / 2 + 10, 28, 500, 'rgba(255,255,255,0.88)', 'left', S.titleFont, fullW - 88);
 
     // 3. بطاقة الـ Overview الرئيسية الكبيرة
     const ovY = pillY + pillH + 24;
@@ -1963,6 +2317,7 @@ function drawCard(c, w, st, isExport = false) {
       txt(c, M.fullMainLabel, padX + 48, ovY + 258, 25, 400, 'rgba(255,255,255,0.78)', 'left', S.titleFont, numMaxW);
     }
 
+    // رسم الغراف فقط إذا لم يكن مخفياً (chartMode !== 'none')
     if (M.hasChart) {
       drawActiveChart(c, padX + 420, ovY + 72, 455, ovH - 238);
     }
@@ -1984,7 +2339,7 @@ function drawCard(c, w, st, isExport = false) {
     }
 
     drawFrostedGlassWidget(c, padX + fullW - 118, statRowY - 8, 74, 74, 37, 0.08);
-    drawMiniVectorIcon(c, sportIcon, padX + fullW - 81, statRowY + 29, 17, '#ffffff');
+    drawMiniVectorIcon(c, 'trend', padX + fullW - 81, statRowY + 29, 17, '#ffffff');
 
     // 4. بطاقتان زجاجيتان جنباً إلى جنب
     const midY = ovY + ovH + 24;
@@ -2038,7 +2393,7 @@ function drawCard(c, w, st, isExport = false) {
             c.fillRect(padX + 44, ry - 10, fullW - 88, 1.5);
           }
           drawFrostedGlassWidget(c, padX + 44, ry + 6, 74, 74, 22, 0.07);
-          drawMiniVectorIcon(c, idx === 0 ? sportIcon : 'clock', padX + 81, ry + 43, 18, '#ffffff');
+          drawMiniVectorIcon(c, idx === 0 ? 'dumbbell' : 'clock', padX + 81, ry + 43, 18, '#ffffff');
 
           txt(c, `${item.val} ${item.unit}`.trim(), padX + 142, ry + 43, 34, 700, '#ffffff', 'left', S.numFont, fullW - 280);
           txt(c, item.label, padX + 142, ry + 78, 23, 400, 'rgba(255,255,255,0.68)', 'left', S.titleFont, fullW - 280);
@@ -2055,7 +2410,7 @@ function drawCard(c, w, st, isExport = false) {
   }
 
   // =========================================================================
-  // ثيم 1: Liquid Glass (بطاقة مدمجة وسط الشاشة - تعرض علامة الكاراتيه/نط الحبل/الحديد)
+  // ثيم 1: Liquid Glass (بطاقة مدمجة وسط الشاشة - مثل لقطة شاشتك الثانية)
   // =========================================================================
   if (st === 1) {
     const padX = 75, fullW = W - padX * 2;
@@ -2067,9 +2422,9 @@ function drawCard(c, w, st, isExport = false) {
     const cardY = Math.max(TOP + 12, (TOP + BOT - totalH) / 2);
 
     drawFrostedGlassWidget(c, padX, cardY, fullW, pillH, 52, 0.04);
-    drawMiniVectorIcon(c, sportIcon, padX + 56, cardY + pillH / 2, 21, '#ffffff');
+    drawSportBadge(c, padX + 58, cardY + pillH / 2, 27, { glass: true, ink: '#ffffff', iconScale: 0.5, stroke: 'rgba(10,16,26,0.20)' });
     const topPillTxt = [M.title, S.tag].filter(Boolean).join('   ·   ');
-    txt(c, topPillTxt, padX + 100, cardY + pillH / 2 + 10, 30, 700, '#ffffff', 'left', S.titleFont, fullW - 140);
+    txt(c, topPillTxt, padX + 98, cardY + pillH / 2 + 10, 30, 700, '#ffffff', 'left', S.titleFont, fullW - 140);
 
     const mainBoxY = cardY + pillH + 24;
     drawFrostedGlassWidget(c, padX, mainBoxY, fullW, mainH, 50, 0.04);
@@ -2128,12 +2483,1196 @@ function drawCard(c, w, st, isExport = false) {
     const subHead = [S.tag, M.dateStr].filter(Boolean).join('  ·  ');
     txt(c, subHead, padX, TOP + 115, 28, 500, 'rgba(255,255,255,0.78)', 'left', S.titleFont, 700);
 
-    drawFrostedGlassWidget(c, W - padX - 88, TOP + 14, 88, 88, 44, 0.05);
-    drawMiniVectorIcon(c, sportIcon, W - padX - 44, TOP + 58, 22, '#ffffff');
+    drawSportBadge(c, W - padX - 36, TOP + 48, 36, { glass: true, ink: '#ffffff' });
 
     const boxY = TOP + 160;
     const boxH = M.hasChart ? (S.showWeek ? 540 : 640) : 280;
     drawFrostedGlassWidget(c, padX, boxY, fullW, boxH, 50, 0.04);
 
     txt(c, M.mainLbl, padX + 52, boxY + 75, 28, 600, 'rgba(255,255,255,0.8)', 'left', S.titleFont);
-    txt(c, M.distWithUnit, padX + 52, boxY + 205, 115, 700, '#ffffff', '
+    txt(c, M.distWithUnit, padX + 52, boxY + 205, 115, 700, '#ffffff', 'left', S.numFont, fullW - 100);
+
+    if (M.hasChart) {
+      txt(c, M.dict.hrGraphTitle, padX + 52, boxY + 275, 25, 500, 'rgba(255,255,255,0.72)', 'left', S.titleFont);
+      drawActiveChart(c, padX + 45, boxY + 300, fullW - 90, Math.max(120, boxH - 350));
+    }
+
+    const gY = boxY + boxH + 26;
+    const cols = 2, gap = 20;
+    const cw = (fullW - gap) / 2;
+    const ch = S.showWeek ? 166 : 185;
+    const maxStats = (S.showWeek ? 2 : 3) * cols;
+    M.activeStats.slice(0, maxStats).forEach((it, idx) => {
+      const r = Math.floor(idx / cols), cl = idx % cols;
+      const bx = padX + cl * (cw + gap), by = gY + r * (ch + gap);
+      drawFrostedGlassWidget(c, bx, by, cw, ch, 40, 0.04);
+      txt(c, it.label, bx + 40, by + ch * 0.38, 25, 500, 'rgba(255,255,255,0.75)', 'left', S.titleFont, cw - 75);
+      txt(c, `${it.val} ${it.unit}`.trim(), bx + 40, by + ch * 0.74, 48, 700, '#ffffff', 'left', S.numFont, cw - 75);
+    });
+
+    if (S.showWeek) {
+      drawWeekCard(c, padX, weekY, fullW, WEEK_H, { fill: 'glass', ink: '#ffffff', accent: S.accent });
+    }
+  }
+
+  // =========================================================================
+  // ثيم 3: شريط Liquid Glass سفلي مدمج (للصور الشخصية)
+  // =========================================================================
+  if (st === 3) {
+    const padX = 65, fullW = W - padX * 2;
+    const dockH = S.showWeek ? 790 : 670;
+    const boxY = BOT - dockH;
+
+    drawFrostedGlassWidget(c, padX, boxY, fullW, dockH, 52, 0.05);
+    txt(c, M.title, padX + 50, boxY + 78, 52, 700, '#ffffff', 'left', S.titleFont, 550);
+    txt(c, M.dateStr || S.tag, padX + fullW - 108, boxY + 75, 25, 500, 'rgba(255,255,255,0.75)', 'right', S.titleFont, 280);
+    drawSportBadge(c, padX + fullW - 46, boxY + 62, 30, { glass: true, ink: '#ffffff' });
+
+    if (M.dist) {
+      const maxNumW = M.hasChart ? 380 : (fullW - 100);
+      txt(c, M.dist, padX + 50, boxY + 235, 130, 700, '#ffffff', 'left', S.numFont, maxNumW);
+      txt(c, M.fullMainLabel, padX + 50, boxY + 285, 25, 500, 'rgba(255,255,255,0.8)', 'left', S.titleFont, maxNumW);
+    }
+
+    if (M.hasChart) {
+      drawActiveChart(c, padX + 430, boxY + 115, 470, 185);
+    }
+
+    c.fillStyle = 'rgba(255, 255, 255, 0.22)';
+    c.fillRect(padX + 50, boxY + 330, fullW - 100, 1.8);
+
+    const list = M.activeStats.slice(0, 6);
+    const cols = 3, colGap = 24;
+    const cw = (fullW - 100 - colGap * (cols - 1)) / cols;
+    list.forEach((it, idx) => {
+      const r = Math.floor(idx / cols), cl = idx % cols;
+      const cx = padX + 50 + cl * (cw + colGap);
+      const cy = boxY + 385 + r * 140;
+      txt(c, it.label, cx, cy, 22, 500, 'rgba(255,255,255,0.72)', 'left', S.titleFont, cw);
+      txt(c, `${it.val} ${it.unit}`.trim(), cx, cy + 56, 44, 700, '#ffffff', 'left', S.numFont, cw);
+    });
+
+    if (S.showWeek) {
+      drawWeekCard(c, padX + 24, boxY + 616, fullW - 48, WEEK_H, {
+        fill: 'flat', ink: '#ffffff', accent: S.accent, pad: 26, rule: true
+      });
+    }
+  }
+
+  // =========================================================================
+  // ثيم 4: داكن كلاسيك
+  // =========================================================================
+  if (st === 4) {
+    if (!S.transparent && !S.bg) {
+      c.fillStyle = '#090b10';
+      c.fillRect(0, 0, W, H);
+    }
+    const padX = 85, fullW = W - padX * 2;
+    txt(c, S.tag, padX, TOP + 20, 28, 700, S.accent, 'left', S.numFont);
+    if (M.dateStr) txt(c, M.dateStr, W - padX, TOP + 20, 26, 500, 'rgba(255,255,255,0.6)', 'right', S.titleFont);
+    drawSportBadge(c, W - padX - 30, TOP + 64, 30, { fill: 'rgba(255,255,255,0.07)', stroke: hexA(S.accent, 0.55), ink: '#ffffff' });
+    txt(c, M.title, padX, TOP + 95, 62, 800, '#ffffff', 'left', S.titleFont, fullW - 110);
+
+    let curY = TOP + 160;
+    if (M.hasChart) {
+      const chartH = S.showWeek ? 330 : 380;
+      drawActiveChart(c, padX, curY, fullW, chartH);
+      curY += chartH + 80;
+    } else {
+      curY += 60;
+    }
+
+    if (M.dist) {
+      txt(c, M.mainLbl, padX, curY, 28, 600, 'rgba(255,255,255,0.7)', 'left', S.titleFont);
+      txt(c, M.distWithUnit, padX, curY + 145, 150, 700, '#ffffff', 'left', S.numFont, fullW);
+      curY += 195;
+    }
+
+    c.fillStyle = 'rgba(255,255,255,0.15)';
+    c.fillRect(padX, curY, fullW, 2);
+
+    const cols = 3, colGap = 24;
+    const cw = (fullW - colGap * (cols - 1)) / cols;
+    const rowH = 185;
+    const maxRows = Math.max(1, Math.floor((contentBot - (curY + 40)) / rowH));
+    M.activeStats.slice(0, maxRows * cols).forEach((it, idx) => {
+      const r = Math.floor(idx / cols), cl = idx % cols;
+      const cx = padX + cl * (cw + colGap), cy = curY + 62 + r * rowH;
+      txt(c, it.label, cx, cy, 24, 500, 'rgba(255,255,255,0.6)', 'left', S.titleFont, cw);
+      txt(c, `${it.val} ${it.unit}`.trim(), cx, cy + 66, 46, 700, '#ffffff', 'left', S.numFont, cw);
+    });
+
+    if (S.showWeek) {
+      drawWeekCard(c, padX, weekY, fullW, WEEK_H, { fill: 'flat', ink: '#ffffff', accent: S.accent, rule: true });
+    }
+  }
+
+  // =========================================================================
+  // ثيم 5: تقرير تقني HUD
+  // =========================================================================
+  if (st === 5) {
+    const padX = 75, fullW = W - padX * 2;
+    drawFrostedGlassWidget(c, padX, TOP, fullW, contentBot - TOP, 48, 0.02);
+    txt(c, `TELEMETRY // ${S.tag}`, padX + 50, TOP + 68, 25, 700, S.accent, 'left', S.numFont, fullW - 190);
+    drawSportBadge(c, padX + fullW - 54, TOP + 56, 30, { glass: true, ink: '#ffffff' });
+    txt(c, M.title, padX + 50, TOP + 135, 58, 800, '#ffffff', 'left', S.titleFont, fullW - 180);
+
+    let listStartY = TOP + 210;
+    if (M.hasChart) {
+      drawActiveChart(c, padX + 50, TOP + 190, fullW - 100, S.showWeek ? 280 : 320);
+      listStartY = TOP + (S.showWeek ? 505 : 565);
+    }
+
+    const all = M.dist
+      ? [{ label: M.mainLbl, val: M.dist, unit: M.mainUnit }, ...M.activeStats]
+      : [...M.activeStats];
+
+    const rowStep = Math.min(155, (contentBot - listStartY - 40) / Math.max(1, all.length));
+    all.slice(0, 7).forEach((it, idx) => {
+      const ry = listStartY + idx * rowStep;
+      c.fillStyle = 'rgba(255,255,255,0.14)';
+      c.fillRect(padX + 50, ry - 15, fullW - 100, 1.5);
+      txt(c, it.label, padX + 50, ry + 55, 28, 500, 'rgba(255,255,255,0.8)', 'left', S.titleFont, 460);
+      txt(c, `${it.val} ${it.unit}`.trim(), padX + fullW - 50, ry + 58, 52, 700, '#ffffff', 'right', S.numFont, 420);
+    });
+
+    if (S.showWeek) {
+      drawWeekCard(c, padX, weekY, fullW, WEEK_H, { fill: 'glass', ink: '#ffffff', accent: S.accent });
+    }
+  }
+
+  // =========================================================================
+  // ثيم 6: Neon نيون
+  // =========================================================================
+  if (st === 6) {
+    const padX = 82, fullW = W - padX * 2;
+    const accent = S.accent;
+
+    txt(c, `// ${S.tag || BRAND}`, padX, TOP + 4, 24, 700, accent, 'left', S.numFont, fullW * 0.62);
+    if (M.dateStr) txt(c, M.dateStr, W - padX - 64, TOP + 4, 22, 500, 'rgba(255,255,255,0.5)', 'right', S.numFont, 240);
+    drawSportBadge(c, W - padX - 30, TOP + 32, 24, { fill: 'rgba(8,12,18,0.55)', stroke: hexA(accent, 0.65), ink: '#ffffff' });
+
+    txt(c, M.title, padX, TOP + 104, 92, 700, '#ffffff', 'left', S.numFont, fullW - 80);
+    txt(c, S.muscleTag, padX, TOP + 150, 26, 500, 'rgba(255,255,255,0.58)', 'left', S.titleFont, fullW);
+
+    const ruleG = c.createLinearGradient(padX, 0, padX + 210, 0);
+    ruleG.addColorStop(0, accent);
+    ruleG.addColorStop(1, hexA(accent, 0));
+    c.fillStyle = ruleG;
+    c.fillRect(padX, TOP + 172, 210, 4);
+
+    let contentY = TOP + 330;
+    if (M.dist) {
+      txt(c, M.fullMainLabel, padX, TOP + 240, 24, 600, 'rgba(255,255,255,0.5)', 'left', S.numFont, fullW);
+      c.save();
+      c.shadowColor = hexA(accent, 0.8);
+      c.shadowBlur = 42;
+      txt(c, M.dist, padX, TOP + 410, 172, 700, '#ffffff', 'left', S.numFont, fullW);
+      c.restore();
+      contentY = TOP + 460;
+    }
+
+    if (M.hasChart) {
+      drawActiveChart(c, padX, contentY, fullW, 250);
+      contentY += 300;
+    }
+
+    c.fillStyle = 'rgba(255,255,255,0.12)';
+    c.fillRect(padX, contentY, fullW, 1.5);
+    contentY += 22;
+
+    const stats = M.activeStats.slice(0, 6);
+    const rows = Math.ceil(stats.length / 2);
+    const bottomLimit = S.showWeek ? weekY - 20 : contentBot;
+    const rowH = Math.max(96, Math.min(210, (bottomLimit - contentY - 10) / Math.max(1, rows)));
+    stats.forEach((it, idx) => {
+      const r = Math.floor(idx / 2), cl = idx % 2;
+      const cx = padX + cl * (fullW / 2);
+      const y0 = contentY + r * rowH;
+      txt(c, it.label, cx, y0 + 24, 21, 500, 'rgba(255,255,255,0.45)', 'left', S.numFont, fullW / 2 - 34);
+      txt(c, `${it.val} ${it.unit}`.trim(), cx, y0 + 72, 44, 700, '#ffffff', 'left', S.numFont, fullW / 2 - 34);
+      c.fillStyle = 'rgba(255,255,255,0.09)';
+      c.fillRect(cx, y0 + 92, fullW / 2 - 40, 1.2);
+    });
+
+    if (S.showWeek) {
+      drawWeekCard(c, padX, weekY, fullW, WEEK_H, { fill: 'flat', ink: '#ffffff', accent, rule: true });
+    }
+  }
+
+  // =========================================================================
+  // ثيم 7: Aurora شفق
+  // =========================================================================
+  if (st === 7) {
+    const padX = 72, fullW = W - padX * 2;
+    const accent = S.accent;
+
+    txt(c, M.title, padX, TOP + 62, 80, 800, '#ffffff', 'left', S.titleFont, fullW - 120);
+    const sub = [S.tag, M.dateStr].filter(Boolean).join('  ·  ');
+    txt(c, sub, padX, TOP + 112, 26, 500, 'rgba(255,255,255,0.75)', 'left', S.titleFont, fullW - 120);
+    drawSportBadge(c, W - padX - 36, TOP + 50, 34, { glass: true, ink: '#ffffff', stroke: 'rgba(255,255,255,0.30)' });
+
+    c.save();
+    c.font = `600 24px ${S.titleFont}`;
+    const bw = Math.min(fullW, c.measureText(S.muscleTag || '').width + 58);
+    c.restore();
+    drawFrostedGlassWidget(c, padX, TOP + 140, bw, 62, 31, 0.06);
+    txt(c, S.muscleTag, padX + 29, TOP + 181, 24, 600, '#ffffff', 'left', S.titleFont, bw - 50);
+
+    const weekTop = S.showWeek ? weekY - 22 : contentBot;
+    const stats = M.activeStats.slice(0, 4);
+    const rows = Math.ceil(stats.length / 2);
+    const statsH = rows * 168 + (rows - 1) * 20;
+    const heroY = TOP + 226;
+    const heroH = Math.max(360, weekTop - heroY - statsH - 26);
+
+    drawFrostedGlassWidget(c, padX, heroY, fullW, heroH, 50, 0.05);
+
+    drawMiniVectorIcon(c, 'bars', padX + 56, heroY + 58, 16, 'rgba(255,255,255,0.85)');
+    txt(c, M.dict.overviewHdr, padX + 86, heroY + 66, 26, 500, 'rgba(255,255,255,0.85)', 'left', S.titleFont, 520);
+
+    if (M.dist) {
+      const maxNumW = M.hasChart ? 380 : (fullW - 100);
+      txt(c, M.dist, padX + 46, heroY + 196, 118, 700, '#ffffff', 'left', S.numFont, maxNumW);
+      txt(c, M.fullMainLabel, padX + 48, heroY + 246, 24, 500, 'rgba(255,255,255,0.75)', 'left', S.titleFont, maxNumW);
+    }
+
+    if (M.hasChart) {
+      drawActiveChart(c, padX + 420, heroY + 70, 460, Math.min(210, heroH - 250));
+    }
+
+    c.fillStyle = 'rgba(255,255,255,0.2)';
+    c.fillRect(padX + 46, heroY + heroH - 150, fullW - 92, 1.6);
+
+    const sA = M.activeStats[0], sB = M.activeStats[1];
+    if (sA) {
+      txt(c, `${sA.val} ${sA.unit}`.trim(), padX + 48, heroY + heroH - 92, 42, 700, '#ffffff', 'left', S.numFont, 380);
+      txt(c, sA.label, padX + 48, heroY + heroH - 54, 22, 500, 'rgba(255,255,255,0.7)', 'left', S.titleFont, 380);
+    }
+    if (sB) {
+      txt(c, `${sB.val} ${sB.unit}`.trim(), padX + 430, heroY + heroH - 92, 42, 700, '#ffffff', 'left', S.numFont, 340);
+      txt(c, sB.label, padX + 430, heroY + heroH - 54, 22, 500, 'rgba(255,255,255,0.7)', 'left', S.titleFont, 340);
+    }
+
+    const gY = heroY + heroH + 22;
+    const gap = 22, cw = (fullW - gap) / 2;
+    stats.forEach((it, idx) => {
+      const r = Math.floor(idx / 2), cl = idx % 2;
+      const bx = padX + cl * (cw + gap), by = gY + r * 188;
+      drawFrostedGlassWidget(c, bx, by, cw, 168, 42, 0.05);
+      txt(c, it.label, bx + 38, by + 62, 23, 500, 'rgba(255,255,255,0.72)', 'left', S.titleFont, cw - 72);
+      txt(c, `${it.val} ${it.unit}`.trim(), bx + 38, by + 118, 44, 700, '#ffffff', 'left', S.numFont, cw - 72);
+    });
+
+    if (S.showWeek) {
+      drawWeekCard(c, padX, weekY, fullW, WEEK_H, { fill: 'glass', ink: '#ffffff', accent });
+    }
+  }
+
+  // =========================================================================
+  // ثيم 8: Light فاتح
+  // =========================================================================
+  if (st === 8) {
+    const padX = 72, fullW = W - padX * 2;
+    const ink = '#0f1720';
+    const sub = 'rgba(15,23,32,0.56)';
+    const accent = S.accent;
+    const accentInk = shade(accent, 0.58);
+
+    txt(c, (S.tag || BRAND).toUpperCase(), padX, TOP + 4, 22, 700, accentInk, 'left', S.numFont, fullW * 0.6);
+    if (M.dateStr) txt(c, M.dateStr, W - padX - 64, TOP + 4, 21, 500, sub, 'right', S.titleFont, 240);
+    drawSportBadge(c, W - padX - 30, TOP + 32, 24, {
+      fill: 'rgba(255,255,255,0.92)', stroke: 'rgba(15,23,32,0.12)', ink, iconScale: 0.5,
+      fillDark: 'rgba(12,17,24,0.66)', strokeDark: 'rgba(255,255,255,0.26)'
+    });
+    txt(c, M.title, padX, TOP + 96, 82, 800, ink, 'left', S.titleFont, fullW - 80);
+    txt(c, S.muscleTag, padX, TOP + 142, 26, 500, sub, 'left', S.titleFont, fullW);
+
+    const weekTop = S.showWeek ? weekY - 22 : contentBot;
+    const stats = M.activeStats.slice(0, 4);
+    const rows = Math.ceil(stats.length / 2);
+    const statsH = rows * 170 + (rows - 1) * 18;
+    const heroY = TOP + 178;
+    const heroH = Math.max(340, weekTop - heroY - statsH - 22);
+
+    drawSoftCard(c, padX, heroY, fullW, heroH, 46);
+
+    drawMiniVectorIcon(c, 'bars', padX + 54, heroY + 56, 15, 'rgba(15,23,32,0.55)');
+    txt(c, M.dict.overviewHdr, padX + 82, heroY + 64, 25, 600, 'rgba(15,23,32,0.62)', 'left', S.titleFont, 500);
+
+    if (M.dist) {
+      const maxNumW = M.hasChart ? 380 : (fullW - 100);
+      txt(c, M.dist, padX + 46, heroY + 196, 120, 700, ink, 'left', S.numFont, maxNumW);
+      txt(c, M.fullMainLabel, padX + 48, heroY + 244, 24, 500, sub, 'left', S.titleFont, maxNumW);
+    }
+
+    if (M.hasChart) {
+      if (heroH > 760) {
+        drawActiveChart(c, padX + 46, heroY + 280, fullW - 92, Math.max(200, heroH - 470), { chartAccent: accent, lineCol: accentInk });
+      } else {
+        drawActiveChart(c, padX + 420, heroY + 84, 460, Math.min(320, heroH - 270), { chartAccent: accent, lineCol: accentInk });
+      }
+    }
+
+    c.fillStyle = 'rgba(15,23,32,0.12)';
+    c.fillRect(padX + 46, heroY + heroH - 150, fullW - 92, 1.5);
+
+    const sA = M.activeStats[0], sB = M.activeStats[1];
+    if (sA) {
+      txt(c, `${sA.val} ${sA.unit}`.trim(), padX + 48, heroY + heroH - 92, 42, 700, ink, 'left', S.numFont, 380);
+      txt(c, sA.label, padX + 48, heroY + heroH - 54, 22, 500, sub, 'left', S.titleFont, 380);
+    }
+    if (sB) {
+      txt(c, `${sB.val} ${sB.unit}`.trim(), padX + 430, heroY + heroH - 92, 42, 700, ink, 'left', S.numFont, 340);
+      txt(c, sB.label, padX + 430, heroY + heroH - 54, 22, 500, sub, 'left', S.titleFont, 340);
+    }
+
+    const gY = heroY + heroH + 20;
+    const gap = 20, cw = (fullW - gap) / 2;
+    stats.forEach((it, idx) => {
+      const r = Math.floor(idx / 2), cl = idx % 2;
+      const bx = padX + cl * (cw + gap), by = gY + r * 188;
+      drawSoftCard(c, bx, by, cw, 170, 40);
+      txt(c, it.label, bx + 36, by + 62, 22, 500, sub, 'left', S.titleFont, cw - 70);
+      txt(c, `${it.val} ${it.unit}`.trim(), bx + 36, by + 120, 42, 700, ink, 'left', S.numFont, cw - 70);
+    });
+
+    if (S.showWeek) {
+      drawWeekCard(c, padX, weekY, fullW, WEEK_H, {
+        fill: 'solid', ink, sub, accent, cardFill: 'rgba(255,255,255,0.94)'
+      });
+    }
+  }
+
+  // =========================================================================
+  // ثيم 9: Duotone لونان
+  // =========================================================================
+  if (st === 9) {
+    const padX = 78, fullW = W - padX * 2;
+    const accent = S.accent;
+    const onAccent = readableOn(accent);
+    const blockY = TOP - 40;
+    const blockH = 500;
+
+    c.save();
+    const g = c.createLinearGradient(0, blockY, W, blockY + blockH);
+    g.addColorStop(0, accent);
+    g.addColorStop(1, shade(accent, 0.6));
+    c.fillStyle = g;
+    c.beginPath();
+    c.moveTo(0, blockY);
+    c.lineTo(W, blockY);
+    c.lineTo(W, blockY + blockH - 60);
+    c.quadraticCurveTo(W, blockY + blockH, W - 60, blockY + blockH);
+    c.lineTo(60, blockY + blockH);
+    c.quadraticCurveTo(0, blockY + blockH, 0, blockY + blockH - 60);
+    c.closePath();
+    c.fill();
+    c.restore();
+
+    const onSub = onAccent === '#08111a' ? 'rgba(8,17,26,0.6)' : 'rgba(255,255,255,0.65)';
+    txt(c, [S.tag, M.dateStr].filter(Boolean).join('  ·  '), padX, blockY + 56, 23, 600, onSub, 'left', S.numFont, fullW - 120);
+    drawSportBadge(c, W - padX - 34, blockY + 50, 32, {
+      fill: 'rgba(255,255,255,0.92)', stroke: hexA(onAccent, 0.18), ink: onAccent,
+      fillDark: 'rgba(9,14,20,0.6)', strokeDark: 'rgba(255,255,255,0.3)'
+    });
+    txt(c, M.title, padX, blockY + 150, 86, 800, onAccent, 'left', S.titleFont, fullW - 120);
+    txt(c, S.muscleTag, padX, blockY + 192, 25, 500, onSub, 'left', S.titleFont, fullW);
+
+    if (M.dist) {
+      txt(c, M.fullMainLabel, padX, blockY + 268, 23, 600, onSub, 'left', S.numFont, fullW);
+      txt(c, M.dist, padX, blockY + 420, 168, 700, onAccent, 'left', S.numFont, fullW);
+    }
+
+    let y = blockY + blockH + 40;
+    if (M.hasChart) {
+      drawActiveChart(c, padX, y, fullW, 210);
+      y += 260;
+    }
+
+    c.fillStyle = 'rgba(255,255,255,0.12)';
+    c.fillRect(padX, y, fullW, 1.5);
+    y += 20;
+
+    const stats = M.activeStats.slice(0, 6);
+    const rows = Math.ceil(stats.length / 2);
+    const bottomLimit = S.showWeek ? weekY - 20 : contentBot;
+    const rowH = Math.max(92, Math.min(200, (bottomLimit - y - 10) / Math.max(1, rows)));
+    const rowOff = Math.max(0, (bottomLimit - y - rows * rowH) / 2);
+    stats.forEach((it, idx) => {
+      const r = Math.floor(idx / 2), cl = idx % 2;
+      const cx = padX + cl * (fullW / 2);
+      const y0 = y + rowOff + r * rowH;
+      txt(c, it.label, cx, y0 + 26, 21, 500, 'rgba(255,255,255,0.45)', 'left', S.titleFont, fullW / 2 - 30);
+      txt(c, `${it.val} ${it.unit}`.trim(), cx, y0 + 74, 44, 700, '#ffffff', 'left', S.numFont, fullW / 2 - 30);
+      c.fillStyle = 'rgba(255,255,255,0.08)';
+      c.fillRect(cx, y0 + 92, fullW / 2 - 36, 1.2);
+    });
+
+    if (S.showWeek) {
+      drawWeekCard(c, padX, weekY, fullW, WEEK_H, { fill: 'flat', ink: '#ffffff', accent, rule: true });
+    }
+  }
+
+  // =========================================================================
+  // ثيم 10: Editorial مجلة
+  // =========================================================================
+  if (st === 10) {
+    const padX = 84, fullW = W - padX * 2;
+    const ink = '#15120c';
+    const sub = 'rgba(21,18,12,0.55)';
+    const accent = S.accent;
+
+    txt(c, (S.tag || BRAND).toUpperCase(), padX, TOP + 2, 21, 700, ink, 'left', S.numFont, fullW * 0.55);
+    if (M.dateStr) txt(c, M.dateStr, W - padX - 62, TOP + 2, 20, 500, sub, 'right', S.numFont, 240);
+    c.fillStyle = 'rgba(21,18,12,0.8)';
+    c.fillRect(padX, TOP + 18, fullW, 2.5);
+    drawSportBadge(c, W - padX - 28, TOP + 54, 26, {
+      fill: 'rgba(255,255,255,0.85)', stroke: 'rgba(21,18,12,0.14)', ink,
+      fillDark: 'rgba(18,15,10,0.66)', strokeDark: 'rgba(255,255,255,0.26)'
+    });
+
+    txt(c, M.title, padX, TOP + 112, 96, 800, ink, 'left', S.titleFont, fullW - 80);
+    txt(c, S.muscleTag, padX, TOP + 156, 25, 500, sub, 'left', S.titleFont, fullW);
+
+    c.fillStyle = 'rgba(21,18,12,0.22)';
+    c.fillRect(padX, TOP + 184, fullW, 1.5);
+
+    if (M.dist) {
+      txt(c, M.fullMainLabel, padX, TOP + 230, 22, 600, sub, 'left', S.numFont, fullW);
+      txt(c, M.dist, padX, TOP + 372, 168, 700, ink, 'left', S.numFont, fullW);
+    }
+
+    let y = TOP + 400;
+    if (M.hasChart) {
+      drawActiveChart(c, padX, y, fullW, S.showWeek ? 200 : 260, { chartAccent: accent, lineCol: shade(accent, 0.5) });
+      y += S.showWeek ? 240 : 300;
+    }
+    c.fillStyle = 'rgba(21,18,12,0.22)';
+    c.fillRect(padX, y, fullW, 1.5);
+    y += 18;
+
+    const stats = M.activeStats.slice(0, 6);
+    const rows = Math.ceil(stats.length / 2);
+    const bottomLimit = S.showWeek ? weekY - 18 : contentBot;
+    const rowH = Math.max(100, Math.min(260, (bottomLimit - y - 10) / Math.max(1, rows)));
+    stats.forEach((it, idx) => {
+      const r = Math.floor(idx / 2), cl = idx % 2;
+      const cx = padX + cl * (fullW / 2);
+      const y0 = y + r * rowH;
+      txt(c, it.label, cx, y0 + 26, 20, 600, sub, 'left', S.numFont, fullW / 2 - 30);
+      txt(c, `${it.val} ${it.unit}`.trim(), cx, y0 + 72, 42, 700, ink, 'left', S.numFont, fullW / 2 - 30);
+      c.fillStyle = 'rgba(21,18,12,0.16)';
+      c.fillRect(cx, y0 + 90, fullW / 2 - 36, 1.2);
+    });
+
+    if (S.showWeek) {
+      drawWeekCard(c, padX, weekY, fullW, WEEK_H, {
+        fill: 'flat', ink: '#15120c', sub: 'rgba(21,18,12,0.55)', accent, rule: true
+      });
+    }
+  }
+
+  // =========================================================================
+  // ثيم 11: Blueprint مخطط
+  // =========================================================================
+  if (st === 11) {
+    const padX = 74, fullW = W - padX * 2;
+    const accent = S.accent;
+    const ink = '#eaf6ff';
+    const sub = 'rgba(214, 236, 255, 0.62)';
+    const line = 'rgba(150, 210, 255, 0.42)';
+
+    const fx = padX - 24, fy = TOP - 24;
+    const fw = fullW + 48;
+    const fh = (S.showWeek ? weekY + WEEK_H : contentBot + 20) - fy;
+    c.strokeStyle = hexA(ink, 0.16);
+    c.lineWidth = 1.6;
+    c.strokeRect(fx, fy, fw, fh);
+
+    c.strokeStyle = accent;
+    c.lineWidth = 3;
+    const tick = 26;
+    [[fx, fy, 1, 1], [fx + fw, fy, -1, 1], [fx, fy + fh, 1, -1], [fx + fw, fy + fh, -1, -1]].forEach(([px, py, sx, sy]) => {
+      c.beginPath();
+      c.moveTo(px, py + sy * tick);
+      c.lineTo(px, py);
+      c.lineTo(px + sx * tick, py);
+      c.stroke();
+    });
+
+    txt(c, (S.tag || BRAND).toUpperCase(), padX, TOP + 6, 22, 700, accent, 'left', S.numFont, fullW * 0.55);
+    if (M.dateStr) txt(c, M.dateStr, W - padX - 62, TOP + 6, 20, 500, sub, 'right', S.numFont, 240);
+    drawSportBadge(c, W - padX - 28, TOP + 54, 26, {
+      fill: 'rgba(8, 40, 64, 0.5)', stroke: hexA(accent, 0.75), ink, lineWidth: 1.8
+    });
+
+    txt(c, M.title, padX, TOP + 96, 74, 800, ink, 'left', S.titleFont, fullW - 80);
+    txt(c, S.muscleTag, padX, TOP + 136, 24, 600, hexA('#9fd4ff', 0.9), 'left', S.numFont, fullW);
+
+    c.fillStyle = line;
+    c.fillRect(padX, TOP + 164, fullW, 1.6);
+
+    let y = TOP + 214;
+    if (M.dist) {
+      txt(c, M.fullMainLabel, padX, y, 22, 600, sub, 'left', S.numFont, M.hasChart ? 400 : fullW);
+      txt(c, M.dist, padX, y + 122, 138, 700, ink, 'left', S.numFont, M.hasChart ? 400 : fullW);
+    }
+    if (M.hasChart) {
+      const chX = M.dist ? padX + 430 : padX;
+      const chW = M.dist ? fullW - 430 : fullW;
+      c.strokeStyle = line;
+      c.lineWidth = 1.4;
+      rr(c, chX, y - 24, chW, 196, 12);
+      c.stroke();
+      drawActiveChart(c, chX + 16, y - 6, chW - 32, 160, { chartAccent: accent, lineCol: '#dff2ff' });
+    }
+    y += M.hasChart ? 250 : (M.dist ? 220 : 40);
+
+    const stats = M.activeStats.slice(0, 6);
+    const rows = Math.ceil(stats.length / 2);
+    const bottomLimit = S.showWeek ? weekY - 24 : contentBot;
+    const rowH = Math.max(92, Math.min(S.showWeek ? 190 : 240, (bottomLimit - y - 10) / Math.max(1, rows)));
+    const off = Math.max(0, (bottomLimit - y - ((rows - 1) * rowH + 92)) / 2);
+    stats.forEach((it, idx) => {
+      const r = Math.floor(idx / 2), cl = idx % 2;
+      const cx = padX + cl * (fullW / 2);
+      const y0 = y + off + r * rowH;
+      txt(c, String(idx + 1).padStart(2, '0'), cx, y0 + 2, 16, 700, hexA(accent, 0.85), 'left', S.numFont, 40);
+      txt(c, it.label, cx + 34, y0 + 2, 20, 500, sub, 'left', S.numFont, fullW / 2 - 70);
+      txt(c, `${it.val} ${it.unit}`.trim(), cx, y0 + 58, 42, 700, ink, 'left', S.numFont, fullW / 2 - 44);
+      c.fillStyle = hexA(ink, 0.14);
+      c.fillRect(cx, y0 + 80, fullW / 2 - 44, 1.2);
+    });
+
+    if (S.showWeek) {
+      drawWeekCard(c, padX, weekY, fullW, WEEK_H, { fill: 'flat', ink, sub, accent, rule: true });
+    }
+  }
+
+  // =========================================================================
+  // ثيم 12: Poster ملصق
+  // =========================================================================
+  if (st === 12) {
+    const padX = 78, fullW = W - padX * 2;
+    const accent = S.accent;
+    const onAccent = readableOn(accent);
+    const ink = '#171410';
+    const sub = 'rgba(23, 20, 16, 0.56)';
+
+    c.fillStyle = accent;
+    c.fillRect(0, 0, W, TOP + 190);
+
+    txt(c, (S.tag || BRAND).toUpperCase(), padX, TOP + 6, 20, 700, hexA(onAccent, 0.72), 'left', S.numFont, fullW * 0.5);
+    if (M.dateStr) txt(c, M.dateStr, W - padX - 80, TOP + 6, 20, 600, hexA(onAccent, 0.72), 'right', S.numFont, 260);
+    drawSportBadge(c, W - padX - 36, TOP + 52, 32, {
+      fill: hexA(onAccent, 0.14), stroke: hexA(onAccent, 0.35), ink: onAccent
+    });
+    txt(c, M.title, padX, TOP + 102, 104, 800, onAccent, 'left', S.titleFont, fullW - 110);
+    txt(c, S.muscleTag, padX, TOP + 154, 28, 500, hexA(onAccent, 0.8), 'left', S.titleFont, fullW);
+
+    let y = TOP + 254;
+    if (M.dist) {
+      txt(c, M.fullMainLabel.toUpperCase(), padX, y, 22, 700, sub, 'left', S.numFont, fullW);
+      txt(c, M.dist, padX, y + 158, 176, 800, ink, 'left', S.numFont, fullW);
+      y += 202;
+    }
+    if (M.hasChart) {
+      drawActiveChart(c, padX, y - 10, fullW, 220, { chartAccent: accent, lineCol: shade(accent, 0.55) });
+      y += 262;
+    }
+    c.fillStyle = 'rgba(23,20,16,0.85)';
+    c.fillRect(padX, y, fullW, 4);
+    y += 28;
+
+    const stats = M.activeStats.slice(0, 6);
+    const rows = Math.ceil(stats.length / 2);
+    const bottomLimit = S.showWeek ? weekY - 24 : contentBot;
+    const rowH = Math.max(110, Math.min(S.showWeek ? 210 : 300, (bottomLimit - y) / Math.max(1, rows)));
+    const off = Math.max(0, (bottomLimit - y - ((rows - 1) * rowH + 112)) / 2);
+    stats.forEach((it, idx) => {
+      const r = Math.floor(idx / 2), cl = idx % 2;
+      const cx = padX + cl * (fullW / 2);
+      const y0 = y + off + r * rowH;
+      txt(c, it.label.toUpperCase(), cx, y0 + 24, 20, 700, sub, 'left', S.numFont, fullW / 2 - 34);
+      txt(c, `${it.val} ${it.unit}`.trim(), cx, y0 + 78, 48, 800, ink, 'left', S.numFont, fullW / 2 - 34);
+      c.fillStyle = 'rgba(23,20,16,0.18)';
+      c.fillRect(cx, y0 + 100, fullW / 2 - 34, 1.4);
+    });
+
+    if (S.showWeek) {
+      drawWeekCard(c, padX, weekY, fullW, WEEK_H, { fill: 'flat', ink, sub, accent, rule: true });
+    }
+  }
+
+  // =========================================================================
+  // ثيم 13: Clay طيني
+  // =========================================================================
+  if (st === 13) {
+    const padX = 74, fullW = W - padX * 2;
+    const accent = S.accent;
+    const ink = '#2b2140';
+    const sub = 'rgba(43, 33, 64, 0.6)';
+
+    txt(c, (S.tag || BRAND).toUpperCase(), padX + 6, TOP + 6, 20, 700, shade(accent, 0.62), 'left', S.numFont, fullW * 0.5);
+    if (M.dateStr) txt(c, M.dateStr, W - padX - 70, TOP + 6, 20, 600, sub, 'right', S.numFont, 240);
+    drawSportBadge(c, W - padX - 34, TOP + 52, 30, {
+      fill: 'rgba(255,255,255,0.82)', stroke: 'rgba(120,95,180,0.22)', ink,
+      fillDark: 'rgba(38,28,58,0.66)', strokeDark: 'rgba(255,255,255,0.26)'
+    });
+    txt(c, M.title, padX + 4, TOP + 92, 78, 800, ink, 'left', S.titleFont, fullW - 80);
+    txt(c, S.muscleTag, padX + 6, TOP + 132, 26, 500, sub, 'left', S.titleFont, fullW);
+
+    const weekTop = S.showWeek ? weekY - 24 : contentBot;
+    const stats = M.activeStats.slice(0, 4);
+    const rows = Math.ceil(stats.length / 2);
+    const gap = 22, tileH = S.showWeek ? 168 : 200;
+    const statsH = rows * tileH + (rows - 1) * gap;
+
+    const heroY = TOP + 178;
+    const heroH = Math.min(S.showWeek ? 9999 : 780, Math.max(360, weekTop - heroY - statsH - 24));
+
+    drawClayTile(c, padX, heroY, fullW, heroH, 52);
+    txt(c, M.dict.overviewHdr, padX + 48, heroY + 66, 25, 600, sub, 'left', S.titleFont, 460);
+
+    if (M.dist) {
+      txt(c, M.dist, padX + 46, heroY + 190, 122, 800, ink, 'left', S.numFont, fullW - 96);
+      txt(c, M.fullMainLabel, padX + 48, heroY + 236, 24, 500, sub, 'left', S.titleFont, fullW - 96);
+    }
+
+    if (M.hasChart) {
+      const chTop = M.dist ? heroY + 286 : heroY + 108;
+      const availH = heroY + heroH - 48 - chTop;
+      const chH = Math.min(240, Math.max(120, availH));
+      const chY = chTop + (availH - chH) / 2;
+      if (M.dist) {
+        c.fillStyle = hexA(ink, 0.1);
+        c.fillRect(padX + 46, chTop - 30, fullW - 92, 1.5);
+      }
+      drawActiveChart(c, padX + 46, chY, fullW - 92, chH, { chartAccent: accent, lineCol: shade(accent, 0.6) });
+    }
+
+    const gY = heroY + heroH + 22;
+    const cw = (fullW - gap) / 2;
+    stats.forEach((it, idx) => {
+      const r = Math.floor(idx / 2), cl = idx % 2;
+      const bx = padX + cl * (cw + gap), by = gY + r * (tileH + gap);
+      drawClayTile(c, bx, by, cw, tileH, 44);
+      txt(c, it.label, bx + 34, by + 62, 22, 600, sub, 'left', S.titleFont, cw - 64);
+      txt(c, `${it.val} ${it.unit}`.trim(), bx + 34, by + 118, 44, 800, ink, 'left', S.numFont, cw - 64);
+    });
+
+    if (S.showWeek) {
+      drawWeekCard(c, padX, weekY, fullW, WEEK_H, {
+        fill: 'solid', cardFill: 'rgba(255,255,255,0.92)', cardStroke: 'rgba(120,95,180,0.16)',
+        shadow: 'rgba(96,72,150,0.3)', ink, sub, accent, radius: 44
+      });
+    }
+  }
+
+  // =========================================================================
+  // ثيم 14: Simple فاتح
+  // =========================================================================
+  if (st === 14) {
+    drawSimpleTheme(c, TOP, contentBot, weekY, WEEK_H, M, {
+      ink: '#14161a',
+      sub: 'rgba(20,22,26,0.54)',
+      rule: 'rgba(20,22,26,0.13)',
+      badgeFill: 'rgba(255,255,255,0.92)',
+      badgeStroke: 'rgba(20,22,26,0.12)',
+      badgeFillDark: 'rgba(14,18,24,0.66)',
+      badgeStrokeDark: 'rgba(255,255,255,0.26)',
+      iconInk: '#14161a',
+      tagInk: shade(S.accent, 0.55),
+      lineCol: shade(S.accent, 0.55)
+    });
+  }
+
+  // =========================================================================
+  // ثيم 15: Simple داكن
+  // =========================================================================
+  if (st === 15) {
+    drawSimpleTheme(c, TOP, contentBot, weekY, WEEK_H, M, {
+      ink: '#f6f7f9',
+      sub: 'rgba(246,247,249,0.55)',
+      rule: 'rgba(255,255,255,0.14)',
+      badgeFill: 'rgba(255,255,255,0.06)',
+      badgeStroke: 'rgba(255,255,255,0.22)',
+      iconInk: '#ffffff',
+      tagInk: S.accent,
+      lineCol: '#ffffff'
+    });
+  }
+
+  // =========================================================================
+  // ثيم 16: Simple ملوّن
+  // =========================================================================
+  if (st === 16) {
+    drawSimpleTheme(c, TOP, contentBot, weekY, WEEK_H, M, {
+      ink: '#17202b',
+      sub: 'rgba(23,32,43,0.56)',
+      rule: 'rgba(23,32,43,0.14)',
+      badgeFill: S.accent,
+      badgeStroke: hexA(S.accent, 0.55),
+      badgeFillDark: shade(S.accent, 0.32),
+      badgeStrokeDark: 'rgba(255,255,255,0.28)',
+      iconInk: readableOn(S.accent),
+      tagInk: shade(S.accent, 0.55),
+      lineCol: shade(S.accent, 0.55)
+    });
+  }
+
+  if (!isExport && w === W) {
+    drawStorySafeOverlay(c);
+  }
+}
+
+/* إنشاء شريط القوالب المصغرة */
+const thumbs = styleNames.map((n, i) => {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'th';
+  const k = document.createElement('canvas');
+  k.width = 144; k.height = 256;
+  const l = document.createElement('span');
+  l.textContent = n;
+  b.append(k, l);
+  b.onclick = () => { S.style = i; sched(); };
+  strip.appendChild(b);
+  return { b, k };
+});
+
+let queued = false;
+function sched() {
+  if (queued) return;
+  queued = true;
+  requestAnimationFrame(() => { queued = false; render(); });
+}
+
+let thumbTimer = 0;
+function render() {
+  drawCard(cv.getContext('2d'), W, S.style, false);
+  prev.src = cv.toDataURL('image/webp', 0.92);
+  clearTimeout(thumbTimer);
+  thumbTimer = setTimeout(() => {
+    thumbs.forEach((o, i) => {
+      drawCard(o.k.getContext('2d'), 144, i, true);
+      o.b.classList.toggle('on', i === S.style);
+    });
+  }, 140);
+}
+
+document.addEventListener('input', e => {
+  const el = e.target, k = el.dataset.k;
+  if (!k) return;
+  S[k] = el.type === 'checkbox' ? el.checked : ((k === 'dark' || k === 'safeShift' || k === 'glassOpacity') ? +el.value : el.value);
+  sched();
+});
+
+document.addEventListener('change', e => {
+  const el = e.target, k = el.dataset.k;
+  if (!k) return;
+  S[k] = el.type === 'checkbox' ? el.checked : ((k === 'dark' || k === 'safeShift' || k === 'glassOpacity') ? +el.value : el.value);
+  sched();
+});
+
+$('bgFile').onchange = e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const img = new Image();
+  img.onload = () => {
+    S.bg = img;
+    S.bgVer++;
+    e.target.parentNode.childNodes[0].nodeValue = '✓ تم رفع الخلفية';
+    sched();
+  };
+  img.src = URL.createObjectURL(f);
+};
+
+function formatDuration(sec) {
+  if (!sec || sec <= 0) return '';
+  const hrs = Math.floor(sec / 3600);
+  const mins = Math.floor((sec % 3600) / 60);
+  const s = Math.round(sec % 60);
+  if (hrs > 0) return `${hrs}:${String(mins).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  return `${mins}:${String(s).padStart(2, '0')}`;
+}
+
+function formatPace(secPerKm) {
+  if (!secPerKm || !isFinite(secPerKm) || secPerKm <= 0) return '';
+  const m = Math.floor(secPerKm / 60);
+  const s = Math.round(secPerKm % 60);
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
+
+function syncInputsFromState() {
+  ['title', 'tag', 'muscleTag', 'dist', 'mainUnit', 'date', 'chartMode'].forEach(k => {
+    const el = document.querySelector(`[data-k="${k}"]`);
+    if (el && S[k] !== undefined) el.value = S[k];
+  });
+  renderStatsManager();
+  sched();
+}
+
+const STRAVA_TOKEN_KEY = 'stravaAuthV1';
+const STRAVA_APP_KEY = 'stravaAppV1';
+const STRAVA_SCOPES = 'read,activity:read_all';
+let stravaAuth = null;
+let stravaFeed = [];
+
+function stravaApp() {
+  try {
+    const a = JSON.parse(localStorage.getItem(STRAVA_APP_KEY) || '{}');
+    return { id: String(a.id || ''), secret: String(a.secret || '') };
+  } catch (e) {
+    return { id: '', secret: '' };
+  }
+}
+
+function saveStravaApp(id, secret) {
+  try { localStorage.setItem(STRAVA_APP_KEY, JSON.stringify({ id, secret })); } catch (e) {}
+}
+
+function saveStravaAuth(auth) {
+  stravaAuth = auth;
+  try {
+    if (auth) localStorage.setItem(STRAVA_TOKEN_KEY, JSON.stringify(auth));
+    else localStorage.removeItem(STRAVA_TOKEN_KEY);
+  } catch (e) {}
+  renderStravaUI();
+}
+
+function stravaRedirectUri() {
+  return location.origin + location.pathname;
+}
+
+function renderStravaUI() {
+  const logged = !!(stravaAuth && stravaAuth.access_token);
+  const out = $('stravaLoggedOut'), inn = $('stravaLoggedIn');
+  if (out) out.hidden = logged;
+  if (inn) inn.hidden = !logged;
+  if (!logged) return;
+  const ath = stravaAuth.athlete || {};
+  const name = [ath.firstname, ath.lastname].filter(Boolean).join(' ') || 'Athlete';
+  if ($('stravaName')) $('stravaName').textContent = name;
+  if ($('stravaInitial')) $('stravaInitial').textContent = (ath.firstname || 'S').slice(0, 1).toUpperCase();
+  if ($('stravaMeta')) $('stravaMeta').textContent = 'متصل بـ Strava · يتم تحديث الجلسة تلقائياً';
+}
+
+function stravaNote(text, kind) {
+  const el = $('stravaNote');
+  if (!el) return;
+  el.className = 'strava-note' + (kind ? ' ' + kind : '');
+  el.innerHTML = text;
+}
+
+function stravaLogin() {
+  const id = $('stravaClientId').value.trim();
+  const secret = $('stravaClientSecret').value.trim();
+  if (!/^\d+$/.test(id) || !secret) {
+    stravaNote('أدخل Client ID (أرقام فقط) و Client Secret من صفحة تطبيقك في Strava.', 'warn');
+    return;
+  }
+  if (location.protocol === 'file:') {
+    stravaNote('Strava لا يسمح بالعودة إلى ملف <code>file://</code>. شغّل الصفحة على localhost مرة واحدة:<br><code>python -m http.server 8000</code><br>ثم افتح <code>http://localhost:8000/' + (location.pathname.split('/').pop() || '') + '</code> وسجّل الدخول من هناك.', 'warn');
+    return;
+  }
+  saveStravaApp(id, secret);
+  const state = Math.random().toString(36).slice(2) + Date.now().toString(36);
+  try { sessionStorage.setItem('stravaState', state); } catch (e) {}
+  const u = new URL('https://www.strava.com/oauth/authorize');
+  u.searchParams.set('client_id', id);
+  u.searchParams.set('redirect_uri', stravaRedirectUri());
+  u.searchParams.set('response_type', 'code');
+  u.searchParams.set('approval_prompt', 'auto');
+  u.searchParams.set('scope', STRAVA_SCOPES);
+  u.searchParams.set('state', state);
+  location.href = u.toString();
+}
+
+async function stravaAccessToken() {
+  if (!stravaAuth) throw new Error('no-auth');
+  if (stravaAuth.expires_at && stravaAuth.expires_at * 1000 - Date.now() > 120000) return stravaAuth.access_token;
+  const app = stravaApp();
+  if (!app.id || !app.secret) throw new Error('no-app');
+  const body = new URLSearchParams({
+    client_id: app.id,
+    client_secret: app.secret,
+    grant_type: 'refresh_token',
+    refresh_token: stravaAuth.refresh_token
+  });
+  const r = await fetch('https://www.strava.com/oauth/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body
+  });
+  if (!r.ok) throw new Error('refresh');
+  const j = await r.json();
+  saveStravaAuth(Object.assign({}, stravaAuth, {
+    access_token: j.access_token,
+    refresh_token: j.refresh_token || stravaAuth.refresh_token,
+    expires_at: j.expires_at
+  }));
+  return j.access_token;
+}
+
+async function stravaApi(path) {
+  const token = await stravaAccessToken();
+  const r = await fetch('https://www.strava.com/api/v3' + path, {
+    headers: { Authorization: 'Bearer ' + token }
+  });
+  if (r.status === 401) {
+    saveStravaAuth(null);
+    throw new Error('unauthorized');
+  }
+  if (!r.ok) throw new Error('api-' + r.status);
+  return r.json();
+}
+
+async function stravaLogout() {
+  saveStravaAuth(null);
+  stravaFeed = [];
+  msg.textContent = 'تم تسجيل الخروج من Strava.';
+  if ($('stravaActivities')) $('stravaActivities').innerHTML = '';
+  if ($('stravaLoginNote')) { $('stravaLoginNote').className = 'strava-note'; $('stravaLoginNote').textContent = ''; }
+}
+
+function detectActivitySport(typedText, metaText) {
+  const t = typedText || '', head = metaText || '';
+  if (/jump|rope|skip/i.test(t) || /jump\s*rope|skipping|نط حبل/i.test(head)) return 'rope';
+  if (/karate|martial/i.test(t) || /karate|martial arts|كاراتيه/i.test(head)) return 'karate';
+  if (/weight|strength|crossfit|workout|gym/i.test(t)) return 'gym';
+  if (/ride|cycl|bike|mtb/i.test(t)) return 'bike';
+  if (/run|walk|hike|swim|row/i.test(t)) return 'run';
+  if (/weight\s*training|strength training|crossfit|حديد|قوة/i.test(head)) return 'gym';
+  if (/\b(ride|cycling|bike|bicycle|دراجة)\b/i.test(head)) return 'bike';
+  if (/\b(run|running|trail|walk|hike|swim|row|جري|مشي)\b/i.test(head)) return 'run';
+  return null;
+}
+
+function stravaSportOf(activity) {
+  return detectActivitySport(String(activity.sport_type || activity.type || ''), String(activity.name || ''));
+}
+
+function stravaSportEmoji(sport) {
+  return sport === 'bike' ? '🚴' : sport === 'rope' ? '⚡' : sport === 'karate' ? '🥋' : sport === 'gym' ? '🏋️' : '🏃';
+}
+
+function shortActivityDate(value) {
+  if (!value) return '';
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return '';
+  return d.toLocaleDateString('ar-SA', { day: 'numeric', month: 'short' });
+}
+
+async function loadStravaFeed() {
+  const sel = $('stravaActivities');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">جاري تحميل الأنشطة...</option>';
+  try {
+    const list = await stravaApi('/athlete/activities?per_page=12');
+    stravaFeed = Array.isArray(list) ? list : [];
+    sel.innerHTML = '';
+    if (!stravaFeed.length) {
+      sel.innerHTML = '<option value="">لا توجد أنشطة في حسابك</option>';
+      return;
+    }
+    stravaFeed.forEach((a, i) => {
+      const opt = document.createElement('option');
+      opt.value = String(i);
+      const dist = a.distance > 0 ? `${(a.distance / 1000).toFixed(2)} كم` : `${Math.max(1, Math.round((a.moving_time || 0) / 60))} د`;
+      opt.textContent = `${stravaSportEmoji(stravaSportOf(a))} ${a.name || 'تمرين'} · ${shortActivityDate(a.start_date_local)} · ${dist}`;
+      sel.appendChild(opt);
+    });
+    if ($('stravaLoginNote')) { $('stravaLoginNote').className = 'strava-note'; $('stravaLoginNote').textContent = ''; }
+  } catch (e) {
+    sel.innerHTML = '<option value="">تعذر تحميل الأنشطة</option>';
+    if ($('stravaLoginNote')) {
+      $('stravaLoginNote').className = 'strava-note warn';
+      $('stravaLoginNote').textContent = 'تعذر الاتصال بـ Strava. تحقق من الإنترنت أو أعد تسجيل الدخول.';
+    }
+  }
+}
+
+async function stravaImportActivity(activity) {
+  if (!activity) return;
+  const sport = stravaSportOf(activity);
+  if (sport) {
+    if (sport !== S.sport) S.dist = '';
+    applySportMode(sport);
+  }
+  if (activity.name) S.title = String(activity.name).trim().slice(0, 56);
+  if (activity.device_name) S.tag = String(activity.device_name).slice(0, 40);
+  if (activity.start_date_local) S.date = String(activity.start_date_local).slice(0, 10);
+
+  const distanceSport = S.sport === 'run' || S.sport === 'bike';
+  if (distanceSport && activity.distance > 0) S.dist = (activity.distance / 1000).toFixed(2);
+  if (activity.moving_time > 0) setStatValue('time', formatDuration(activity.moving_time));
+  if (activity.average_heartrate > 0) setStatValue('hr', Math.round(activity.average_heartrate));
+  if (activity.max_heartrate > 0) setStatValue('maxhr', Math.round(activity.max_heartrate));
+  if (activity.calories > 0) setStatValue('cal', Math.round(activity.calories));
+  if (activity.total_elevation_gain > 0 && distanceSport) setStatValue('elev', Math.round(activity.total_elevation_gain));
+  if (activity.average_cadence > 0) {
+    const cad = S.sport === 'run' && activity.average_cadence < 120 ? activity.average_cadence * 2 : activity.average_cadence;
+    setStatValue('cad', Math.round(cad));
+  }
+  if (distanceSport && activity.average_speed > 0) {
+    if (S.sport === 'bike') setStatValue('pace', (activity.average_speed * 3.6).toFixed(1));
+    else {
+      const pace = formatPace(1000 / activity.average_speed);
+      if (pace) setStatValue('pace', pace);
+    }
+  }
+  if (activity.average_watts > 0) setStatValue('te', activity.average_watts);
+  if (activity.kilojoules > 0 && !(activity.calories > 0)) setStatValue('cal', Math.round(activity.kilojoules));
+  syncInputsFromState();
+}
+
+async function stravaLoadStreams(activityId) {
+  try {
+    const res = await stravaApi(`/activities/${activityId}/streams?keys=heartrate,latlng&key_by_type=true`);
+    const hr = res && res.heartrate && Array.isArray(res.heartrate.data)
+      ? res.heartrate.data.filter(v => typeof v === 'number' && v > 30) : [];
+    if (hr.length >= 8) {
+      const buckets = 20, chunk = hr.length / buckets;
+      S.hrSeries = Array.from({ length: buckets }, (_, i) => {
+        const sl = hr.slice(Math.floor(i * chunk), Math.max(Math.floor(i * chunk) + 1, Math.floor((i + 1) * chunk)));
+        return Math.round(sl.reduce((a, b) => a + b, 0) / sl.length);
+      });
+      S.maxHrVal = Math.max(...hr);
+      S.minHrVal = Math.min(...hr);
+    }
+    const ll = res && res.latlng && Array.isArray(res.latlng.data)
+      ? res.latlng.data.filter(p => Array.isArray(p) && Math.abs(p[0]) <= 90 && Math.abs(p[1]) <= 180) : [];
+    if (ll.length > 1) {
+      const step = Math.max(1, Math.floor(ll.length / 250));
+      S.route = ll.filter((_, i) => i % step === 0);
+    }
+    sched();
+  } catch (e) {}
+}
+
+async function handleStravaRedirect() {
+  const q = new URLSearchParams(location.search);
+  if (!q.has('code') && !q.has('error')) return;
+  const code = q.get('code');
+  const state = q.get('state') || '';
+  let saved = '';
+  try { saved = sessionStorage.getItem('stravaState') || ''; } catch (e) {}
+  history.replaceState(null, '', location.pathname + location.hash);
+  if (q.get('error')) {
+    msg.textContent = 'تم إلغاء تسجيل الدخول من Strava.';
+    return;
+  }
+  if (!saved || saved !== state) {
+    msg.textContent = 'انتهت جلسة الدخول؛ اضغط "تسجيل الدخول بحساب Strava" مرة أخرى.';
+    return;
+  }
+  try { sessionStorage.removeItem('stravaState'); } catch (e) {}
+  const app = stravaApp();
+  if (!app.id || !app.secret) {
+    msg.textContent = 'بيانات تطبيق Strava غير محفوظة؛ أعد إدخال Client ID و Client Secret.';
+    return;
+  }
+  msg.textContent = 'جاري إكمال تسجيل الدخول مع Strava...';
+  try {
+    const body = new URLSearchParams({
+      client_id: app.id,
+      client_secret: app.secret,
+      code,
+      grant_type: 'authorization_code'
+    });
+    const r = await fetch('https://www.strava.com/oauth/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body
+    });
+    if (!r.ok) throw new Error('token');
+    const j = await r.json();
+    saveStravaAuth({
+      access_token: j.access_token,
+      refresh_token: j.refresh_token,
+      expires_at: j.expires_at,
+      athlete: j.athlete ? { id: j.athlete.id, firstname: j.athlete.firstname, lastname: j.athlete.lastname } : null
+    });
+    msg.textContent = 'تم تسجيل الدخول إلى Strava ✓ اختر تمريناً لاستيراده.';
+    loadStravaFeed();
+  } catch (e) {
+    msg.textContent = 'تعذر إكمال تسجيل الدخول؛ تحقق من Client Secret و Authorization Callback Domain في تطبيق Strava.';
+  }
+}
+
+$('stravaLogin').onclick = stravaLogin;
+$('stravaLogout').onclick = stravaLogout;
+$('stravaRefresh').onclick = loadStravaFeed;
+
+$('stravaImport').onclick = async () => {
+  const idx = parseInt($('stravaActivities').value, 10);
+  const base = stravaFeed[idx];
+  if (!base) { msg.textContent = 'اختر تمريناً من قائمة آخر الأنشطة أولاً.'; return; }
+  $('stravaImport').disabled = true;
+  msg.textContent = 'جاري استيراد التمرين من Strava...';
+  try {
+    let activity = base;
+    try { activity = await stravaApi('/activities/' + base.id); } catch (e) {}
+    await stravaImportActivity(activity);
+    if ($('stravaStreams').checked) await stravaLoadStreams(base.id);
+    msg.textContent = 'تم استيراد التمرين من Strava ✓';
+  } catch (e) {
+    msg.textContent = 'تعذر استيراد التمرين من Strava.';
+  } finally {
+    $('stravaImport').disabled = false;
+  }
+};
+
+(function initStrava() {
+  const app = stravaApp();
+  if ($('stravaClientId')) $('stravaClientId').value = app.id;
+  if ($('stravaClientSecret')) $('stravaClientSecret').value = app.secret;
+  if ($('stravaHostHint')) $('stravaHostHint').textContent = location.hostname || 'localhost';
+  try { stravaAuth = JSON.parse(localStorage.getItem(STRAVA_TOKEN_KEY) || 'null'); } catch (e) { stravaAuth = null; }
+  renderStravaUI();
+  if (stravaAuth && stravaAuth.access_token) loadStravaFeed();
+  handleStravaRedirect();
+})();
+
+buildBeltRow();
+updateBeltVisibility();
+
+[
+  '700 40px "Inter"',
+  '700 40px "Readex Pro"',
+  '700 40px "Cairo"',
+  '700 40px "Alexandria"',
+  '700 40px "Tajawal"',
+  '700 40px "Chakra Petch"',
+  '700 40px "JetBrains Mono"'
+].forEach(f => document.fonts.load(f).then(sched).catch(() => {}));
+
+$('share').onclick = async () => {
+  try {
+    drawCard(cv.getContext('2d'), W, S.style, true);
+    const b = await new Promise(r => cv.toBlob(r, 'image/png'));
+    render();
+    const file = new File([b], 'traincard-story.png', { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file] });
+      msg.textContent = '';
+    } else {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(file);
+      a.download = 'traincard-story.png';
+      a.click();
+      msg.textContent = 'تم بدء التنزيل بصيغة PNG.';
+    }
+  } catch (err) {
+    msg.textContent = 'اضغط مطولاً على البطاقة بالأعلى واختر "حفظ الصورة".';
+  }
+};
+
+buildWeekGrid();
+renderStatsManager();
+render();
+</script>
+</body>
+</html>
