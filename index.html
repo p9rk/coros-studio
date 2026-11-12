@@ -265,6 +265,52 @@
   .toast.show{transform:translate(-50%,0)}
   .toast svg{width:16px;height:16px;color:var(--good)}
 
+  /* share buttons + story modal */
+  .share-btn{
+    width:32px;height:32px;flex:none;border-radius:9px;
+    background:transparent;border:1px solid var(--line);
+    display:grid;place-items:center;color:var(--txt-dim-2);
+    transition:color .15s,border-color .15s,background .15s;
+  }
+  .share-btn:hover{color:var(--accent);border-color:var(--accent);background:rgba(255,90,60,.10)}
+  .share-btn svg{width:15px;height:15px}
+
+  .modal{
+    position:fixed;inset:0;z-index:200;display:none;
+    align-items:center;justify-content:center;padding:22px;
+    background:rgba(4,6,10,.74);backdrop-filter:blur(8px);
+  }
+  .modal.open{display:flex;animation:fade .18s ease}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .modal-card{
+    display:flex;gap:24px;width:100%;max-width:880px;max-height:92vh;overflow:auto;
+    background:var(--bg-elev);border:1px solid var(--line);border-radius:22px;
+    padding:22px;box-shadow:0 24px 70px rgba(0,0,0,.55);
+  }
+  .story-preview{
+    width:288px;flex:none;border-radius:20px;overflow:hidden;
+    border:1px solid var(--line);background:#05070b;
+    box-shadow:0 12px 40px rgba(0,0,0,.5);
+  }
+  .story-preview canvas{width:100%;height:auto;display:block}
+  .modal-side{flex:1;min-width:0;display:flex;flex-direction:column;gap:14px}
+  .modal-side .lead{font-size:12.5px;color:var(--txt-dim);line-height:1.6}
+  .btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:auto}
+  .btn{
+    flex:1;min-width:130px;display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:12px 16px;border-radius:12px;font-size:13px;font-weight:620;
+    background:var(--bg-elev-2);border:1px solid var(--line);color:var(--txt);
+    transition:transform .12s,border-color .15s,filter .15s;
+  }
+  .btn:hover{transform:translateY(-1px)}
+  .btn svg{width:16px;height:16px}
+  .btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent-2));border-color:transparent;color:#fff;box-shadow:0 8px 22px rgba(255,90,60,.32)}
+  .btn.ghost{background:transparent}
+  .share-note{
+    font-size:11.5px;color:var(--txt-dim-2);line-height:1.6;
+    border-left:2px solid var(--line);padding-left:11px;
+  }
+
   @media(max-width:1180px){
     .grid-kpi{grid-template-columns:repeat(2,1fr)}
     .grid-2{grid-template-columns:1fr}
@@ -284,6 +330,9 @@
     .topbar{padding:12px 14px}
     .search input{width:130px} .search input:focus{width:150px}
     .grid-2b{grid-template-columns:1fr}
+    .modal-card{flex-direction:column;gap:16px;padding:16px;max-width:420px}
+    .story-preview{width:210px;align-self:center}
+    .lrow .share-btn{display:none}
   }
 </style>
 </head>
@@ -426,7 +475,7 @@
           <div style="overflow-x:auto">
             <table>
               <thead><tr>
-                <th>Activity</th><th>Date</th><th>Distance</th><th>Pace</th><th>Avg HR</th><th>Elev</th><th>Load</th>
+                <th>Activity</th><th>Date</th><th>Distance</th><th>Pace</th><th>Avg HR</th><th>Elev</th><th>Load</th><th style="text-align:right">Story</th>
               </tr></thead>
               <tbody id="actBody"></tbody>
             </table>
@@ -512,6 +561,34 @@
           </div>
         </div>
       </section>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="shareModal">
+  <div class="modal-card">
+    <div class="story-preview"><canvas id="storyCanvas" width="1080" height="1920"></canvas></div>
+    <div class="modal-side">
+      <div class="card-head" style="margin-bottom:2px">
+        <div><h3>Share to Story</h3><p id="shareSub">—</p></div>
+        <div class="right">
+          <button class="icon-btn" id="shareClose" title="Close" aria-label="Close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+      </div>
+      <p class="lead">A 1080&times;1920 story card, rendered to match your session. Save it to your camera roll and add it from the Stories sticker tray.</p>
+      <div class="share-note">Browsers can't post to Instagram directly, so we hand you a pixel-perfect image instead. On mobile you can also use the system share sheet.</div>
+      <div class="btn-row">
+        <button class="btn primary" id="shareNativeBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M12 15V3M8 7l4-4 4 4"/></svg>
+          Share
+        </button>
+        <button class="btn ghost" id="shareDownloadBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 19h16"/></svg>
+          Save PNG
+        </button>
+      </div>
     </div>
   </div>
 </div>
@@ -873,6 +950,9 @@ function activityRow(a,showType=true){
       <b>${a.dist>0.5?fmt(a.dist,2)+' km':'—'}</b>
       <span>${a.pace?fmtPace(a.pace):a.hr+' bpm'} · ${fmt(a.load)} load</span>
     </div>
+    <button class="share-btn" data-share="${a.id}" title="Share to story" aria-label="Share to story">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M12 15V3M8 7l4-4 4 4"/></svg>
+    </button>
   </div>`;
 }
 function renderRecent(){
@@ -930,6 +1010,9 @@ function renderActTable(){
       <td>${a.hr} bpm</td>
       <td>${a.elev?fmt(a.elev)+' m':'—'}</td>
       <td><b style="color:${t.color}">${fmt(a.load)}</b></td>
+      <td style="text-align:right"><button class="share-btn" data-share="${a.id}" title="Share to story" aria-label="Share to story" style="display:inline-grid">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M12 15V3M8 7l4-4 4 4"/></svg>
+      </button></td>
     </tr>`;
   }).join('');
   $('#actEmpty').style.display = rows.length?'none':'block';
@@ -1153,6 +1236,248 @@ function renderSettings(){
 }
 
 /* ============================================================
+   7. STORY SHARING — renders a 1080×1920 card to <canvas>
+   ============================================================ */
+const FONT='-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Helvetica,Arial,sans-serif';
+
+function hexRgb(h){
+  h=h.replace('#','');
+  if(h.length===3) h=h.split('').map(x=>x+x).join('');
+  return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];
+}
+function rgba(hex,a){const c=hexRgb(hex);return `rgba(${c[0]},${c[1]},${c[2]},${a})`;}
+function mix(hex,to,amt){const c=hexRgb(hex),t=hexRgb(to);const r=c.map((v,i)=>Math.round(v+(t[i]-v)*amt));return `rgb(${r[0]},${r[1]},${r[2]})`;}
+function hashStr(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+const p2=n=>String(Math.abs(Math.round(n))).padStart(2,'0');
+function rrect(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  if(ctx.roundRect){ctx.roundRect(x,y,w,h,r);return;}
+  ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();
+}
+function spacedWidth(ctx,txt,sp){
+  const ch=[...txt];
+  return ch.reduce((w,c)=>w+ctx.measureText(c).width,0)+sp*Math.max(0,ch.length-1);
+}
+function drawSpaced(ctx,txt,x,y,sp){
+  let cx=x;
+  for(const c of [...txt]){ ctx.fillText(c,cx,y); cx+=ctx.measureText(c).width+sp; }
+}
+
+function drawStory(a){
+  const cv=$('#storyCanvas'), ctx=cv.getContext('2d');
+  const W=cv.width, H=cv.height;
+  const t=typeOf(a.type)||{color:'#ff5a3c',label:a.type};
+  const ac=t.color;
+  ctx.clearRect(0,0,W,H);
+  ctx.textBaseline='alphabetic';
+
+  /* background */
+  const bg=ctx.createLinearGradient(0,0,W*0.45,H);
+  bg.addColorStop(0,   mix(ac,'#000000',0.58));
+  bg.addColorStop(0.42,'#0c1017');
+  bg.addColorStop(1,   '#05070b');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+
+  /* accent glows */
+  let rg=ctx.createRadialGradient(W*0.94,H*0.05,0,W*0.94,H*0.05,780);
+  rg.addColorStop(0,rgba(ac,.42)); rg.addColorStop(1,rgba(ac,0));
+  ctx.fillStyle=rg; ctx.fillRect(0,0,W,H);
+  rg=ctx.createRadialGradient(W*0.02,H*0.96,0,W*0.02,H*0.96,860);
+  rg.addColorStop(0,rgba(ac,.20)); rg.addColorStop(1,rgba(ac,0));
+  ctx.fillStyle=rg; ctx.fillRect(0,0,W,H);
+
+  /* frame */
+  ctx.strokeStyle='rgba(255,255,255,.10)'; ctx.lineWidth=2;
+  rrect(ctx,44,44,W-88,H-88,64); ctx.stroke();
+
+  const PAD=104, INNER=W-PAD*2;
+
+  /* brand */
+  const lx=PAD, ly=158;
+  const lg=ctx.createLinearGradient(lx,ly-52,lx+64,ly+12);
+  lg.addColorStop(0,mix(ac,'#ffffff',0.20)); lg.addColorStop(1,mix(ac,'#000000',0.22));
+  ctx.fillStyle=lg; rrect(ctx,lx,ly-52,64,64,19); ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,.95)'; ctx.lineWidth=4.5; ctx.lineCap='round'; ctx.lineJoin='round';
+  ctx.beginPath();
+  ctx.moveTo(lx+13,ly-20); ctx.lineTo(lx+23,ly-20); ctx.lineTo(lx+29,ly-36);
+  ctx.lineTo(lx+37,ly-2);  ctx.lineTo(lx+43,ly-24); ctx.lineTo(lx+51,ly-24);
+  ctx.stroke();
+  ctx.fillStyle='rgba(255,255,255,.94)'; ctx.font=`700 34px ${FONT}`;
+  drawSpaced(ctx,'COROS STUDIO',lx+88,ly-10,5);
+
+  /* session name */
+  ctx.fillStyle='rgba(255,255,255,.60)'; ctx.font=`500 46px ${FONT}`;
+  ctx.fillText(a.name,PAD,428);
+
+  /* type pill */
+  const pillTxt=t.label.toUpperCase();
+  ctx.font=`700 30px ${FONT}`;
+  const tw=spacedWidth(ctx,pillTxt,3);
+  const ph=64, py=470, pw=68+tw+30;
+  ctx.fillStyle=rgba(ac,.18); rrect(ctx,PAD,py,pw,ph,32); ctx.fill();
+  ctx.strokeStyle=rgba(ac,.55); ctx.lineWidth=2; rrect(ctx,PAD,py,pw,ph,32); ctx.stroke();
+  ctx.fillStyle=ac; ctx.beginPath(); ctx.arc(PAD+36,py+ph/2,7,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle=mix(ac,'#ffffff',0.42);
+  drawSpaced(ctx,pillTxt,PAD+68,py+41,3);
+
+  /* hero metric */
+  const isDist=a.dist>0.5;
+  let bigVal,unit,bigSize,heroLabel;
+  if(isDist){ bigVal=a.dist.toFixed(1); unit='KM'; bigSize=236; heroLabel='DISTANCE'; }
+  else if(a.dur>=60){ bigVal=`${Math.floor(a.dur/60)}:${p2(a.dur%60)}`; unit='H:MIN'; bigSize=200; heroLabel='DURATION'; }
+  else { bigVal=String(Math.round(a.dur)); unit='MIN'; bigSize=236; heroLabel='DURATION'; }
+
+  ctx.fillStyle='rgba(255,255,255,.42)'; ctx.font=`700 30px ${FONT}`;
+  drawSpaced(ctx,heroLabel,PAD,646,7);
+
+  ctx.font=`800 ${bigSize}px ${FONT}`;
+  const bw=ctx.measureText(bigVal).width;
+  const hg=ctx.createLinearGradient(PAD,720,PAD+bw,900);
+  hg.addColorStop(0,'#ffffff'); hg.addColorStop(1,mix(ac,'#ffffff',0.55));
+  ctx.fillStyle=hg;
+  ctx.fillText(bigVal,PAD,878);
+  ctx.fillStyle=mix(ac,'#ffffff',0.30); ctx.font=`700 54px ${FONT}`;
+  drawSpaced(ctx,unit,PAD+bw+22,878,4);
+
+  /* divider */
+  ctx.strokeStyle='rgba(255,255,255,.10)'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(PAD,952); ctx.lineTo(W-PAD,952); ctx.stroke();
+
+  /* stats */
+  const stats=[];
+  if(isDist && a.pace) stats.push({v:`${Math.floor(a.pace/60)}:${p2(a.pace%60)}`,l:'PER KM'});
+  else if(a.type==='Bike' && a.dist>0.5) stats.push({v:(a.dist/(a.dur/60)).toFixed(1),l:'KM / H'});
+  else if(a.elev) stats.push({v:fmt(a.elev)+'m',l:'VERT GAIN'});
+  stats.push({v:fmtDur(a.dur),l:'MOVING TIME'});
+  stats.push({v:fmt(a.load),l:'LOAD'});
+  const colW=INNER/3;
+  ctx.textAlign='center';
+  stats.forEach((s,i)=>{
+    const cx=PAD+colW*(i+0.5);
+    ctx.fillStyle='rgba(255,255,255,.96)'; ctx.font=`700 62px ${FONT}`;
+    ctx.fillText(s.v,cx,1044);
+    ctx.fillStyle='rgba(255,255,255,.42)'; ctx.font=`700 28px ${FONT}`;
+    drawSpaced(ctx,s.l,cx-spacedWidth(ctx,s.l,4)/2,1100,4);
+  });
+  ctx.textAlign='left';
+  ctx.strokeStyle='rgba(255,255,255,.10)';
+  [1,2].forEach(i=>{ ctx.beginPath(); ctx.moveTo(PAD+colW*i,1000); ctx.lineTo(PAD+colW*i,1068); ctx.stroke(); });
+
+  /* splits chart (or a load meter when there is no distance) */
+  const r2=mulberry32(hashStr(a.id));
+  let n=0;
+  if(a.dist>=3){
+    n = (a.type==='Bike') ? clamp(Math.round(a.dist/5),3,12) : clamp(Math.round(a.dist),3,12);
+  }
+  if(n){
+    ctx.fillStyle='rgba(255,255,255,.42)'; ctx.font=`700 28px ${FONT}`;
+    drawSpaced(ctx,'SPLITS',PAD,1214,7);
+    drawSpaced(ctx,'PACE PER '+(a.type==='Bike'?'5 KM':'KM'),PAD,1256,4);
+
+    const base=1452, maxH=214, gap=14, bw2=(INNER-gap*(n-1))/n;
+    const vals=[];
+    for(let i=0;i<n;i++) vals.push(0.62+r2()*0.46);
+    const mx=Math.max(...vals);
+    vals.forEach((v,i)=>{
+      const h=Math.max(20,(v/mx)*maxH);
+      const x=PAD+i*(bw2+gap), y=base-h;
+      const bg2=ctx.createLinearGradient(0,y,0,base);
+      bg2.addColorStop(0,mix(ac,'#ffffff',0.28));
+      bg2.addColorStop(1,rgba(ac,.28));
+      ctx.fillStyle=bg2;
+      rrect(ctx,x,y,bw2,h,Math.min(bw2/2.4,14)); ctx.fill();
+    });
+    ctx.strokeStyle='rgba(255,255,255,.12)'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(PAD,base+8); ctx.lineTo(W-PAD,base+8); ctx.stroke();
+  } else {
+    ctx.fillStyle='rgba(255,255,255,.42)'; ctx.font=`700 28px ${FONT}`;
+    drawSpaced(ctx,'TRAINING LOAD',PAD,1214,7);
+    const base=1320;
+    ctx.fillStyle='rgba(255,255,255,.08)'; rrect(ctx,PAD,base,INNER,30,15); ctx.fill();
+    const p=clamp(a.load/700,0.04,1);
+    const g2=ctx.createLinearGradient(PAD,0,PAD+INNER,0);
+    g2.addColorStop(0,ac); g2.addColorStop(1,mix(ac,'#ffffff',0.35));
+    ctx.fillStyle=g2; rrect(ctx,PAD,base,INNER*p,30,15); ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,.55)'; ctx.font=`600 30px ${FONT}`;
+    ctx.fillText(`${fmt(a.load)} load · ${Math.round(p*100)}% of a big day`,PAD,base+88);
+  }
+
+  /* summary line */
+  const bits=[`${a.hr} BPM AVG`];
+  if(a.elev) bits.push(`${fmt(a.elev)} M ELEV`);
+  bits.push(`${fmt(a.load)} LOAD`);
+  ctx.fillStyle='rgba(255,255,255,.46)'; ctx.font=`600 30px ${FONT}`;
+  drawSpaced(ctx,bits.join('   ·   '),PAD,1584,2);
+
+  /* footer */
+  ctx.strokeStyle='rgba(255,255,255,.10)'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(PAD,1652); ctx.lineTo(W-PAD,1652); ctx.stroke();
+
+  const cy=1730;
+  const ag=ctx.createLinearGradient(PAD,cy-30,PAD+60,cy+30);
+  ag.addColorStop(0,'#4d9dff'); ag.addColorStop(1,'#8b5cff');
+  ctx.fillStyle=ag; ctx.beginPath(); ctx.arc(PAD+30,cy,30,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#fff'; ctx.font=`700 26px ${FONT}`; ctx.textAlign='center';
+  ctx.fillText('MK',PAD+30,cy+9);
+  ctx.textAlign='left';
+  ctx.fillStyle='rgba(255,255,255,.92)'; ctx.font=`600 34px ${FONT}`;
+  ctx.fillText('Mika Karlsson',PAD+84,cy+12);
+
+  ctx.fillStyle='rgba(255,255,255,.45)'; ctx.font=`600 32px ${FONT}`; ctx.textAlign='right';
+  ctx.fillText(fmtDateFull(a.date).toUpperCase(),W-PAD,cy+11);
+  ctx.textAlign='center';
+  ctx.fillStyle='rgba(255,255,255,.30)'; ctx.font=`600 27px ${FONT}`;
+  drawSpaced(ctx,'COROS STUDIO  ·  coros.studio',W/2-spacedWidth(ctx,'COROS STUDIO  ·  coros.studio',4)/2,1812,4);
+  ctx.textAlign='left';
+}
+
+/* ---------- share flow ---------- */
+let shareTarget=null;
+
+function openShare(id){
+  const a=ACTIVITIES.find(x=>x.id===id);
+  if(!a) return;
+  shareTarget=a;
+  const t=typeOf(a.type)||{label:a.type};
+  $('#shareSub').textContent=`${a.name} · ${t.label} · ${fmtDateFull(a.date)}`;
+  drawStory(a);
+  $('#shareModal').classList.add('open');
+}
+function closeShare(){ $('#shareModal').classList.remove('open'); }
+
+function storyBlob(){
+  return new Promise(res=>$('#storyCanvas').toBlob(res,'image/png'));
+}
+function storyFileName(){
+  return `coros-${shareTarget.type.toLowerCase()}-${shareTarget.date.toISOString().slice(0,10)}.png`;
+}
+async function downloadStory(){
+  const blob=await storyBlob();
+  const url=URL.createObjectURL(blob);
+  const el=document.createElement('a');
+  el.href=url; el.download=storyFileName(); el.click();
+  URL.revokeObjectURL(url);
+  toast('Story image saved to downloads');
+}
+async function shareStory(){
+  const blob=await storyBlob();
+  const file=new File([blob],storyFileName(),{type:'image/png'});
+  if(navigator.canShare && navigator.canShare({files:[file]})){
+    try{
+      await navigator.share({
+        files:[file],
+        title:'COROS Studio',
+        text:`${shareTarget.name} — ${shareTarget.dist>0.5?fmt(shareTarget.dist,2)+' km':'—'} in ${fmtDur(shareTarget.dur)}`
+      });
+    }catch(e){ /* user dismissed the share sheet */ }
+  } else {
+    await downloadStory();
+    toast('System share unavailable — image downloaded instead');
+  }
+}
+
+/* ============================================================
    ROUTING / EVENTS
    ============================================================ */
 const TODAY_LABEL = new Date().toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short'});
@@ -1188,8 +1513,17 @@ $('#nav').addEventListener('click',e=>{
   const b=e.target.closest('button[data-view]'); if(b) go(b.dataset.view);
 });
 document.addEventListener('click',e=>{
+  const s=e.target.closest('[data-share]');
+  if(s){ openShare(s.dataset.share); return; }
   const g=e.target.closest('[data-goto]'); if(g) go(g.dataset.goto);
 });
+
+/* story modal */
+$('#shareClose').addEventListener('click',closeShare);
+$('#shareModal').addEventListener('click',e=>{ if(e.target.id==='shareModal') closeShare(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeShare(); });
+$('#shareDownloadBtn').addEventListener('click',downloadStory);
+$('#shareNativeBtn').addEventListener('click',shareStory);
 
 /* range segmented control */
 $('#rangeSeg').addEventListener('click',e=>{
