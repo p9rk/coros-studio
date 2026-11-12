@@ -394,7 +394,7 @@
     <header class="topbar">
       <div>
         <h1 id="pageTitle">Dashboard</h1>
-        <div class="sub" id="pageSub">Tue, 12 Nov · Week 9 of 12 · Build phase</div>
+        <div class="sub" id="pageSub">—</div>
       </div>
       <div class="search">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
@@ -430,7 +430,7 @@
               <span><i style="background:#4d9dff;border-radius:50%"></i>Training load</span>
             </div>
             <div class="chart-wrap">
-              <svg class="chart" id="volChart" viewBox="0 0 820 280" preserveAspectRatio="none"></svg>
+              <svg class="chart" id="volChart" viewBox="0 0 820 280"></svg>
               <div class="tooltip" id="volTip"></div>
             </div>
           </div>
@@ -458,7 +458,7 @@
 
       <!-- ===== ACTIVITIES ===== -->
       <section class="view" id="view-activities">
-        <div class="grid-3" id="actStats"></div>
+        <div class="grid-kpi" id="actStats"></div>
         <div class="card">
           <div class="card-head">
             <div><h3>All Activities</h3><p id="actSub">—</p></div>
@@ -493,7 +493,7 @@
             <div class="right"><span class="chip" id="acwrChip"></span></div>
           </div>
           <div class="chart-wrap">
-            <svg class="chart" id="loadChart" viewBox="0 0 820 280" preserveAspectRatio="none"></svg>
+            <svg class="chart" id="loadChart" viewBox="0 0 820 280"></svg>
             <div class="tooltip" id="loadTip"></div>
           </div>
         </div>
@@ -516,7 +516,7 @@
           <div class="card">
             <div class="card-head"><div><h3>Recovery Trend</h3><p>HRV, resting HR &amp; sleep score, last 14 days</p></div></div>
             <div class="chart-wrap">
-              <svg class="chart" id="recChart" viewBox="0 0 820 260" preserveAspectRatio="none"></svg>
+              <svg class="chart" id="recChart" viewBox="0 0 820 260"></svg>
               <div class="tooltip" id="recTip"></div>
             </div>
           </div>
@@ -785,7 +785,7 @@ function drawCombo(svg, tip, data, opts={}){
   const pts=data.map((d,i)=>[P.l+step*i+step/2, P.t+ih-(d.b/maxB)*ih]);
   const lp=linePath(pts);
   g+=`<path d="${lp}" fill="none" stroke="${opts.lineColor||'#4d9dff'}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" opacity=".95"/>`;
-  pts.forEach((p,i)=>{ g+=`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.6" fill="var(--bg-elev)" stroke="${opts.lineColor||'#4d9dff'}" stroke-width="2"/>`; });
+  pts.forEach(p=>{ g+=`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.6" fill="var(--bg-elev)" stroke="${opts.lineColor||'#4d9dff'}" stroke-width="2"/>`; });
   // x labels (thin out if dense)
   const every=Math.ceil(data.length/9);
   data.forEach((d,i)=>{
@@ -1045,7 +1045,6 @@ function renderLoad(){
   const acute=sum(last7(),x=>x.load);
   const chronic=sum(last28(),x=>x.load)/4;
   const acwr = chronic? acute/chronic : 0;
-  const mon=sum(DAILY.slice(-7).map(d=>d.load));
   const cards=[
     {l:'Acute load (7d)',v:fmt(acute),s:'current week',c:'var(--accent)'},
     {l:'Chronic load (28d)',v:fmt(chronic),s:'weekly average',c:'var(--blue)'},
