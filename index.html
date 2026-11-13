@@ -489,6 +489,77 @@ input[type=range] { accent-color: #7dd3fc; width: 100%; }
   min-height: 20px;
   margin: 8px 0 0;
 }
+
+/* Muscle Map editor */
+.muscle-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.muscle-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 9px;
+  border-radius: 13px;
+  background: #171a1f;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.muscle-row .m-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 8px currentColor;
+}
+.muscle-row .m-name {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.m-step {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.m-step button {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #1d2127;
+  color: #fff;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+.m-step button:active { transform: scale(0.92); }
+.m-step b {
+  min-width: 22px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 800;
+  color: #fff;
+}
+.zone-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+.zone-grid label {
+  font-size: 11px;
+  text-align: center;
+}
+.zone-grid input[type=color] { height: 38px; }
+@media (max-width: 380px) {
+  .muscle-grid { grid-template-columns: 1fr; }
+}
 </style>
 </head>
 <body>
@@ -501,7 +572,7 @@ input[type=range] { accent-color: #7dd3fc; width: 100%; }
   <div class="prev-wrap">
     <img id="prev" alt="Workout card preview">
   </div>
-  <p class="hint">19 card themes + weekly activity strip + import from .FIT / .GPX / .TCX <span id="buildTag" style="opacity:.55"></span></p>
+  <p class="hint">21 card themes + weekly activity strip + import from .FIT / .GPX / .TCX <span id="buildTag" style="opacity:.55"></span></p>
   <div id="strip"></div>
 
   <p id="msg"></p>
@@ -585,6 +656,48 @@ input[type=range] { accent-color: #7dd3fc; width: 100%; }
       <label>Classy Background Color<input type="color" data-k="cardBg" value="#f6f1e6"></label>
       <label>Device Name on Card (Classy)<input type="text" data-k="device" placeholder="e.g. COROS PACE 3"></label>
     </div>
+  </section>
+
+  <!-- Muscle Map controls -->
+  <section class="panel" id="musclePanel" hidden>
+    <div class="section-head">
+      <b>🧬 Muscle Map</b>
+      <span id="muscleSourceTag">demo data</span>
+    </div>
+    <p class="hint" style="margin:0;text-align:left;font-size:12.5px">Sets per muscle are auto-extracted from .FIT exercise tags or pasted workout text (e.g. “Bench Press 4 x 8”). Compound lifts count toward every muscle they train, so muscle sets can exceed the workout's set count. Fine-tune any muscle below — the body heat-map updates live.</p>
+
+    <div class="row-3">
+      <label>Heat Low<input type="color" data-k="muscleLow" value="#00b3a4"></label>
+      <label>Heat High<input type="color" data-k="muscleHigh" value="#ff4326"></label>
+      <label>Body Color<input type="color" data-k="muscleBody" value="#242c36"></label>
+    </div>
+
+    <p class="hint" id="muscleUnassignedNote" style="margin:0;text-align:left;font-size:12px;color:#ffb454" hidden></p>
+
+    <div class="muscle-grid" id="muscleEditor"></div>
+
+    <div class="input-group">
+      <button class="go alt" id="muscleClearBtn" type="button">Clear All</button>
+      <button class="go alt" id="muscleDemoBtn" type="button">Load Demo</button>
+    </div>
+  </section>
+
+  <!-- WHOOP style controls -->
+  <section class="panel" id="whoopPanel" hidden>
+    <div class="section-head">
+      <b>🔵 WHOOP Style</b>
+      <span>strain ring + HR zones</span>
+    </div>
+    <p class="hint" style="margin:0;text-align:left;font-size:12.5px">Day Strain (0–21) is computed from your workout time and heart rate. Zones use your max HR. Override strain manually if you have a real WHOOP value.</p>
+
+    <div class="row-3">
+      <label>Strain Ring<input type="color" data-k="whoopStrain" value="#0093e7"></label>
+      <label>Max HR (bpm)<input type="text" data-k="whoopMaxHr" value="190" inputmode="numeric"></label>
+      <label>Strain Override<input type="text" data-k="whoopStrainOverride" placeholder="auto" inputmode="decimal"></label>
+    </div>
+
+    <label>Heart Rate Zone Colors</label>
+    <div class="zone-grid" id="zoneGrid"></div>
   </section>
 
   <!-- Flexible stats manager -->
@@ -736,6 +849,16 @@ const S = {
   showSafeGuide: false,
   showWeek: true,
   weekCount: [1, 0, 1, 1, 2, 0, 1],
+  muscleSets: { chest: 4, lats: 3, shoulders: 3, biceps: 2, triceps: 2, core: 2, forearms: 1 },
+  muscleUnassigned: 0,
+  muscleSource: 'demo',
+  muscleLow: '#00b3a4',
+  muscleHigh: '#ff4326',
+  muscleBody: '#242c36',
+  whoopStrain: '#0093e7',
+  whoopZones: ['#8a8d91', '#0093e7', '#16ec06', '#ffde00', '#ff0026'],
+  whoopMaxHr: 190,
+  whoopStrainOverride: '',
   bg: null,
   bgVer: 0,
   route: [],
@@ -770,7 +893,9 @@ const styleNames = [
   'Simple Dark 🌙',
   'Simple Color 🎯',
   'Nothing Dots ⚫',
-  'Classy 🕊️'
+  'Classy 🕊️',
+  'Muscle Map 🧬',
+  'WHOOP Style 🔵'
 ];
 
 const cv = document.createElement('canvas');
@@ -994,6 +1119,212 @@ function setStatValue(id, val) {
   } else {
     S.stats.push({ id, label: lbl, val: String(val), unit: '', on: true });
   }
+}
+
+/* =========================================================================
+   Muscle engine: FIT exercise categories + exercise names -> muscle groups
+   ========================================================================= */
+const MUSCLES = [
+  { k: 'chest',      n: 'Chest' },
+  { k: 'lats',       n: 'Lats' },
+  { k: 'shoulders',  n: 'Shoulders' },
+  { k: 'traps',      n: 'Traps' },
+  { k: 'lowerback',  n: 'Lower Back' },
+  { k: 'biceps',     n: 'Biceps' },
+  { k: 'triceps',    n: 'Triceps' },
+  { k: 'forearms',   n: 'Forearms' },
+  { k: 'core',       n: 'Abs / Core' },
+  { k: 'obliques',   n: 'Obliques' },
+  { k: 'glutes',     n: 'Glutes' },
+  { k: 'quads',      n: 'Quads' },
+  { k: 'hamstrings', n: 'Hamstrings' },
+  { k: 'calves',     n: 'Calves' }
+];
+
+/* FIT exercise_category enum -> weighted muscle involvement (primary + synergists) */
+const FIT_CAT_MUSCLES = {
+  0:  { chest: 1, triceps: 0.4, shoulders: 0.3 },            // bench press
+  1:  { calves: 1 },                                          // calf raise
+  3:  { forearms: 0.5, traps: 0.5, core: 0.5 },               // carry
+  4:  { obliques: 1, core: 0.5 },                             // chop
+  5:  { core: 1 },                                            // core
+  6:  { core: 1 },                                            // crunch
+  7:  { biceps: 1, forearms: 0.3 },                           // curl
+  8:  { hamstrings: 0.7, glutes: 0.7, lowerback: 0.6, traps: 0.4, forearms: 0.3 }, // deadlift
+  9:  { chest: 1, shoulders: 0.2 },                           // flye
+  10: { glutes: 1, hamstrings: 0.4 },                         // hip raise
+  11: { glutes: 0.8, core: 0.3 },                             // hip stability
+  12: { glutes: 0.8, hamstrings: 0.5, core: 0.3 },            // hip swing
+  13: { lowerback: 1, glutes: 0.5, hamstrings: 0.4 },         // hyperextension
+  14: { shoulders: 1 },                                       // lateral raise
+  15: { hamstrings: 1, calves: 0.2 },                         // leg curl
+  16: { core: 1, obliques: 0.3, quads: 0.2 },                 // leg raise
+  17: { quads: 1, glutes: 0.6, hamstrings: 0.3 },             // lunge
+  18: { quads: 0.5, glutes: 0.5, traps: 0.5, shoulders: 0.4, lowerback: 0.4, hamstrings: 0.3 }, // olympic lift
+  19: { core: 1, shoulders: 0.3 },                            // plank
+  20: { quads: 0.6, calves: 0.5, glutes: 0.4 },               // plyo
+  21: { lats: 1, biceps: 0.5, forearms: 0.3 },                // pull up
+  22: { chest: 0.8, triceps: 0.6, shoulders: 0.3, core: 0.2 },// push up
+  23: { lats: 0.8, traps: 0.4, biceps: 0.4, lowerback: 0.3 }, // row
+  24: { shoulders: 1, triceps: 0.5, traps: 0.2 },             // shoulder press
+  25: { shoulders: 0.8, traps: 0.3 },                         // shoulder stability
+  26: { traps: 1, forearms: 0.3 },                            // shrug
+  27: { core: 1, obliques: 0.4 },                             // sit up
+  28: { quads: 1, glutes: 0.6, hamstrings: 0.3, lowerback: 0.3, core: 0.2 }, // squat
+  29: { quads: 0.3, chest: 0.3, lats: 0.3, shoulders: 0.3, core: 0.3 },      // total body
+  30: { triceps: 1 },                                         // triceps extension
+  32: { quads: 0.3, calves: 0.4, hamstrings: 0.3, glutes: 0.3, core: 0.2 },  // run
+  33: { quads: 0.5, glutes: 0.3, calves: 0.2 }                 // bike
+};
+
+/* Exercise-name keywords -> FIT category (first match wins; specific before generic) */
+const NAME_TO_CAT = [
+  [/leg\s*curl|hamstring|nordic/i, 15],
+  [/tricep|push\s*down|pushdown|skull|close\s*grip/i, 30],
+  [/hip\s*thrust|glute|bridge|donkey\s*kick/i, 10],
+  [/back\s*extension|hyperextension|superman|good\s*morning/i, 13],
+  [/shoulder\s*press|overhead|ohp|military|arnold|push\s*press/i, 24],
+  [/lateral\s*raise|side\s*raise|front\s*raise|rear\s*delt|reverse\s*fly|face\s*pull/i, 14],
+  [/pull\s*up|pullup|chin\s*up|chinup|lat\s*pull|pulldown|pull\s*down|pullover/i, 21],
+  [/deadlift|rdl|romanian/i, 8],
+  [/squat|leg\s*press|leg\s*extension|hack/i, 28],
+  [/lunge|split\s*squat|step\s*up/i, 17],
+  [/calf|سمان/i, 1],
+  [/shrug|ترابيس/i, 26],
+  [/row|سحب/i, 23],
+  [/incline|decline|bench|chest\s*press|push\s*up|pushup|dip|بنش|صدر/i, 0],
+  [/fly|flye|pec\s*deck|crossover|تجميع/i, 9],
+  [/russian\s*twist|wood\s*chop|woodchop|oblique|side\s*bend/i, 4],
+  [/plank|بلانك/i, 19],
+  [/crunch|sit\s*up|situp|leg\s*raise|hanging\s*knee|ab\s*wheel|بطن/i, 6],
+  [/farmer|carry/i, 3],
+  [/clean|snatch|jerk|thruster/i, 18],
+  [/burpee|mountain\s*climber|jumping\s*jack/i, 29],
+  [/curl|باي|بايسبس/i, 7],
+  [/shoulder|كتف|lateral/i, 14],
+  [/warm\s*up|stretch/i, 31],
+  [/run|treadmill|جري/i, 32],
+  [/bike|cycl|دراج/i, 33]
+];
+
+function catToMuscles(cat) { return FIT_CAT_MUSCLES[cat] || null; }
+
+function nameToCat(line) {
+  for (const [re, cat] of NAME_TO_CAT) if (re.test(line)) return cat;
+  return null;
+}
+
+/* Accumulate {cat: {sets,reps,volume}} into per-muscle set counts */
+function applyCategoryCounts(catCounts, replace = true) {
+  const next = replace ? {} : Object.assign({}, S.muscleSets);
+  let unassigned = 0, mapped = 0;
+  for (const cat in catCounts) {
+    const c = catCounts[cat];
+    const w = catToMuscles(+cat);
+    if (!w) { unassigned += c.sets; continue; }
+    mapped += c.sets;
+    for (const m in w) next[m] = (next[m] || 0) + w[m] * c.sets;
+  }
+  for (const m in next) next[m] = Math.round(next[m] * 10) / 10;
+  S.muscleSets = next;
+  S.muscleUnassigned = unassigned;
+  return { mapped, unassigned };
+}
+
+function muscleTotal() {
+  // sum of the rounded per-muscle counts so header, list and editor always agree
+  return Object.values(S.muscleSets || {}).reduce((a, b) => a + Math.round(+b || 0), 0);
+}
+
+/* Parse pasted workout text lines like "Bench Press 4 x 8 60kg" into category counts */
+function extractMusclesFromText(raw) {
+  const lines = String(raw).split(/\r?\n|;|\|/);
+  const counts = {};
+  let hit = 0;
+  for (const line of lines) {
+    if (!line || line.length > 120) continue;
+    const cat = nameToCat(line);
+    if (cat === null) continue;
+    let sets = 0;
+    const xm = line.match(/(\d{1,2})\s*[x×*]\s*\d{1,3}/i);
+    const sm = line.match(/(\d{1,2})\s*(?:sets?|مجموعات|مجموعة)/i);
+    if (xm) sets = +xm[1];
+    else if (sm) sets = +sm[1];
+    else {
+      const lead = line.match(/^\s*(\d{1,2})\s*[x×]/i);
+      if (lead) sets = +lead[1];
+    }
+    if (!sets || sets > 30) continue;
+    const rm = line.match(/[x×*]\s*(\d{1,3})/i);
+    const wm = line.match(/(\d+(?:[.,]\d+)?)\s*(?:kg|كغ)/i);
+    const reps = rm ? +rm[1] : 0;
+    const vol = wm ? parseFloat(wm[1].replace(',', '')) * reps : 0;
+    if (!counts[cat]) counts[cat] = { sets: 0, reps: 0, volume: 0 };
+    counts[cat].sets += sets;
+    counts[cat].reps += reps * sets;
+    counts[cat].volume += vol * sets;
+    hit += sets;
+  }
+  if (!hit) return false;
+  applyCategoryCounts(counts, true);
+  S.muscleSource = 'text';
+  if (S.sport === 'gym') { S.dist = String(muscleTotal()); }
+  return true;
+}
+
+/* ---- WHOOP-style strain + HR zone math ---- */
+function statNum(id) {
+  const it = (S.stats || []).find(x => x.id === id && x.on);
+  if (!it) return 0;
+  const n = parseFloat(String(it.val).replace(/[^\d.:-]/g, ''));
+  return isNaN(n) ? 0 : n;
+}
+function timeStatSec() {
+  const it = (S.stats || []).find(x => x.id === 'time' && x.on);
+  if (!it) return 0;
+  const parts = String(it.val).trim().split(':').map(Number);
+  if (parts.some(isNaN)) return 0;
+  if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+  if (parts.length === 2) return parts[0] * 60 + parts[1];
+  return parts[0] || 0;
+}
+function whoopMaxHr() { return Math.max(120, Math.min(230, +S.whoopMaxHr || 190)); }
+function computeStrain() {
+  const ov = parseFloat(S.whoopStrainOverride);
+  if (!isNaN(ov) && S.whoopStrainOverride !== '') return Math.max(0, Math.min(21, ov));
+  const durMin = timeStatSec() / 60;
+  const avg = statNum('hr') || 110;
+  const max = whoopMaxHr();
+  const ratio = Math.max(0.15, Math.min(1, (avg - 50) / (max - 50)));
+  const load = durMin * (0.35 + ratio * 1.1);
+  return Math.max(0, Math.min(21, 21 * (1 - Math.exp(-load / 95))));
+}
+/* Returns minutes spent in each of the 5 WHOOP HR zones */
+function computeZoneMinutes() {
+  const max = whoopMaxHr();
+  const durMin = timeStatSec() / 60 || 45;
+  const bounds = [0.5, 0.6, 0.7, 0.8, 0.9, 1.01].map(f => f * max);
+  const series = (S.hrSeries && S.hrSeries.length >= 4) ? S.hrSeries : null;
+  const counts = [0, 0, 0, 0, 0];
+  if (series) {
+    series.forEach(h => {
+      let z = 0;
+      for (let i = 0; i < 5; i++) if (h >= bounds[i]) z = i;
+      counts[z]++;
+    });
+    const tot = counts.reduce((a, b) => a + b, 0) || 1;
+    return counts.map(c => durMin * c / tot);
+  }
+  const avg = statNum('hr') || 110;
+  let az = 0;
+  for (let i = 0; i < 5; i++) if (avg >= bounds[i]) az = i;
+  const out = [0, 0, 0, 0, 0];
+  out[az] = durMin * 0.66;
+  if (az > 0) out[az - 1] = durMin * 0.2;
+  if (az < 4) out[az + 1] = durMin * 0.14;
+  const used = out.reduce((a, b) => a + b, 0);
+  out[az] += durMin - used;
+  return out;
 }
 
 /* Geometry drawing helpers */
@@ -1491,6 +1822,12 @@ function drawAtmosphericBackground(c, width, height, theme = 0) {
     } else if (theme === 18) {
       c.fillStyle = hexA(S.cardBg || '#faf6ed', 0.86);
       c.fillRect(0, 0, width, height);
+    } else if (theme === 19) {
+      c.fillStyle = 'rgba(7, 10, 15, 0.9)';
+      c.fillRect(0, 0, width, height);
+    } else if (theme === 20) {
+      c.fillStyle = 'rgba(3, 4, 6, 0.92)';
+      c.fillRect(0, 0, width, height);
     } else if (theme === 8 || theme === 10 || theme === 12 || theme === 13 || theme === 14 || theme === 16) {
       c.fillStyle = 'rgba(255,255,255,0.42)';
       c.fillRect(0, 0, width, height);
@@ -1514,9 +1851,11 @@ function drawAtmosphericBackground(c, width, height, theme = 0) {
   else if (theme === 16) drawSimpleTintBackground(c, width, height);
   else if (theme === 17) drawNothingBackground(c, width, height);
   else if (theme === 18) drawClassyBackground(c, width, height);
+  else if (theme === 19) drawMuscleMapBackground(c, width, height);
+  else if (theme === 20) drawWhoopBackground(c, width, height);
   else drawDefaultBackground(c, width, height);
 
-  if (S.dark > 0 && theme !== 8 && theme !== 10 && theme !== 12 && theme !== 13 && theme !== 14 && theme !== 16 && theme !== 17 && theme !== 18) {
+  if (S.dark > 0 && theme !== 8 && theme !== 10 && theme !== 12 && theme !== 13 && theme !== 14 && theme !== 16 && theme !== 17 && theme !== 18 && theme !== 19 && theme !== 20) {
     c.fillStyle = `rgba(6, 10, 15, ${S.dark / 100})`;
     c.fillRect(0, 0, width, height);
   }
@@ -1524,7 +1863,9 @@ function drawAtmosphericBackground(c, width, height, theme = 0) {
 
 const blurCache = new Map();
 function prepareBlurredBackdrop(theme = 0) {
-  const key = `${theme}|${S.dark}|${S.bgVer}|${S.accent}`;
+  let key = `${theme}|${S.dark}|${S.bgVer}|${S.accent}`;
+  if (theme === 19) key += `|${S.muscleLow}|${S.muscleHigh}|${S.muscleBody}`;
+  if (theme === 20) key += `|${S.whoopStrain}`;
   let src = blurCache.get(key);
   if (!src) {
     if (blurCache.size > 18) blurCache.clear();
@@ -2453,6 +2794,523 @@ function drawClassyTheme(c, top, contentBot, weekY, weekH, M) {
 
   if (S.showWeek) {
     drawClassyWeek(c, padX, weekY, fullW, weekH, { ink, sub, accent, diaFill: accentInk });
+  }
+}
+
+/* =========================================================================
+   Muscle Map theme: anatomical heat-map (front + back) + ranked set list
+   ========================================================================= */
+function hexToHsl(hex) {
+  let h = String(hex || '#ffffff').replace('#', '');
+  if (h.length === 3) h = h.split('').map(x => x + x).join('');
+  const n = parseInt(h, 16);
+  const r = ((n >> 16) & 255) / 255, g = ((n >> 8) & 255) / 255, b = (n & 255) / 255;
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b);
+  let hh = 0, s = 0; const l = (mx + mn) / 2;
+  if (mx !== mn) {
+    const d = mx - mn;
+    s = l > 0.5 ? d / (2 - mx - mn) : d / (mx + mn);
+    if (mx === r) hh = ((g - b) / d + (g < b ? 6 : 0));
+    else if (mx === g) hh = (b - r) / d + 2;
+    else hh = (r - g) / d + 4;
+    hh *= 60;
+  }
+  return { h: hh, s: s * 100, l: l * 100 };
+}
+function heatColor(t) {
+  const a = hexToHsl(S.muscleLow), b = hexToHsl(S.muscleHigh);
+  let dh = b.h - a.h;
+  if (dh > 180) dh -= 360;
+  if (dh < -180) dh += 360;
+  const h = (a.h + dh * t + 360) % 360;
+  const s = a.s + (b.s - a.s) * t;
+  const l = a.l + (b.l - a.l) * t;
+  return `hsl(${h.toFixed(1)}, ${s.toFixed(1)}%, ${l.toFixed(1)}%)`;
+}
+
+/* Stylized anatomy in a 200 x 430 box, centered at x = 100. Left paths are mirrored. */
+/* Anatomy artwork: 200x416 design space, mirror axis x=100, content x30..170.
+   Left-side bellies are authored once and mirrored; center shapes span the axis. */
+const ANATOMY = {
+  silCenter: [
+    'M100 6 C110 6 117 15 117 27 C117 38 110 48 100 50 C90 48 83 38 83 27 C83 15 90 6 100 6 Z',
+    'M92 46 L108 46 L108 64 L92 64 Z',
+    'M70 66 C80 62 90 60 100 60 C110 60 120 62 130 66 C133 80 132 94 128 106 C124 120 120 134 118 148 C117 164 120 178 118 192 C114 200 106 202 100 202 C94 202 86 200 82 192 C80 178 83 164 82 148 C80 134 76 120 72 106 C68 94 67 80 70 66 Z'
+  ],
+  silLeft: [
+    'M72 68 C60 72 52 82 51 94 C50 106 54 116 58 122 C55 132 51 142 48 152 C44 166 41 180 39 194 C37 204 36 212 37 218 C39 224 45 226 49 222 C52 218 53 210 55 202 C58 188 62 174 65 160 C69 148 71 136 72 126 C76 116 78 104 78 92 C78 80 76 72 72 68 Z',
+    'M92 188 C99 200 101 220 100 242 C99 262 96 278 94 290 C93 298 93 306 94 314 C97 332 96 350 92 366 C89 380 87 390 86 398 C85 406 78 412 71 412 C66 412 64 406 66 400 C68 394 72 390 74 384 C75 372 73 354 73 338 C73 320 76 306 76 296 C72 282 70 262 71 240 C72 218 79 200 85 188 Z'
+  ],
+  front: {
+    center: { core: [
+      'M93 115 C95 113 98 113 99 115 L99 128 C97 129 94 129 93 128 C92 124 92 119 93 115 Z',
+      'M107 115 C105 113 102 113 101 115 L101 128 C103 129 106 129 107 128 C108 124 108 119 107 115 Z',
+      'M93 131 C95 130 98 130 99 131 L99 144 C97 145 94 145 93 144 C92 140 92 135 93 131 Z',
+      'M107 131 C105 130 102 130 101 131 L101 144 C103 145 106 145 107 144 C108 140 108 135 107 131 Z',
+      'M94 147 C96 146 98 146 99 147 L99 159 C97 160 95 160 94 159 C93 155 93 151 94 147 Z',
+      'M106 147 C104 146 102 146 101 147 L101 159 C103 160 105 160 106 159 C107 155 107 151 106 147 Z',
+      'M95 162 C97 161 103 161 105 162 C104 170 102 176 100 179 C98 176 96 170 95 162 Z'
+    ] },
+    left: {
+      traps: ['M96 50 C92 58 84 64 72 68 C76 74 80 76 84 76 C90 70 95 62 98 56 Z'],
+      shoulders: ['M74 66 C62 70 53 80 52 92 C51 102 55 111 62 115 C67 108 70 98 72 88 C74 80 75 72 74 66 Z'],
+      chest: ['M99 71 C92 68 84 69 78 74 C73 78 70 83 71 88 C73 96 81 102 90 103 C95 103 98 101 99 98 C99 89 99 80 99 71 Z'],
+      biceps: ['M65 111 C70 116 71 128 68 138 C66 145 61 149 57 147 C53 145 51 140 51 133 C51 124 54 116 58 111 C61 109 63 109 65 111 Z'],
+      forearms: ['M61 147 C64 154 63 166 59 178 C56 188 51 196 47 200 C44 202 41 199 41 193 C42 181 46 166 51 155 C54 149 58 145 61 147 Z'],
+      obliques: ['M84 114 C80 124 78 138 79 152 C80 162 83 170 86 175 C88 168 88 158 87 148 C86 136 85 126 84 114 Z'],
+      quads: [
+        'M89 195 C82 203 76 220 76 240 C76 260 81 278 87 290 C90 296 95 296 97 290 C99 279 99 262 99 244 C98 224 94 205 92 195 Z',
+        'M95 256 C98 266 99 279 96 288 C93 293 89 292 88 287 C88 277 91 266 95 256 Z'
+      ],
+      calves: ['M84 302 C88 315 89 336 87 354 C86 364 85 372 84 378 C81 376 78 368 77 358 C76 340 79 318 82 304 Z']
+    }
+  },
+  back: {
+    center: {
+      traps: ['M100 50 C106 58 116 66 128 70 C120 76 114 80 110 84 C106 96 103 108 100 120 C97 108 94 96 90 84 C86 80 80 76 72 70 C84 66 94 58 100 50 Z'],
+      lowerback: [
+        'M94 120 C96 134 96 150 95 166 C97 169 99 169 99 166 L99 122 C97 120 95 120 94 120 Z',
+        'M106 120 C104 134 104 150 105 166 C103 169 101 169 101 166 L101 122 C103 120 105 120 106 120 Z'
+      ]
+    },
+    left: {
+      shoulders: ['M74 66 C62 70 53 80 52 92 C51 102 55 111 62 115 C67 108 70 98 72 88 C74 80 75 72 74 66 Z'],
+      lats: ['M73 89 C74 103 78 118 84 132 C89 144 94 154 97 161 C98 151 98 141 97 131 C96 117 96 103 96 91 C88 87 80 87 73 89 Z'],
+      triceps: ['M65 111 C70 116 71 129 68 139 C66 146 61 150 57 148 C53 146 51 141 51 134 C51 125 54 116 58 111 C61 109 63 109 65 111 Z'],
+      forearms: ['M61 147 C64 154 63 166 59 178 C56 188 51 196 47 200 C44 202 41 199 41 193 C42 181 46 166 51 155 C54 149 58 145 61 147 Z'],
+      glutes: ['M99 168 C91 167 84 172 81 181 C79 191 83 201 90 206 C95 209 98 206 99 201 C99 190 99 179 99 168 Z'],
+      hamstrings: [
+        'M88 209 C82 219 76 238 77 258 C78 274 83 286 88 292 C92 295 96 294 97 288 C98 274 98 256 97 240 C96 225 93 214 91 209 Z',
+        'M93 214 C96 226 97 244 96 262 C95 274 94 282 93 288 C91 280 90 262 90 246 C90 232 91 222 93 214 Z'
+      ],
+      calves: [
+        'M86 303 C92 309 97 322 96 337 C95 350 90 360 85 366 C80 360 74 350 74 337 C74 322 80 309 84 303 Z',
+        'M85 366 C87 374 87 382 86 390 C84 394 82 394 81 390 C80 382 82 374 85 366 Z'
+      ]
+    }
+  }
+};
+const pathCache = new Map();
+function P(d) {
+  let p = pathCache.get(d);
+  if (!p) { p = new Path2D(d); pathCache.set(d, p); }
+  return p;
+}
+const unionCache = {};
+function silhouettePath(view) {
+  if (!unionCache[view]) {
+    const sil = new Path2D();
+    const mir = new DOMMatrix([-1, 0, 0, 1, 200, 0]);
+    ANATOMY.silCenter.forEach(d => sil.addPath(P(d)));
+    ANATOMY.silLeft.forEach(d => { sil.addPath(P(d)); sil.addPath(P(d), mir); });
+    unionCache[view] = sil;
+  }
+  return unionCache[view];
+}
+
+/* Label anchors (anatomy units) for on-body set badges */
+const MUSCLE_ANCHORS = {
+  front: { chest: [86, 90], shoulders: [62, 91], biceps: [60, 130], core: [100, 146], forearms: [49, 172], obliques: [85, 146], quads: [87, 242], traps: [86, 64], calves: [82, 340] },
+  back: { traps: [100, 84], lats: [85, 120], shoulders: [62, 91], triceps: [60, 130], forearms: [49, 172], lowerback: [100, 144], glutes: [91, 188], hamstrings: [87, 250], calves: [85, 334] }
+};
+/* Fiber direction per muscle (degrees) so striations follow the belly */
+const FIBER_ANGLE = { chest: 14, traps: 26, shoulders: 76, biceps: 84, triceps: 84, forearms: 74, core: 90, obliques: 66, lats: 30, lowerback: 90, glutes: 40, quads: 86, hamstrings: 88, calves: 90 };
+/* Anatomical separation lines: [path, mirrored] */
+const ANATOMY_LINES = {
+  front: [
+    ['M100 72 L100 110', false],
+    ['M76 75 C86 70 94 69 99 71', true],
+    ['M88 204 C86 224 86 252 88 276', true],
+    ['M80 296 C84 300 90 300 94 296', true],
+    ['M52 140 C55 143 59 143 62 141', true]
+  ],
+  back: [
+    ['M100 54 L100 168', false],
+    ['M100 170 L100 206', false],
+    ['M78 86 C84 92 90 96 95 98', true],
+    ['M88 216 C87 236 87 262 89 284', true],
+    ['M60 118 C62 126 62 136 60 144', true],
+    ['M80 296 C84 300 90 300 94 296', true],
+    ['M52 140 C55 143 59 143 62 141', true]
+  ]
+};
+
+function drawAnatomy(c, x, y, w, h, view, maxSets) {
+  const VW = 140, VH = 416, OX = 30;
+  const sc = Math.min(w / VW, h / VH);
+  const data = ANATOMY[view];
+  c.save();
+  c.translate(x + (w - VW * sc) / 2 - OX * sc, y + (h - VH * sc) / 2);
+  c.scale(sc, sc);
+  c.lineJoin = 'round';
+  c.lineCap = 'round';
+
+  const sil = silhouettePath(view);
+  const bg = c.createLinearGradient(0, 0, 0, 416);
+  bg.addColorStop(0, shade(S.muscleBody, 1.9));
+  bg.addColorStop(0.5, shade(S.muscleBody, 1.25));
+  bg.addColorStop(1, shade(S.muscleBody, 0.8));
+  c.save();
+  c.shadowColor = 'rgba(255,255,255,0.22)';
+  c.shadowBlur = 3 * sc;
+  c.fillStyle = bg;
+  c.fill(sil);
+  c.restore();
+  c.save();
+  c.clip(sil);
+  const lg = c.createLinearGradient(0, 0, 0, 416);
+  lg.addColorStop(0, 'rgba(255,255,255,0.07)');
+  lg.addColorStop(0.45, 'rgba(255,255,255,0)');
+  lg.addColorStop(1, 'rgba(0,0,0,0.30)');
+  c.fillStyle = lg;
+  c.fillRect(0, 0, 200, 416);
+  c.restore();
+
+  const paintMuscle = (d, mirror, key) => {
+    const sets = +(S.muscleSets[key] || 0);
+    const t = maxSets > 0 ? Math.max(0, Math.min(1, sets / maxSets)) : 0;
+    c.save();
+    if (mirror) { c.translate(200, 0); c.scale(-1, 1); }
+    const p = P(d);
+    if (t <= 0.02) {
+      c.fillStyle = 'rgba(255,255,255,0.07)';
+      c.fill(p);
+      c.strokeStyle = 'rgba(255,255,255,0.18)';
+      c.lineWidth = 0.8;
+      c.stroke(p);
+    } else {
+      const col = heatColor(Math.pow(t, 0.85));
+      const anchor = (MUSCLE_ANCHORS[view] || {})[key] || [100, 200];
+      const ax = anchor[0], ay = anchor[1];
+      c.shadowColor = col;
+      c.shadowBlur = 9 * t * sc;
+      c.fillStyle = col;
+      c.fill(p);
+      c.shadowBlur = 0;
+      c.save();
+      c.clip(p);
+      const rg = c.createRadialGradient(ax, ay - 5, 3, ax, ay, 44);
+      rg.addColorStop(0, 'rgba(255,255,255,0.20)');
+      rg.addColorStop(0.55, 'rgba(255,255,255,0.03)');
+      rg.addColorStop(1, 'rgba(0,0,0,0.22)');
+      c.fillStyle = rg;
+      c.fillRect(0, 0, 200, 416);
+      c.translate(ax, ay);
+      c.rotate((FIBER_ANGLE[key] || 90) * Math.PI / 180);
+      c.strokeStyle = 'rgba(0,0,0,0.09)';
+      c.lineWidth = 0.6;
+      c.beginPath();
+      for (let i = -12; i <= 12; i++) { c.moveTo(-60, i * 3.2); c.lineTo(60, i * 3.2); }
+      c.stroke();
+      c.restore();
+      c.strokeStyle = 'rgba(8,10,14,0.28)';
+      c.lineWidth = 0.8;
+      c.stroke(p);
+    }
+    c.restore();
+  };
+
+  for (const key in data.center) data.center[key].forEach(d => paintMuscle(d, false, key));
+  for (const key in data.left) data.left[key].forEach(d => { paintMuscle(d, false, key); paintMuscle(d, true, key); });
+
+  c.strokeStyle = 'rgba(8,10,14,0.38)';
+  c.lineWidth = 0.9;
+  (ANATOMY_LINES[view] || []).forEach(([d, mir]) => {
+    c.save();
+    if (mir) { c.translate(200, 0); c.scale(-1, 1); }
+    c.stroke(P(d));
+    c.restore();
+  });
+
+  // on-body badge for the hardest-hit muscle of this view
+  const anchors = MUSCLE_ANCHORS[view] || {};
+  let topKey = null, topVal = 0;
+  for (const key in anchors) {
+    const v = +(S.muscleSets[key] || 0);
+    if (v > topVal) { topVal = v; topKey = key; }
+  }
+  if (topKey && topVal > 0) {
+    const [ax, ay] = anchors[topKey];
+    const col = heatColor(Math.pow(Math.min(1, topVal / maxSets), 0.85));
+    c.save();
+    c.shadowColor = 'rgba(0,0,0,0.6)';
+    c.shadowBlur = 6 * sc;
+    c.beginPath();
+    c.arc(ax, ay, 11, 0, Math.PI * 2);
+    c.fillStyle = 'rgba(8,10,14,0.82)';
+    c.fill();
+    c.shadowBlur = 0;
+    c.strokeStyle = col;
+    c.lineWidth = 1.5;
+    c.stroke();
+    c.fillStyle = '#ffffff';
+    c.font = `800 12px ${S.numFont}`;
+    c.textAlign = 'center';
+    c.textBaseline = 'middle';
+    c.fillText(String(Math.round(topVal)), ax, ay + 0.5);
+    c.restore();
+  }
+  c.restore();
+}
+
+function drawMuscleMapBackground(c, width, height) {
+  const base = c.createLinearGradient(0, 0, width * 0.4, height);
+  base.addColorStop(0, '#0d1219');
+  base.addColorStop(0.55, '#0a0e14');
+  base.addColorStop(1, '#070a0f');
+  c.fillStyle = base;
+  c.fillRect(0, 0, width, height);
+
+  const glow = c.createRadialGradient(width * 0.5, height * 0.4, 10, width * 0.5, height * 0.42, width * 0.85);
+  glow.addColorStop(0, hexA(S.muscleLow, 0.14));
+  glow.addColorStop(1, 'transparent');
+  c.fillStyle = glow;
+  c.fillRect(0, 0, width, height);
+
+  const step = 54;
+  c.strokeStyle = 'rgba(140,180,210,0.05)';
+  c.lineWidth = 1;
+  c.beginPath();
+  for (let x = 0; x <= width; x += step) { c.moveTo(x, 0); c.lineTo(x, height); }
+  for (let y = 0; y <= height; y += step) { c.moveTo(0, y); c.lineTo(width, y); }
+  c.stroke();
+
+  const vig = c.createRadialGradient(width * 0.5, height * 0.45, width * 0.3, width * 0.5, height * 0.5, width * 0.95);
+  vig.addColorStop(0, 'transparent');
+  vig.addColorStop(1, 'rgba(0,0,0,0.5)');
+  c.fillStyle = vig;
+  c.fillRect(0, 0, width, height);
+}
+
+function drawMuscleMapTheme(c, TOP, contentBot, weekY, weekH, M) {
+  const padX = 70, fullW = W - padX * 2;
+  const ink = '#f2f5f7';
+  const sub = hexA(ink, 0.55);
+  const faint = hexA(ink, 0.34);
+  const hot = S.muscleHigh;
+
+  txt(c, (S.tag || 'MUSCLE ACTIVATION').toUpperCase(), padX, TOP + 24, 20, 700, sub, 'left', S.numFont, fullW - 220);
+  if (M.dateStr) txt(c, M.dateStr, W - padX - 84, TOP + 24, 18, 500, faint, 'right', S.numFont, 240);
+  drawSportBadge(c, W - padX - 32, TOP + 70, 30, { fill: 'rgba(255,255,255,0.05)', stroke: hexA(hot, 0.6), ink: '#ffffff', iconScale: 0.5 });
+  txt(c, M.title, padX, TOP + 96, 64, 800, ink, 'left', S.titleFont, fullW - 90);
+  txt(c, S.muscleTag, padX, TOP + 134, 24, 500, sub, 'left', S.titleFont, fullW);
+
+  const entries = MUSCLES.map(m => ({ ...m, v: +(S.muscleSets[m.k] || 0) })).filter(e => e.v > 0).sort((a, b) => b.v - a.v);
+  const total = muscleTotal();
+  const maxSets = Math.max(1, ...entries.map(e => e.v));
+  const summary = `${total} SETS  ·  ${entries.length} MUSCLE${entries.length === 1 ? '' : 'S'}${entries[0] ? '  ·  TOP: ' + entries[0].n.toUpperCase() : ''}`;
+  txt(c, summary, padX, TOP + 172, 19, 700, hexA(hot, 0.95), 'left', S.numFont, fullW);
+
+  const figY = TOP + 196;
+  const avail = contentBot - figY;
+  const listH = Math.max(150, Math.min(190, avail * 0.18));
+  const statsH = 80, legendH = 30;
+  const figH = Math.max(340, Math.min(820, avail - listH - statsH - legendH - 44));
+  const slotW = (fullW - 30) / 2;
+  const figDrawH = figH - 46;
+
+  // figure panels with corner brackets
+  [[padX, 'FRONT', 'front'], [padX + slotW + 30, 'BACK', 'back']].forEach(([fx, label, view]) => {
+    c.strokeStyle = hexA(ink, 0.16);
+    c.lineWidth = 1.6;
+    const b = 22;
+    [[fx, figY, 1, 1], [fx + slotW, figY, -1, 1], [fx, figY + figH, 1, -1], [fx + slotW, figY + figH, -1, -1]].forEach(([px, py, sx, sy]) => {
+      c.beginPath();
+      c.moveTo(px + sx * b, py); c.lineTo(px, py); c.lineTo(px, py + sy * b);
+      c.stroke();
+    });
+    drawAnatomy(c, fx + 10, figY + 8, slotW - 20, figDrawH, view, maxSets);
+    txt(c, label, fx + slotW / 2, figY + figH - 8, 18, 700, sub, 'center', S.numFont, slotW);
+  });
+  c.strokeStyle = hexA(ink, 0.1);
+  c.setLineDash([4, 8]);
+  c.lineWidth = 1;
+  c.beginPath();
+  c.moveTo(W / 2, figY + 10); c.lineTo(W / 2, figY + figH - 30);
+  c.stroke();
+  c.setLineDash([]);
+
+  // legend gradient
+  const ly = figY + figH + 20;
+  const barW = 320, barX = W / 2 - barW / 2;
+  const grad = c.createLinearGradient(barX, 0, barX + barW, 0);
+  for (let i = 0; i <= 10; i++) grad.addColorStop(i / 10, heatColor(i / 10));
+  txt(c, 'LOW', barX - 16, ly + 14, 15, 700, faint, 'right', S.numFont, 80);
+  rr(c, barX, ly, barW, 12, 6);
+  c.fillStyle = grad; c.fill();
+  txt(c, 'HIGH', barX + barW + 16, ly + 14, 15, 700, faint, 'left', S.numFont, 90);
+  txt(c, `${Math.round(maxSets)} SETS`, barX + barW + 16, ly + 32, 12, 600, faint, 'left', S.numFont, 120);
+
+  // ranked muscle list (top 8, two columns)
+  const listY = ly + legendH + 22;
+  const top = entries.slice(0, 8);
+  const cols = 2, rows = Math.max(1, Math.ceil(top.length / cols));
+  const cw = fullW / cols, rh = Math.min(58, listH / rows);
+  top.forEach((e, idx) => {
+    const col = idx % cols, row = Math.floor(idx / cols);
+    const cx = padX + col * cw, y0 = listY + row * rh;
+    const t = Math.pow(e.v / maxSets, 0.85);
+    const colr = heatColor(t);
+    const cellW = cw - 34;
+    c.save();
+    c.shadowColor = colr; c.shadowBlur = 8;
+    c.beginPath(); c.arc(cx + 7, y0 + 18, 6, 0, Math.PI * 2);
+    c.fillStyle = colr; c.fill();
+    c.restore();
+    txt(c, e.n, cx + 24, y0 + 24, 20, 600, ink, 'left', S.titleFont, cellW - 70);
+    txt(c, String(Math.round(e.v)), cx + cellW, y0 + 24, 22, 800, colr, 'right', S.numFont, 60);
+    rr(c, cx + 24, y0 + 34, cellW - 24, 6, 3);
+    c.fillStyle = hexA(ink, 0.08); c.fill();
+    rr(c, cx + 24, y0 + 34, Math.max(6, (cellW - 24) * (e.v / maxSets)), 6, 3);
+    c.fillStyle = colr; c.fill();
+  });
+  if (!top.length) {
+    txt(c, 'Import a strength file or add sets in the Muscle Map panel below.', W / 2, listY + 40, 20, 500, faint, 'center', S.titleFont, fullW);
+  }
+
+  // compact stat row
+  const sy = listY + listH + 14;
+  const stats = M.activeStats.slice(0, 3);
+  const scw = fullW / Math.max(1, stats.length);
+  stats.forEach((it, idx) => {
+    const cx = padX + idx * scw;
+    if (idx > 0) { c.fillStyle = hexA(ink, 0.12); c.fillRect(cx - 12, sy + 6, 1.2, statsH - 24); }
+    txt(c, it.label.toUpperCase(), cx, sy + 24, 16, 600, sub, 'left', S.numFont, scw - 30);
+    txt(c, `${it.val} ${it.unit}`.trim(), cx, sy + 68, 40, 800, ink, 'left', S.numFont, scw - 30);
+  });
+
+  if (S.showWeek) {
+    drawWeekCard(c, padX, weekY, fullW, weekH, { fill: 'flat', ink, sub, accent: hot, rule: true });
+  }
+}
+
+/* =========================================================================
+   WHOOP-style Strain theme: strain ring + HR zones + clean stat columns
+   ========================================================================= */
+function drawWhoopBackground(c, width, height) {
+  c.fillStyle = '#050608';
+  c.fillRect(0, 0, width, height);
+  const g = c.createRadialGradient(width * 0.5, height * 0.3, 10, width * 0.5, height * 0.32, width * 0.9);
+  g.addColorStop(0, hexA(S.whoopStrain, 0.12));
+  g.addColorStop(1, 'transparent');
+  c.fillStyle = g;
+  c.fillRect(0, 0, width, height);
+  const vig = c.createRadialGradient(width * 0.5, height * 0.45, width * 0.3, width * 0.5, height * 0.5, width);
+  vig.addColorStop(0, 'transparent');
+  vig.addColorStop(1, 'rgba(0,0,0,0.6)');
+  c.fillStyle = vig;
+  c.fillRect(0, 0, width, height);
+}
+
+function drawWhoopTheme(c, TOP, contentBot, weekY, weekH, M) {
+  const padX = 80, fullW = W - padX * 2;
+  const ink = '#ffffff';
+  const sub = 'rgba(255,255,255,0.55)';
+  const faint = 'rgba(255,255,255,0.32)';
+  const strainCol = S.whoopStrain;
+  const availH = contentBot - TOP;
+
+  txt(c, (S.tag || 'TRAINING SESSION').toUpperCase(), padX, TOP + 24, 20, 700, sub, 'left', S.numFont, fullW - 220);
+  if (M.dateStr) txt(c, M.dateStr, W - padX - 84, TOP + 24, 18, 500, faint, 'right', S.numFont, 240);
+  drawSportBadge(c, W - padX - 32, TOP + 70, 30, { fill: 'rgba(255,255,255,0.05)', stroke: hexA(strainCol, 0.7), ink: '#ffffff', iconScale: 0.5 });
+  txt(c, M.title, padX, TOP + 94, 58, 800, ink, 'left', S.titleFont, fullW - 90);
+  txt(c, S.muscleTag, padX, TOP + 132, 23, 500, sub, 'left', S.titleFont, fullW);
+
+  // strain gauge
+  const strain = computeStrain();
+  const cx = W / 2, cy = TOP + availH * 0.36;
+  const R = Math.min(280, availH * 0.24);
+  const a0 = Math.PI * 0.75, sweep = Math.PI * 1.5;
+  const lw = Math.max(20, R * 0.11);
+
+  c.lineCap = 'round';
+  c.beginPath();
+  c.arc(cx, cy, R, a0, a0 + sweep);
+  c.strokeStyle = 'rgba(255,255,255,0.09)';
+  c.lineWidth = lw;
+  c.stroke();
+
+  // ticks
+  c.lineCap = 'butt';
+  for (let i = 0; i <= 21; i++) {
+    const a = a0 + sweep * (i / 21);
+    const major = i % 7 === 0;
+    const r1 = R + lw * 0.75, r2 = R + lw * (major ? 1.35 : 1.05);
+    c.beginPath();
+    c.moveTo(cx + Math.cos(a) * r1, cy + Math.sin(a) * r1);
+    c.lineTo(cx + Math.cos(a) * r2, cy + Math.sin(a) * r2);
+    c.strokeStyle = major ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.16)';
+    c.lineWidth = major ? 2.4 : 1.4;
+    c.stroke();
+  }
+
+  // value arc
+  const frac = Math.max(0.005, strain / 21);
+  const grad = c.createLinearGradient(cx - R, cy, cx + R, cy);
+  grad.addColorStop(0, hexShade(strainCol, 0.7));
+  grad.addColorStop(1, hexShade(strainCol, 1.35));
+  c.save();
+  c.shadowColor = strainCol;
+  c.shadowBlur = 26;
+  c.beginPath();
+  c.arc(cx, cy, R, a0, a0 + sweep * frac);
+  c.strokeStyle = grad;
+  c.lineWidth = lw;
+  c.lineCap = 'round';
+  c.stroke();
+  c.restore();
+
+  txt(c, strain.toFixed(1), cx, cy + R * 0.12, R * 0.62, 800, ink, 'center', S.numFont, R * 1.6);
+  txt(c, 'DAY STRAIN', cx, cy + R * 0.42, 24, 700, sub, 'center', S.numFont, R * 1.6);
+  txt(c, '0 – 21 SCALE', cx, cy + R * 0.58, 15, 600, faint, 'center', S.numFont, R * 1.6);
+  txt(c, '0', cx + Math.cos(a0) * (R + lw * 2), cy + Math.sin(a0) * (R + lw * 2) + 6, 18, 700, faint, 'center', S.numFont, 40);
+  txt(c, '21', cx + Math.cos(a0 + sweep) * (R + lw * 2), cy + Math.sin(a0 + sweep) * (R + lw * 2) + 6, 18, 700, faint, 'center', S.numFont, 40);
+
+  // HR zones
+  const zy = TOP + availH * 0.66;
+  txt(c, 'TIME IN HR ZONES', padX, zy, 20, 700, sub, 'left', S.numFont, fullW);
+  const mins = computeZoneMinutes();
+  const maxMin = Math.max(1, ...mins);
+  const max = whoopMaxHr();
+  const bounds = [50, 60, 70, 80, 90, 100];
+  const barAreaH = availH * 0.13;
+  const bw = 120, gap = (fullW - bw * 5) / 4;
+  const baseY = zy + 46 + barAreaH;
+  mins.forEach((mn, i) => {
+    const bx = padX + i * (bw + gap);
+    const h = Math.max(6, barAreaH * (mn / maxMin));
+    const zc = S.whoopZones[i];
+    txt(c, String(Math.round(mn)), bx + bw / 2, baseY - h - 12, 24, 800, zc, 'center', S.numFont, bw);
+    c.save();
+    c.shadowColor = zc; c.shadowBlur = 14;
+    rr(c, bx, baseY - h, bw, h, 8);
+    c.fillStyle = zc; c.fill();
+    c.restore();
+    txt(c, 'Z' + (i + 1), bx + bw / 2, baseY + 28, 19, 700, ink, 'center', S.numFont, bw);
+    txt(c, `${Math.round(bounds[i] / 100 * max)}–${Math.round(bounds[i + 1] / 100 * max)}`, bx + bw / 2, baseY + 50, 13, 500, faint, 'center', S.numFont, bw);
+  });
+  txt(c, 'MIN', W - padX, zy, 15, 600, faint, 'right', S.numFont, 80);
+
+  // stat columns
+  const sy = TOP + availH * 0.88;
+  const cal = statNum('cal');
+  const maxHr = S.maxHrVal || statNum('maxhr') || Math.round(max * 0.92);
+  const cols = [
+    ['AVG HR', statNum('hr') || '—'],
+    ['MAX HR', maxHr || '—'],
+    ['CALORIES', cal || '—'],
+    ['TIME', (M.activeStats.find(x => x.id === 'time') || {}).val || '—']
+  ];
+  const scw = fullW / 4;
+  cols.forEach(([lbl, val], idx) => {
+    const cx2 = padX + idx * scw;
+    if (idx > 0) { c.fillStyle = 'rgba(255,255,255,0.1)'; c.fillRect(cx2 - 14, sy + 4, 1.2, 74); }
+    txt(c, String(val), cx2, sy + 46, 42, 800, ink, 'left', S.numFont, scw - 28);
+    txt(c, lbl, cx2, sy + 76, 15, 600, sub, 'left', S.numFont, scw - 28);
+  });
+
+  if (S.showWeek) {
+    drawWeekCard(c, padX, weekY, fullW, weekH, { fill: 'flat', ink, sub, accent: strainCol, rule: true });
   }
 }
 
@@ -3433,6 +4291,20 @@ function drawCard(c, w, st, isExport = false) {
     drawClassyTheme(c, TOP, contentBot, weekY, WEEK_H, M);
   }
 
+  // =========================================================================
+  // Theme 19: Muscle Map
+  // =========================================================================
+  if (st === 19) {
+    drawMuscleMapTheme(c, TOP, contentBot, weekY, WEEK_H, M);
+  }
+
+  // =========================================================================
+  // Theme 20: WHOOP-style Strain
+  // =========================================================================
+  if (st === 20) {
+    drawWhoopTheme(c, TOP, contentBot, weekY, WEEK_H, M);
+  }
+
   if (!isExport && w === W) {
     drawStorySafeOverlay(c);
   }
@@ -3487,6 +4359,109 @@ function render() {
 function updateClassyRow() {
   const el = $('classyRow');
   if (el) el.hidden = S.style !== 18;
+  const mp = $('musclePanel');
+  if (mp) mp.hidden = S.style !== 19;
+  const wp = $('whoopPanel');
+  if (wp) wp.hidden = S.style !== 20;
+}
+
+/* Muscle Map editor: per-muscle steppers + live source badge */
+function renderMuscleEditor() {
+  const box = $('muscleEditor');
+  if (!box) return;
+  const maxSets = Math.max(1, ...MUSCLES.map(m => +(S.muscleSets[m.k] || 0)));
+  box.innerHTML = '';
+  MUSCLES.forEach(m => {
+    const v = Math.round(+(S.muscleSets[m.k] || 0));
+    const row = document.createElement('div');
+    row.className = 'muscle-row';
+
+    const dot = document.createElement('span');
+    dot.className = 'm-dot';
+    const t = v > 0 ? Math.pow(v / maxSets, 0.85) : 0;
+    dot.style.color = v > 0 ? heatColor(t) : 'rgba(255,255,255,0.2)';
+    dot.style.background = v > 0 ? heatColor(t) : 'rgba(255,255,255,0.15)';
+
+    const name = document.createElement('span');
+    name.className = 'm-name';
+    name.textContent = m.n;
+
+    const step = document.createElement('div');
+    step.className = 'm-step';
+    const minus = document.createElement('button');
+    minus.type = 'button'; minus.textContent = '−';
+    const num = document.createElement('b');
+    num.textContent = v;
+    const plus = document.createElement('button');
+    plus.type = 'button'; plus.textContent = '+';
+    const setV = nv => {
+      nv = Math.max(0, Math.min(99, nv));
+      if (nv === 0) delete S.muscleSets[m.k];
+      else S.muscleSets[m.k] = nv;
+      S.muscleSource = 'manual';
+      S.muscleUnassigned = 0;
+      if (S.sport === 'gym') {
+        S.dist = String(muscleTotal());
+        const dEl = document.querySelector('[data-k="dist"]');
+        if (dEl) dEl.value = S.dist;
+      }
+      renderMuscleEditor();
+      sched();
+    };
+    minus.onclick = () => setV(v - 1);
+    plus.onclick = () => setV(v + 1);
+    step.append(minus, num, plus);
+    row.append(dot, name, step);
+    box.appendChild(row);
+  });
+
+  const tag = $('muscleSourceTag');
+  if (tag) {
+    const src = S.muscleSource === 'fit' ? 'from .FIT file' : S.muscleSource === 'text' ? 'from pasted text' : S.muscleSource === 'manual' ? 'manual' : 'demo data';
+    tag.textContent = `${muscleTotal()} muscle sets · ${src}`;
+  }
+  const note = $('muscleUnassignedNote');
+  if (note) {
+    if (S.muscleUnassigned > 0) {
+      note.hidden = false;
+      note.textContent = `⚠️ ${S.muscleUnassigned} sets in the file had no muscle tag — assign them with the steppers above.`;
+    } else note.hidden = true;
+  }
+}
+
+$('muscleClearBtn').onclick = () => {
+  S.muscleSets = {};
+  S.muscleUnassigned = 0;
+  S.muscleSource = 'manual';
+  if (S.sport === 'gym') { S.dist = '0'; const d = document.querySelector('[data-k="dist"]'); if (d) d.value = '0'; }
+  renderMuscleEditor();
+  sched();
+};
+$('muscleDemoBtn').onclick = () => {
+  S.muscleSets = { chest: 4, lats: 3, shoulders: 3, biceps: 2, triceps: 2, core: 2, forearms: 1 };
+  S.muscleUnassigned = 0;
+  S.muscleSource = 'demo';
+  if (S.sport === 'gym') { S.dist = String(muscleTotal()); const d = document.querySelector('[data-k="dist"]'); if (d) d.value = S.dist; }
+  renderMuscleEditor();
+  sched();
+};
+
+/* WHOOP zone color pickers */
+function buildZoneGrid() {
+  const box = $('zoneGrid');
+  if (!box) return;
+  box.innerHTML = '';
+  S.whoopZones.forEach((zc, i) => {
+    const lbl = document.createElement('label');
+    lbl.textContent = 'Z' + (i + 1);
+    const inp = document.createElement('input');
+    inp.type = 'color';
+    inp.value = zc;
+    inp.setAttribute('aria-label', 'Zone ' + (i + 1) + ' color');
+    inp.addEventListener('input', () => { S.whoopZones[i] = inp.value; sched(); });
+    lbl.appendChild(inp);
+    box.appendChild(lbl);
+  });
 }
 
 document.addEventListener('input', e => {
@@ -3560,6 +4535,7 @@ function parseFitBuffer(buf) {
   let totalRepsCount = 0;
   let totalVolumeKg = 0;
   let activeLapsCount = 0;
+  const catCounts = {};
 
   while (pos < end) {
     const hdr = view.getUint8(pos++);
@@ -3602,6 +4578,7 @@ function parseFitBuffer(buf) {
       if (!def) break;
       let lat = null, lon = null;
       let setType = null, setReps = null, setWeight = 0;
+      let setCats = null;
       let lapIntensity = null;
 
       for (const f of def.fields) {
@@ -3639,6 +4616,13 @@ function parseFitBuffer(buf) {
           } else if (f.num === 4 && f.size === 2) {
             const w = view.getUint16(pos, def.le);
             if (w !== 0xFFFF) setWeight = w / 16;
+          } else if (f.num === 5 && f.size >= 2 && f.size % 2 === 0) {
+            // exercise_category array (uint16 per element)
+            setCats = [];
+            for (let ci = 0; ci < f.size / 2; ci++) {
+              const cv = view.getUint16(pos + ci * 2, def.le);
+              if (cv !== 0xFFFF) setCats.push(cv);
+            }
           }
         }
         else if (def.gMsg === 19) {
@@ -3701,6 +4685,13 @@ function parseFitBuffer(buf) {
           const repsVal = setReps || 0;
           totalRepsCount += repsVal;
           if (setWeight > 0 && repsVal > 0) totalVolumeKg += (setWeight * repsVal);
+          const cats = (setCats && setCats.length) ? setCats : [65534];
+          cats.forEach(cat => {
+            if (!catCounts[cat]) catCounts[cat] = { sets: 0, reps: 0, volume: 0 };
+            catCounts[cat].sets++;
+            catCounts[cat].reps += repsVal;
+            catCounts[cat].volume += setWeight * repsVal;
+          });
         }
       }
 
@@ -3762,6 +4753,7 @@ function parseFitBuffer(buf) {
     activeSets: finalSets,
     totalReps: totalRepsCount,
     totalVolumeKg: Math.round(totalVolumeKg),
+    catCounts,
     sessionCalories,
     pts,
     hrSeries: smoothedHr,
@@ -3803,11 +4795,24 @@ async function handleTrackFile(f) {
           S.maxHrVal = res.maxHr;
           S.minHrVal = res.minHr;
         }
+        let muscleNote = '';
         if (res.isStrength) {
           applySportMode('gym');
           S.dist = String(res.activeSets || 17);
           if (res.totalReps > 0) setStatValue('pace', res.totalReps);
           if (res.totalVolumeKg > 0) setStatValue('elev', res.totalVolumeKg);
+          const hasCats = res.catCounts && Object.keys(res.catCounts).some(k => +k !== 65534);
+          if (hasCats) {
+            const r = applyCategoryCounts(res.catCounts, true);
+            S.muscleSource = 'fit';
+            muscleNote = ` · ${r.mapped} sets mapped to muscles${r.unassigned ? ' (' + r.unassigned + ' unassigned)' : ''}`;
+          } else {
+            S.muscleSets = {};
+            S.muscleUnassigned = res.activeSets || 0;
+            S.muscleSource = 'fit';
+            muscleNote = ' · no muscle tags in file — assign sets in Muscle Map';
+          }
+          renderMuscleEditor();
         } else {
           if (res.fitSport === 2) applySportMode('bike');
           else applySportMode('run');
@@ -3834,7 +4839,7 @@ async function handleTrackFile(f) {
         if (res.startEpochMs) S.date = new Date(res.startEpochMs).toISOString().slice(0, 10);
 
         setTrackLabel('✓ Heart rate & data extracted');
-        msg.textContent = `Parsed ${f.name} · ${formatDuration(res.durationSec)}${res.distKm > 0 ? ' · ' + res.distKm.toFixed(2) + ' km' : ''}${res.avgHr > 0 ? ' · avg HR ' + res.avgHr : ''}`;
+        msg.textContent = `Parsed ${f.name} · ${formatDuration(res.durationSec)}${res.distKm > 0 ? ' · ' + res.distKm.toFixed(2) + ' km' : ''}${res.avgHr > 0 ? ' · avg HR ' + res.avgHr : ''}${muscleNote}`;
         syncInputsFromState();
         return;
       }
@@ -3990,6 +4995,10 @@ function parseCorosTextOrHtml(raw) {
     if (repsMatch) { setStatValue('pace', repsMatch[1]); found = true; }
     const volMatch = raw.match(/(\d+(?:[.,]\d+)?)\s*(?:kg)/i);
     if (volMatch) { setStatValue('elev', volMatch[1].replace(',', '')); found = true; }
+    if (extractMusclesFromText(raw)) {
+      found = true;
+      renderMuscleEditor();
+    }
   } else {
     const distMatch = raw.match(/(\d+(?:\.\d+)?)\s*(?:km|kilometers)/i);
     if (distMatch) { S.dist = distMatch[1]; found = true; }
@@ -4084,11 +5093,14 @@ function syncInputsFromState() {
     if (el && S[k] !== undefined) el.value = S[k];
   });
   renderStatsManager();
+  renderMuscleEditor();
   render();
 }
 
 buildBeltRow();
 updateBeltVisibility();
+buildZoneGrid();
+renderMuscleEditor();
 
 [
   '700 40px "Inter"',
