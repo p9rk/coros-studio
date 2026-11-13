@@ -161,6 +161,7 @@ input[type=color].swatch::-moz-color-swatch{border:none; border-radius:6px}
   border-radius:10px; background:var(--panel2); border:1px solid var(--line)}
 .mrow .mn{font-size:13px; font-weight:600}
 .mrow .mn i{display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:8px; background:var(--line2)}
+#muscleRows{display:grid; grid-template-columns:1fr 1fr; gap:8px}
 .stepper{display:flex; align-items:center; gap:2px}
 .stepper button{width:26px; height:26px; border-radius:7px; background:var(--panel); border:1px solid var(--line2);
   font-weight:800; color:var(--muted); transition:color .12s, border-color .12s}
@@ -217,6 +218,7 @@ input[type=color].swatch::-moz-color-swatch{border:none; border-radius:6px}
   .grid2,.grid3{grid-template-columns:1fr}
   .statrow{grid-template-columns:22px 1fr 70px 54px 28px}
   .brand small{display:none}
+  #muscleRows{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -375,7 +377,7 @@ input[type=color].swatch::-moz-color-swatch{border:none; border-radius:6px}
         <div class="divider"></div>
         <span class="sub">Muscle sets</span>
         <div class="tagline" id="muscleTagLine"></div>
-        <div id="muscleRows" style="display:grid; grid-template-columns:1fr 1fr; gap:8px"></div>
+        <div id="muscleRows"></div>
         <div class="divider"></div>
         <span class="sub">Strain engine</span>
         <div class="grid2">
@@ -404,4 +406,2826 @@ input[type=color].swatch::-moz-color-swatch{border:none; border-radius:6px}
   </div>
 </main>
 <div id="toast" role="status"></div>
-<script>
+<script>const I18N = {
+  en: {
+    sports: {
+      gym:  { mainLbl: 'Total Sets', defTitle: 'UPPER 1', badge: 'Strength Training', paceLbl: 'Total Reps', elevLbl: 'Total Volume' },
+      run:  { mainLbl: 'Total Distance', defTitle: 'Outdoor Run', badge: 'Running Session', paceLbl: 'Avg Pace', elevLbl: 'Elev Gain' },
+      bike: { mainLbl: 'Total Distance', defTitle: 'Road Cycling', badge: 'Cycling Session', paceLbl: 'Avg Speed', elevLbl: 'Elev Gain' },
+      rope: { mainLbl: 'Total Jumps', defTitle: 'Jump Rope', badge: 'Cardio Session', paceLbl: 'Avg Rate', elevLbl: 'Max Streak' },
+      karate: { mainLbl: 'Total Rounds', defTitle: 'Karate', badge: 'Martial Arts', paceLbl: 'Total Reps', elevLbl: 'Volume' }
+    },
+    stats: {
+      time:  { label: 'Workout Time' },
+      hr:    { label: 'Avg Heart Rate' },
+      cal:   { label: 'Active Calories' },
+      pace:  { label: 'Total Reps' },
+      elev:  { label: 'Volume' },
+      tl:    { label: 'Training Load' },
+      maxhr: { label: 'Max Heart Rate' },
+      cad:   { label: 'Avg Cadence' },
+      te:    { label: 'Aerobic TE' }
+    },
+    overviewHdr: 'Overview',
+    activityHdr: 'Recent Activity & Telemetry',
+    hrGraphTitle: 'Heart Rate Trend',
+    weekHdr: 'WEEKLY ACTIVITY',
+    days: ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
+  }
+};
+
+function sportGlyph() {
+  if (S.icon && S.icon !== 'auto') return S.icon;
+  if (S.sport === 'bike') return 'bike';
+  if (S.sport === 'run') return 'run';
+  if (S.sport === 'rope' || S.sport === 'karate') return S.sport;
+  return 'dumbbell';
+}
+
+const KARATE_BELTS = [
+  { c: '#f4f1ea', n: 'WHITE' },
+  { c: '#f2d13c', n: 'YELLOW' },
+  { c: '#f08a24', n: 'ORANGE' },
+  { c: '#3fae5a', n: 'GREEN' },
+  { c: '#2f6fd0', n: 'BLUE' },
+  { c: '#7b4bc4', n: 'PURPLE' },
+  { c: '#7a4a2b', n: 'BROWN' },
+  { c: '#161616', n: 'BLACK' },
+  { c: '#d7382f', n: 'RED' }
+];
+
+function setStatValue(id, val) {
+  if (val === undefined || val === null || val === '') return;
+  const dict = I18N.en;
+  const sp = dict.sports[S.sport] || dict.sports.gym;
+  let lbl = dict.stats[id] ? dict.stats[id].label : id.toUpperCase();
+  if (id === 'pace') lbl = sp.paceLbl;
+  if (id === 'elev') lbl = sp.elevLbl;
+
+  let item = S.stats.find(x => x.id === id);
+  if (item) {
+    item.label = lbl;
+    item.val = String(val);
+    item.on = true;
+  } else {
+    S.stats.push({ id, label: lbl, val: String(val), unit: '', on: true });
+  }
+}
+
+const MUSCLES = [
+  { k: 'chest',      n: 'Chest' },
+  { k: 'lats',       n: 'Lats' },
+  { k: 'shoulders',  n: 'Shoulders' },
+  { k: 'traps',      n: 'Traps' },
+  { k: 'lowerback',  n: 'Lower Back' },
+  { k: 'biceps',     n: 'Biceps' },
+  { k: 'triceps',    n: 'Triceps' },
+  { k: 'forearms',   n: 'Forearms' },
+  { k: 'core',       n: 'Abs / Core' },
+  { k: 'obliques',   n: 'Obliques' },
+  { k: 'glutes',     n: 'Glutes' },
+  { k: 'quads',      n: 'Quads' },
+  { k: 'hamstrings', n: 'Hamstrings' },
+  { k: 'calves',     n: 'Calves' }
+];
+
+/* FIT exercise_category enum -> weighted muscle involvement (primary + synergists) */
+const FIT_CAT_MUSCLES = {
+  0:  { chest: 1, triceps: 0.4, shoulders: 0.3 },            // bench press
+  1:  { calves: 1 },                                          // calf raise
+  3:  { forearms: 0.5, traps: 0.5, core: 0.5 },               // carry
+  4:  { obliques: 1, core: 0.5 },                             // chop
+  5:  { core: 1 },                                            // core
+  6:  { core: 1 },                                            // crunch
+  7:  { biceps: 1, forearms: 0.3 },                           // curl
+  8:  { hamstrings: 0.7, glutes: 0.7, lowerback: 0.6, traps: 0.4, forearms: 0.3 }, // deadlift
+  9:  { chest: 1, shoulders: 0.2 },                           // flye
+  10: { glutes: 1, hamstrings: 0.4 },                         // hip raise
+  11: { glutes: 0.8, core: 0.3 },                             // hip stability
+  12: { glutes: 0.8, hamstrings: 0.5, core: 0.3 },            // hip swing
+  13: { lowerback: 1, glutes: 0.5, hamstrings: 0.4 },         // hyperextension
+  14: { shoulders: 1 },                                       // lateral raise
+  15: { hamstrings: 1, calves: 0.2 },                         // leg curl
+  16: { core: 1, obliques: 0.3, quads: 0.2 },                 // leg raise
+  17: { quads: 1, glutes: 0.6, hamstrings: 0.3 },             // lunge
+  18: { quads: 0.5, glutes: 0.5, traps: 0.5, shoulders: 0.4, lowerback: 0.4, hamstrings: 0.3 }, // olympic lift
+  19: { core: 1, shoulders: 0.3 },                            // plank
+  20: { quads: 0.6, calves: 0.5, glutes: 0.4 },               // plyo
+  21: { lats: 1, biceps: 0.5, forearms: 0.3 },                // pull up
+  22: { chest: 0.8, triceps: 0.6, shoulders: 0.3, core: 0.2 },// push up
+  23: { lats: 0.8, traps: 0.4, biceps: 0.4, lowerback: 0.3 }, // row
+  24: { shoulders: 1, triceps: 0.5, traps: 0.2 },             // shoulder press
+  25: { shoulders: 0.8, traps: 0.3 },                         // shoulder stability
+  26: { traps: 1, forearms: 0.3 },                            // shrug
+  27: { core: 1, obliques: 0.4 },                             // sit up
+  28: { quads: 1, glutes: 0.6, hamstrings: 0.3, lowerback: 0.3, core: 0.2 }, // squat
+  29: { quads: 0.3, chest: 0.3, lats: 0.3, shoulders: 0.3, core: 0.3 },      // total body
+  30: { triceps: 1 },                                         // triceps extension
+  32: { quads: 0.3, calves: 0.4, hamstrings: 0.3, glutes: 0.3, core: 0.2 },  // run
+  33: { quads: 0.5, glutes: 0.3, calves: 0.2 }                 // bike
+};
+
+/* Exercise-name keywords -> FIT category (first match wins; specific before generic) */
+const NAME_TO_CAT = [
+  [/leg\s*curl|hamstring|nordic/i, 15],
+  [/tricep|push\s*down|pushdown|skull|close\s*grip/i, 30],
+  [/hip\s*thrust|glute|bridge|donkey\s*kick/i, 10],
+  [/back\s*extension|hyperextension|superman|good\s*morning/i, 13],
+  [/shoulder\s*press|overhead|ohp|military|arnold|push\s*press/i, 24],
+  [/lateral\s*raise|side\s*raise|front\s*raise|rear\s*delt|reverse\s*fly|face\s*pull/i, 14],
+  [/pull\s*up|pullup|chin\s*up|chinup|lat\s*pull|pulldown|pull\s*down|pullover/i, 21],
+  [/deadlift|rdl|romanian/i, 8],
+  [/squat|leg\s*press|leg\s*extension|hack/i, 28],
+  [/lunge|split\s*squat|step\s*up/i, 17],
+  [/calf|سمان/i, 1],
+  [/shrug|ترابيس/i, 26],
+  [/row|سحب/i, 23],
+  [/incline|decline|bench|chest\s*press|push\s*up|pushup|dip|بنش|صدر/i, 0],
+  [/fly|flye|pec\s*deck|crossover|تجميع/i, 9],
+  [/russian\s*twist|wood\s*chop|woodchop|oblique|side\s*bend/i, 4],
+  [/plank|بلانك/i, 19],
+  [/crunch|sit\s*up|situp|leg\s*raise|hanging\s*knee|ab\s*wheel|بطن/i, 6],
+  [/farmer|carry/i, 3],
+  [/clean|snatch|jerk|thruster/i, 18],
+  [/burpee|mountain\s*climber|jumping\s*jack/i, 29],
+  [/curl|باي|بايسبس/i, 7],
+  [/shoulder|كتف|lateral/i, 14],
+  [/warm\s*up|stretch/i, 31],
+  [/run|treadmill|جري/i, 32],
+  [/bike|cycl|دراج/i, 33]
+];
+
+function catToMuscles(cat) { return FIT_CAT_MUSCLES[cat] || null; }
+
+function nameToCat(line) {
+  for (const [re, cat] of NAME_TO_CAT) if (re.test(line)) return cat;
+  return null;
+}
+
+/* Accumulate {cat: {sets,reps,volume}} into per-muscle set counts */
+function applyCategoryCounts(catCounts, replace = true) {
+  const next = replace ? {} : Object.assign({}, S.muscleSets);
+  let unassigned = 0, mapped = 0;
+  for (const cat in catCounts) {
+    const c = catCounts[cat];
+    const w = catToMuscles(+cat);
+    if (!w) { unassigned += c.sets; continue; }
+    mapped += c.sets;
+    for (const m in w) next[m] = (next[m] || 0) + w[m] * c.sets;
+  }
+  for (const m in next) next[m] = Math.round(next[m] * 10) / 10;
+  S.muscleSets = next;
+  S.muscleUnassigned = unassigned;
+  return { mapped, unassigned };
+}
+
+function muscleTotal() {
+  // sum of the rounded per-muscle counts so header, list and editor always agree
+  return Object.values(S.muscleSets || {}).reduce((a, b) => a + Math.round(+b || 0), 0);
+}
+
+/* Parse pasted workout text lines like "Bench Press 4 x 8 60kg" into category counts */
+function extractMusclesFromText(raw) {
+  const lines = String(raw).split(/\r?\n|;|\|/);
+  const counts = {};
+  let hit = 0;
+  for (const line of lines) {
+    if (!line || line.length > 120) continue;
+    const cat = nameToCat(line);
+    if (cat === null) continue;
+    let sets = 0;
+    const xm = line.match(/(\d{1,2})\s*[x×*]\s*\d{1,3}/i);
+    const sm = line.match(/(\d{1,2})\s*(?:sets?|مجموعات|مجموعة)/i);
+    if (xm) sets = +xm[1];
+    else if (sm) sets = +sm[1];
+    else {
+      const lead = line.match(/^\s*(\d{1,2})\s*[x×]/i);
+      if (lead) sets = +lead[1];
+    }
+    if (!sets || sets > 30) continue;
+    const rm = line.match(/[x×*]\s*(\d{1,3})/i);
+    const wm = line.match(/(\d+(?:[.,]\d+)?)\s*(?:kg|كغ)/i);
+    const reps = rm ? +rm[1] : 0;
+    const vol = wm ? parseFloat(wm[1].replace(',', '')) * reps : 0;
+    if (!counts[cat]) counts[cat] = { sets: 0, reps: 0, volume: 0 };
+    counts[cat].sets += sets;
+    counts[cat].reps += reps * sets;
+    counts[cat].volume += vol * sets;
+    hit += sets;
+  }
+  if (!hit) return false;
+  applyCategoryCounts(counts, true);
+  S.muscleSource = 'text';
+  if (S.sport === 'gym') { S.dist = String(muscleTotal()); }
+  return true;
+}
+
+/* ---- WHOOP-style strain + HR zone math ---- */
+function statNum(id) {
+  const it = (S.stats || []).find(x => x.id === id && x.on);
+  if (!it) return 0;
+  const n = parseFloat(String(it.val).replace(/[^\d.:-]/g, ''));
+  return isNaN(n) ? 0 : n;
+}
+function timeStatSec() {
+  const it = (S.stats || []).find(x => x.id === 'time' && x.on);
+  if (!it) return 0;
+  const parts = String(it.val).trim().split(':').map(Number);
+  if (parts.some(isNaN)) return 0;
+  if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+  if (parts.length === 2) return parts[0] * 60 + parts[1];
+  return parts[0] || 0;
+}
+function whoopMaxHr() { return Math.max(120, Math.min(230, +S.whoopMaxHr || 190)); }
+function computeStrain() {
+  const ov = parseFloat(S.whoopStrainOverride);
+  if (!isNaN(ov) && S.whoopStrainOverride !== '') return Math.max(0, Math.min(21, ov));
+  const durMin = timeStatSec() / 60;
+  const avg = statNum('hr') || 110;
+  const max = whoopMaxHr();
+  const ratio = Math.max(0.15, Math.min(1, (avg - 50) / (max - 50)));
+  const load = durMin * (0.35 + ratio * 1.1);
+  return Math.max(0, Math.min(21, 21 * (1 - Math.exp(-load / 95))));
+}
+/* Returns minutes spent in each of the 5 WHOOP HR zones */
+function computeZoneMinutes() {
+  const max = whoopMaxHr();
+  const durMin = timeStatSec() / 60 || 45;
+  const bounds = [0.5, 0.6, 0.7, 0.8, 0.9, 1.01].map(f => f * max);
+  const series = (S.hrSeries && S.hrSeries.length >= 4) ? S.hrSeries : null;
+  const counts = [0, 0, 0, 0, 0];
+  if (series) {
+    series.forEach(h => {
+      let z = 0;
+      for (let i = 0; i < 5; i++) if (h >= bounds[i]) z = i;
+      counts[z]++;
+    });
+    const tot = counts.reduce((a, b) => a + b, 0) || 1;
+    return counts.map(c => durMin * c / tot);
+  }
+  const avg = statNum('hr') || 110;
+  let az = 0;
+  for (let i = 0; i < 5; i++) if (avg >= bounds[i]) az = i;
+  const out = [0, 0, 0, 0, 0];
+  out[az] = durMin * 0.66;
+  if (az > 0) out[az - 1] = durMin * 0.2;
+  if (az < 4) out[az + 1] = durMin * 0.14;
+  const used = out.reduce((a, b) => a + b, 0);
+  out[az] += durMin - used;
+  return out;
+}
+
+/* Geometry drawing helpers */
+
+function rr(c, x, y, w, h, r) {
+  const rad = Math.min(r, w / 2, h / 2);
+  c.beginPath();
+  c.moveTo(x + rad, y);
+  c.arcTo(x + w, y, x + w, y + h, rad);
+  c.arcTo(x + w, y + h, x, y + h, rad);
+  c.arcTo(x, y + h, x, y, rad);
+  c.arcTo(x, y, x + w, y, rad);
+  c.closePath();
+}
+
+function cover(c, img, x, y, w, h) {
+  const s = Math.max(w / img.width, h / img.height), iw = w / s, ih = h / s;
+  c.drawImage(img, (img.width - iw) / 2, (img.height - ih) / 2, iw, ih, x, y, w, h);
+}
+
+/* Color tools for the new themes */
+function hexA(hex, a) {
+  let h = String(hex || '#ffffff').trim().replace('#', '');
+  if (h.length === 3) h = h.split('').map(x => x + x).join('');
+  const n = parseInt(h, 16);
+  if (isNaN(n) || h.length !== 6) return `rgba(255,255,255,${a})`;
+  return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${a})`;
+}
+
+function shade(hex, k) {
+  let h = String(hex || '#ffffff').trim().replace('#', '');
+  if (h.length === 3) h = h.split('').map(x => x + x).join('');
+  const n = parseInt(h, 16);
+  if (isNaN(n) || h.length !== 6) return hex;
+  const r = Math.min(255, Math.round(((n >> 16) & 255) * k));
+  const g = Math.min(255, Math.round(((n >> 8) & 255) * k));
+  const b = Math.min(255, Math.round((n & 255) * k));
+  return `rgb(${r}, ${g}, ${b})`;
+}
+
+function hexShade(hex, k) {
+  let h = String(hex || '#ffffff').trim().replace('#', '');
+  if (h.length === 3) h = h.split('').map(x => x + x).join('');
+  const n = parseInt(h, 16);
+  if (isNaN(n) || h.length !== 6) return hex;
+  const p = v => Math.max(0, Math.min(255, Math.round(v * k))).toString(16).padStart(2, '0');
+  return '#' + p((n >> 16) & 255) + p((n >> 8) & 255) + p(n & 255);
+}
+
+function readableOn(hex) {
+  let h = String(hex || '#ffffff').trim().replace('#', '');
+  if (h.length === 3) h = h.split('').map(x => x + x).join('');
+  const n = parseInt(h, 16);
+  if (isNaN(n) || h.length !== 6) return '#08111a';
+  const r = ((n >> 16) & 255) / 255, g = ((n >> 8) & 255) / 255, b = (n & 255) / 255;
+  return (0.2126 * r + 0.7152 * g + 0.0722 * b) > 0.58 ? '#08111a' : '#ffffff';
+}
+
+
+function drawSmoothHeartRateChart(c, gx, gy, gw, gh, strokeCol = S.accent, lineCol = '#ffffff', areaAlpha = 0.47, glowBlur = 14, lineW = 4.2) {
+  if (S.chartMode === 'none') return;
+  c.save();
+
+  let pts = S.hrSeries && S.hrSeries.length >= 6
+    ? S.hrSeries
+    : [96, 104, 112, 108, 122, 134, 128, 142, 138, 152, 146, 158, 149, 162, 155, 166];
+
+  const minV = Math.min(...pts) - 6;
+  const maxV = Math.max(...pts) + 6;
+  const range = Math.max(12, maxV - minV);
+
+  const coords = pts.map((v, i) => [
+    gx + (i / (pts.length - 1)) * gw,
+    gy + gh - ((v - minV) / range) * (gh * 0.82) - gh * 0.08
+  ]);
+
+  function traceSmoothCurve() {
+    c.moveTo(coords[0][0], coords[0][1]);
+    for (let i = 0; i < coords.length - 1; i++) {
+      const xc = (coords[i][0] + coords[i + 1][0]) / 2;
+      const yc = (coords[i][1] + coords[i + 1][1]) / 2;
+      c.quadraticCurveTo(coords[i][0], coords[i][1], xc, yc);
+    }
+    const last = coords[coords.length - 1];
+    c.lineTo(last[0], last[1]);
+  }
+
+  c.save();
+  c.beginPath();
+  traceSmoothCurve();
+  c.lineTo(gx + gw, gy + gh);
+  c.lineTo(gx, gy + gh);
+  c.closePath();
+
+  const areaGrad = c.createLinearGradient(0, gy, 0, gy + gh);
+  areaGrad.addColorStop(0, hexA(strokeCol, areaAlpha));
+  areaGrad.addColorStop(0.75, hexA(strokeCol, areaAlpha * 0.32));
+  areaGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+  c.fillStyle = areaGrad;
+  c.fill();
+  c.restore();
+
+  c.beginPath();
+  traceSmoothCurve();
+  c.strokeStyle = lineCol;
+  c.lineWidth = lineW;
+  c.lineCap = 'round';
+  c.lineJoin = 'round';
+  if (glowBlur > 0) {
+    c.shadowColor = strokeCol;
+    c.shadowBlur = glowBlur;
+  }
+  c.stroke();
+
+  c.restore();
+}
+
+function drawMiniRoute(c, boxX, boxY, boxW, boxH, color = '#ffffff') {
+  if (S.chartMode === 'none') return;
+  c.save();
+  const pts = (S.route && S.route.length >= 3) ? S.route : [
+    [0.15, 0.75], [0.10, 0.48], [0.22, 0.25], [0.48, 0.14],
+    [0.76, 0.20], [0.90, 0.45], [0.82, 0.72], [0.58, 0.86], [0.15, 0.75]
+  ];
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  pts.forEach(([lat, lon]) => {
+    if (lon < minX) minX = lon; if (lon > maxX) maxX = lon;
+    if (lat < minY) minY = lat; if (lat > maxY) maxY = lat;
+  });
+  const spanX = (maxX - minX) || 1, spanY = (maxY - minY) || 1;
+  const scale = Math.min(boxW / spanX, boxH / spanY) * 0.82;
+  const offX = boxX + (boxW - spanX * scale) / 2;
+  const offY = boxY + (boxH - spanY * scale) / 2;
+
+  c.beginPath();
+  pts.forEach(([lat, lon], idx) => {
+    const px = offX + (lon - minX) * scale;
+    const py = offY + (maxY - lat) * scale;
+    if (idx === 0) c.moveTo(px, py); else c.lineTo(px, py);
+  });
+  c.strokeStyle = color;
+  c.lineWidth = 5;
+  c.lineCap = 'round';
+  c.lineJoin = 'round';
+  c.shadowColor = S.accent;
+  c.shadowBlur = 14;
+  c.stroke();
+  c.restore();
+}
+
+
+function drawMiniVectorIcon(c, type, cx, cy, r = 16, col = '#ffffff') {
+  c.save();
+  c.translate(cx, cy);
+  c.strokeStyle = col;
+  c.fillStyle = col;
+  c.lineWidth = 2.6;
+  c.lineCap = 'round';
+  c.lineJoin = 'round';
+
+  if (type === 'bars') {
+    c.fillRect(-r * 0.7, r * 0.1, 4, r * 0.6);
+    c.fillRect(-r * 0.15, -r * 0.4, 4, r * 1.1);
+    c.fillRect(r * 0.4, -r * 0.15, 4, r * 0.85);
+  } else if (type === 'trend') {
+    c.beginPath();
+    c.moveTo(-r * 0.55, r * 0.35);
+    c.lineTo(-r * 0.1, -r * 0.15);
+    c.lineTo(r * 0.15, r * 0.1);
+    c.lineTo(r * 0.55, -r * 0.35);
+    c.stroke();
+    c.beginPath();
+    c.moveTo(r * 0.2, -r * 0.35);
+    c.lineTo(r * 0.55, -r * 0.35);
+    c.lineTo(r * 0.55, 0);
+    c.stroke();
+  } else if (type === 'run') {
+    c.lineWidth = Math.max(2, r * 0.17);
+    c.beginPath(); c.arc(-r * 0.08, -r * 0.58, r * 0.16, 0, Math.PI * 2); c.fill();
+    c.beginPath();
+    c.moveTo(-r * 0.06, -r * 0.38);
+    c.lineTo(-r * 0.22, r * 0.02);
+    c.lineTo(r * 0.12, r * 0.22);
+    c.moveTo(-r * 0.22, r * 0.02);
+    c.lineTo(-r * 0.52, r * 0.5);
+    c.moveTo(r * 0.12, r * 0.22);
+    c.lineTo(r * 0.42, r * 0.16);
+    c.lineTo(r * 0.58, r * 0.52);
+    c.moveTo(-r * 0.04, -r * 0.3);
+    c.lineTo(-r * 0.5, -r * 0.5);
+    c.moveTo(-r * 0.04, -r * 0.26);
+    c.lineTo(r * 0.46, -r * 0.08);
+    c.stroke();
+  } else if (type === 'bike') {
+    c.lineWidth = Math.max(1.8, r * 0.13);
+    c.beginPath(); c.arc(-r * 0.55, r * 0.3, r * 0.3, 0, Math.PI * 2); c.stroke();
+    c.beginPath(); c.arc(r * 0.55, r * 0.3, r * 0.3, 0, Math.PI * 2); c.stroke();
+    c.beginPath();
+    c.moveTo(-r * 0.55, r * 0.3);
+    c.lineTo(-r * 0.1, r * 0.3);
+    c.lineTo(r * 0.12, -r * 0.2);
+    c.lineTo(-r * 0.3, -r * 0.2);
+    c.lineTo(-r * 0.1, r * 0.3);
+    c.moveTo(r * 0.12, -r * 0.2);
+    c.lineTo(r * 0.55, r * 0.3);
+    c.moveTo(-r * 0.38, -r * 0.44);
+    c.lineTo(-r * 0.3, -r * 0.2);
+    c.moveTo(r * 0.05, -r * 0.3);
+    c.lineTo(r * 0.19, -r * 0.3);
+    c.stroke();
+  } else if (type === 'rope') {
+    c.lineWidth = Math.max(1.8, r * 0.12);
+    c.beginPath();
+    c.ellipse(0, r * 0.12, r * 0.72, r * 0.78, 0, Math.PI * 0.92, Math.PI * 2.08);
+    c.stroke();
+    c.beginPath(); c.arc(-r * 0.62, r * 0.42, r * 0.09, 0, Math.PI * 2); c.fill();
+    c.beginPath(); c.arc(r * 0.62, r * 0.42, r * 0.09, 0, Math.PI * 2); c.fill();
+    c.beginPath(); c.arc(0, -r * 0.22, r * 0.14, 0, Math.PI * 2); c.fill();
+    c.beginPath();
+    c.moveTo(0, -r * 0.06);
+    c.lineTo(0, r * 0.34);
+    c.moveTo(0, r * 0.02);
+    c.lineTo(-r * 0.3, r * 0.24);
+    c.moveTo(0, r * 0.02);
+    c.lineTo(r * 0.3, r * 0.24);
+    c.moveTo(0, r * 0.34);
+    c.lineTo(-r * 0.22, r * 0.62);
+    c.moveTo(0, r * 0.34);
+    c.lineTo(r * 0.22, r * 0.62);
+    c.stroke();
+  } else if (type === 'karate') {
+    const belt = S.belt || '#f4f1ea';
+    const dark = shade(belt, 0.58);
+    const lightBelt = readableOn(belt) === '#08111a';
+    const outline = lightBelt ? 'rgba(10,14,20,0.38)' : 'rgba(255,255,255,0.55)';
+    const ow = Math.max(1.8, r * 0.1);
+    const pts = (list) => {
+      c.beginPath();
+      c.moveTo(list[0][0] * r, list[0][1] * r);
+      for (let i = 1; i < list.length; i++) c.lineTo(list[i][0] * r, list[i][1] * r);
+      c.closePath();
+    };
+
+    // The two hanging belt tails
+    const leftTail = [[-0.36, 0.14], [-0.19, 0.28], [-0.40, 0.96], [-0.72, 0.80]];
+    const rightTail = leftTail.map(([x, y]) => [-x, y]);
+    c.lineJoin = 'round';
+    [leftTail, rightTail].forEach(t => {
+      pts(t);
+      c.strokeStyle = outline;
+      c.lineWidth = ow * 2.2;
+      c.stroke();
+      c.fillStyle = belt;
+      c.fill();
+      c.strokeStyle = dark;
+      c.globalAlpha = 0.32;
+      c.lineWidth = Math.max(1, r * 0.05);
+      c.beginPath();
+      c.moveTo(t[0][0] * r * 0.97, t[0][1] * r);
+      c.lineTo(t[2][0] * r * 0.94, t[2][1] * r);
+      c.stroke();
+      c.globalAlpha = 1;
+    });
+
+    // Belt band around the waist
+    rr(c, -r * 1.02, -r * 0.52, r * 2.04, r * 0.44, r * 0.17);
+    c.fillStyle = belt;
+    c.fill();
+    c.strokeStyle = outline;
+    c.lineWidth = ow;
+    c.stroke();
+    c.globalAlpha = 0.3;
+    c.fillStyle = dark;
+    c.fillRect(-r * 0.92, -r * 0.2, r * 1.84, r * 0.1);
+    c.globalAlpha = 1;
+    c.fillStyle = 'rgba(255,255,255,0.3)';
+    c.fillRect(-r * 0.88, -r * 0.44, r * 0.66, r * 0.07);
+
+    // The knot in the middle
+    rr(c, -r * 0.34, -r * 0.38, r * 0.68, r * 0.66, r * 0.16);
+    c.fillStyle = belt;
+    c.fill();
+    c.strokeStyle = outline;
+    c.lineWidth = ow;
+    c.stroke();
+    c.globalAlpha = 0.5;
+    c.fillStyle = dark;
+    c.fillRect(-r * 0.15, -r * 0.3, r * 0.09, r * 0.52);
+    c.fillRect(r * 0.07, -r * 0.3, r * 0.06, r * 0.52);
+    c.globalAlpha = 1;
+    c.fillStyle = 'rgba(255,255,255,0.32)';
+    c.fillRect(-r * 0.24, -r * 0.3, r * 0.14, r * 0.1);
+  } else if (type === 'clock') {
+    c.beginPath(); c.arc(0, 0, r * 0.75, 0, Math.PI * 2); c.stroke();
+    c.beginPath(); c.moveTo(0, -r * 0.45); c.lineTo(0, 0); c.lineTo(r * 0.35, r * 0.2); c.stroke();
+  } else if (type === 'flame') {
+    c.beginPath();
+    c.moveTo(0, -r * 0.75);
+    c.quadraticCurveTo(r * 0.7, -r * 0.1, r * 0.45, r * 0.55);
+    c.quadraticCurveTo(0, r * 0.85, -r * 0.45, r * 0.55);
+    c.quadraticCurveTo(-r * 0.7, -r * 0.1, 0, -r * 0.75);
+    c.fill();
+  } else if (type === 'dumbbell') {
+    c.lineWidth = 3.2;
+    c.beginPath(); c.moveTo(-r * 0.55, 0); c.lineTo(r * 0.55, 0); c.stroke();
+    c.fillRect(-r * 0.75, -r * 0.45, 4.5, r * 0.9);
+    c.fillRect(r * 0.45, -r * 0.45, 4.5, r * 0.9);
+  } else if (type === 'check') {
+    c.beginPath();
+    c.moveTo(-r * 0.45, 0.05);
+    c.lineTo(-r * 0.1, r * 0.4);
+    c.lineTo(r * 0.5, -r * 0.35);
+    c.stroke();
+  } else if (type === 'arrowUpRight') {
+    c.beginPath();
+    c.moveTo(-r * 0.35, r * 0.35);
+    c.lineTo(r * 0.35, -r * 0.35);
+    c.moveTo(-r * 0.05, -r * 0.35);
+    c.lineTo(r * 0.35, -r * 0.35);
+    c.lineTo(r * 0.35, r * 0.05);
+    c.stroke();
+  }
+  c.restore();
+}
+
+function drawSportBadge(c, cx, cy, r, o = {}) {
+  const glyphInk = sportGlyph() === 'karate' ? (S.belt || '#f4f1ea') : (o.ink || '#ffffff');
+  const lightGlyph = readableOn(glyphInk) === '#08111a';
+
+  if (o.glass) {
+    // The disc follows the icon color: dark bg for light icons, glass bg for dark icons
+    if (lightGlyph) {
+      c.save();
+      c.shadowColor = 'rgba(0, 8, 20, 0.34)';
+      c.shadowBlur = r * 0.9;
+      c.shadowOffsetY = r * 0.26;
+      c.beginPath();
+      c.arc(cx, cy, r, 0, Math.PI * 2);
+      c.fillStyle = o.fill || 'rgba(9, 13, 19, 0.62)';
+      c.fill();
+      c.restore();
+      c.beginPath();
+      c.arc(cx, cy, r - 0.6, 0, Math.PI * 2);
+      c.strokeStyle = o.stroke || 'rgba(255, 255, 255, 0.30)';
+      c.lineWidth = 1.5;
+      c.stroke();
+    } else {
+      drawFrostedGlassWidget(c, cx - r, cy - r, r * 2, r * 2, r, o.alpha === undefined ? 0.06 : o.alpha);
+      c.beginPath();
+      c.arc(cx, cy, r - 0.6, 0, Math.PI * 2);
+      c.strokeStyle = o.stroke || 'rgba(10, 14, 20, 0.16)';
+      c.lineWidth = 1.2;
+      c.stroke();
+    }
+  } else if (o.fill || o.stroke) {
+    const fill = lightGlyph && o.fillDark ? o.fillDark : o.fill;
+    const stroke = lightGlyph && o.strokeDark ? o.strokeDark : o.stroke;
+    c.save();
+    c.beginPath();
+    c.arc(cx, cy, r, 0, Math.PI * 2);
+    if (fill) { c.fillStyle = fill; c.fill(); }
+    if (stroke) { c.strokeStyle = stroke; c.lineWidth = o.lineWidth || 1.6; c.stroke(); }
+    c.restore();
+  }
+  drawMiniVectorIcon(c, sportGlyph(), cx, cy, r * (o.iconScale || 0.52), o.ink || '#ffffff');
+}
+
+/* Prepare current values while respecting manual clearing of the unit or main number (never re-impose deleted text!) */
+function getCardState() {
+  const dict = I18N.en;
+  const cfg = dict.sports[S.sport] || dict.sports.gym;
+  let dStr = '';
+  if (S.date) {
+    const dObj = new Date(S.date + 'T12:00:00');
+    dStr = dObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase();
+  }
+  const activeStats = S.stats.filter(x => x.on);
+  const cleanLbl = (S.mainLbl || cfg.mainLbl).trim();
+  const fullMainLabel = cleanLbl;
+  const distWithUnit = String(S.dist || '').trim();
+
+  return {
+    dict,
+    cfg,
+    title: S.title,
+    dateStr: dStr,
+    dist: String(S.dist || '').trim(),
+    mainLbl: cleanLbl,
+    mainUnit: '',
+    fullMainLabel,
+    distWithUnit,
+    hasChart: S.chartMode !== 'none',
+    activeStats
+  };
+}
+
+function hexToHsl(hex) {
+  let h = String(hex || '#ffffff').replace('#', '');
+  if (h.length === 3) h = h.split('').map(x => x + x).join('');
+  const n = parseInt(h, 16);
+  const r = ((n >> 16) & 255) / 255, g = ((n >> 8) & 255) / 255, b = (n & 255) / 255;
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b);
+  let hh = 0, s = 0; const l = (mx + mn) / 2;
+  if (mx !== mn) {
+    const d = mx - mn;
+    s = l > 0.5 ? d / (2 - mx - mn) : d / (mx + mn);
+    if (mx === r) hh = ((g - b) / d + (g < b ? 6 : 0));
+    else if (mx === g) hh = (b - r) / d + 2;
+    else hh = (r - g) / d + 4;
+    hh *= 60;
+  }
+  return { h: hh, s: s * 100, l: l * 100 };
+}
+function heatColor(t) {
+  const a = hexToHsl(S.muscleLow), b = hexToHsl(S.muscleHigh);
+  let dh = b.h - a.h;
+  if (dh > 180) dh -= 360;
+  if (dh < -180) dh += 360;
+  const h = (a.h + dh * t + 360) % 360;
+  const s = a.s + (b.s - a.s) * t;
+  const l = a.l + (b.l - a.l) * t;
+  return `hsl(${h.toFixed(1)}, ${s.toFixed(1)}%, ${l.toFixed(1)}%)`;
+}
+
+function haversineKm(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+/* =========================================================================
+   Precise .FIT reader (extracts the real HR curve + moving time + active sessions)
+   ========================================================================= */
+function parseFitBuffer(buf) {
+  const view = new DataView(buf);
+  if (view.byteLength < 14) return null;
+  // Every valid FIT file starts with a header carrying the ".FIT" signature in bytes 8..11
+  if (view.getUint8(8) !== 0x2e || view.getUint8(9) !== 0x46 || view.getUint8(10) !== 0x49 || view.getUint8(11) !== 0x54) return null;
+  const hdrSize = view.getUint8(0);
+  if (hdrSize < 12 || hdrSize > 14) return null;
+  const dataLen = view.getUint32(4, true);
+  let pos = hdrSize;
+  const end = Math.min(view.byteLength, hdrSize + (dataLen || (view.byteLength - hdrSize)));
+  const defs = {};
+  const pts = [];
+  const rawHrList = [];
+  let hrSum = 0, hrCnt = 0, cadSum = 0, cadCnt = 0, pwrSum = 0, pwrCnt = 0;
+  let minTs = null, maxTs = null, prevRecTs = null, movingRecSec = 0;
+  let lastFullTs = null;
+  let lastAlt = null, elevGain = 0, maxDist = 0;
+
+  let fitSport = null, fitSubSport = null;
+  let sessionTimerSec = 0;
+  let sessionDistKm = 0;
+  let sessionCalories = 0;
+  let sessionAvgHr = 0;
+  let sessionAscent = 0;
+
+  let activeSetsCount = 0;
+  let totalRepsCount = 0;
+  let totalVolumeKg = 0;
+  let activeLapsCount = 0;
+  const catCounts = {};
+
+  while (pos < end) {
+    const hdr = view.getUint8(pos++);
+    // Compressed timestamp header: type in bits 5-6, offset in bits 0-4
+    const compressed = (hdr & 0x80) !== 0;
+    let timeOffset = -1;
+    let localNum;
+    let isDef = false;
+    let hasDev = false;
+    if (compressed) {
+      localNum = (hdr >> 5) & 0x03;
+      timeOffset = hdr & 0x1f;
+    } else {
+      isDef = (hdr & 0x40) !== 0;
+      hasDev = (hdr & 0x20) !== 0;
+      localNum = hdr & 0x0f;
+    }
+
+    if (isDef) {
+      pos++;
+      const arch = view.getUint8(pos++);
+      const le = arch === 0;
+      const gMsg = view.getUint16(pos, le); pos += 2;
+      const nFields = view.getUint8(pos++);
+      const fields = [];
+      for (let i = 0; i < nFields; i++) {
+        fields.push({ num: view.getUint8(pos), size: view.getUint8(pos + 1), type: view.getUint8(pos + 2) });
+        pos += 3;
+      }
+      if (hasDev) {
+        const nDev = view.getUint8(pos++);
+        for (let i = 0; i < nDev; i++) {
+          fields.push({ num: -1, size: view.getUint8(pos + 1), type: 0 });
+          pos += 3;
+        }
+      }
+      defs[localNum] = { gMsg, le, fields };
+    } else {
+      const def = defs[localNum];
+      if (!def) break;
+      let lat = null, lon = null;
+      let setType = null, setReps = null, setWeight = 0;
+      let setCats = null;
+      let lapIntensity = null;
+
+      for (const f of def.fields) {
+        // In a compressed header the timestamp field is omitted from the data
+        if (compressed && f.num === 253) continue;
+        if (pos + f.size > end) { pos = end; break; }
+
+        if (def.gMsg === 18) {
+          if (f.num === 5 && f.size === 1) fitSport = view.getUint8(pos);
+          else if (f.num === 6 && f.size === 1) fitSubSport = view.getUint8(pos);
+          else if (f.num === 8 && f.size === 4) {
+            const t = view.getUint32(pos, def.le);
+            if (t !== 0xFFFFFFFF && t > 0) sessionTimerSec = t / 1000;
+          } else if (f.num === 9 && f.size === 4) {
+            const d = view.getUint32(pos, def.le);
+            if (d !== 0xFFFFFFFF && d > 0) sessionDistKm = d / 100000;
+          } else if (f.num === 11 && f.size === 2) {
+            const c = view.getUint16(pos, def.le);
+            if (c !== 0xFFFF) sessionCalories = c;
+          } else if (f.num === 16 && f.size === 1) {
+            const h = view.getUint8(pos);
+            if (h !== 0xFF && h > 30) sessionAvgHr = h;
+          } else if (f.num === 22 && f.size === 2) {
+            const asc = view.getUint16(pos, def.le);
+            if (asc !== 0xFFFF) sessionAscent = asc;
+          }
+        }
+        else if (def.gMsg === 225) {
+          if (f.num === 0 && f.size === 1) {
+            const st = view.getUint8(pos);
+            if (st !== 0xFF) setType = st;
+          } else if (f.num === 3 && f.size === 2) {
+            const r = view.getUint16(pos, def.le);
+            if (r !== 0xFFFF) setReps = r;
+          } else if (f.num === 4 && f.size === 2) {
+            const w = view.getUint16(pos, def.le);
+            if (w !== 0xFFFF) setWeight = w / 16;
+          } else if (f.num === 5 && f.size >= 2 && f.size % 2 === 0) {
+            // exercise_category array (uint16 per element)
+            setCats = [];
+            for (let ci = 0; ci < f.size / 2; ci++) {
+              const cv = view.getUint16(pos + ci * 2, def.le);
+              if (cv !== 0xFFFF) setCats.push(cv);
+            }
+          }
+        }
+        else if (def.gMsg === 19) {
+          if (f.num === 23 && f.size === 1) {
+            const inten = view.getUint8(pos);
+            if (inten !== 0xFF) lapIntensity = inten;
+          }
+        }
+        else if (def.gMsg === 20) {
+          if (f.num === 253 && f.size === 4) {
+            const ts = view.getUint32(pos, def.le);
+            if (ts !== 0xFFFFFFFF) {
+              lastFullTs = ts;
+              if (!minTs) minTs = ts;
+              maxTs = ts;
+              if (prevRecTs !== null) {
+                const delta = ts - prevRecTs;
+                if (delta > 0 && delta <= 15) movingRecSec += delta;
+              }
+              prevRecTs = ts;
+            }
+          } else if (f.num === 0 && f.size === 4) {
+            const v = view.getInt32(pos, def.le);
+            if (v !== 0x7FFFFFFF) lat = v * (180 / 2147483648);
+          } else if (f.num === 1 && f.size === 4) {
+            const v = view.getInt32(pos, def.le);
+            if (v !== 0x7FFFFFFF) lon = v * (180 / 2147483648);
+          } else if (f.num === 2 && f.size === 2) {
+            const v = view.getUint16(pos, def.le);
+            if (v !== 0xFFFF) {
+              const alt = v / 5 - 500;
+              if (lastAlt !== null && alt > lastAlt) elevGain += (alt - lastAlt);
+              lastAlt = alt;
+            }
+          } else if (f.num === 3 && f.size === 1) {
+            const v = view.getUint8(pos);
+            if (v !== 0xFF && v > 35 && v < 240) {
+              hrSum += v;
+              hrCnt++;
+              rawHrList.push(v);
+            }
+          } else if (f.num === 4 && f.size === 1) {
+            const v = view.getUint8(pos);
+            if (v !== 0xFF && v > 0) { cadSum += v; cadCnt++; }
+          } else if (f.num === 5 && f.size === 4) {
+            const v = view.getUint32(pos, def.le);
+            if (v !== 0xFFFFFFFF) maxDist = Math.max(maxDist, v / 100);
+          } else if (f.num === 7 && f.size === 2) {
+            const v = view.getUint16(pos, def.le);
+            if (v !== 0xFFFF && v > 0) { pwrSum += v; pwrCnt++; }
+          }
+        }
+        pos += f.size;
+      }
+
+      if (def.gMsg === 225) {
+        const isActiveSet = (setType === 1) || (setType === null && setReps !== null && setReps > 0);
+        if (isActiveSet) {
+          activeSetsCount++;
+          const repsVal = setReps || 0;
+          totalRepsCount += repsVal;
+          if (setWeight > 0 && repsVal > 0) totalVolumeKg += (setWeight * repsVal);
+          const cats = (setCats && setCats.length) ? setCats : [65534];
+          cats.forEach(cat => {
+            if (!catCounts[cat]) catCounts[cat] = { sets: 0, reps: 0, volume: 0 };
+            catCounts[cat].sets++;
+            catCounts[cat].reps += repsVal;
+            catCounts[cat].volume += setWeight * repsVal;
+          });
+        }
+      }
+
+      if (def.gMsg === 19 && lapIntensity === 0) {
+        activeLapsCount++;
+      }
+
+      // Rebuild the timestamp from the compressed header
+      if (compressed && timeOffset >= 0 && lastFullTs !== null && def.gMsg === 20) {
+        let ts = (lastFullTs & ~0x1f) | timeOffset;
+        if (ts < lastFullTs) ts += 0x20;
+        lastFullTs = ts;
+        if (minTs === null) minTs = ts;
+        maxTs = ts;
+        if (prevRecTs !== null) {
+          const delta = ts - prevRecTs;
+          if (delta > 0 && delta <= 15) movingRecSec += delta;
+        }
+        prevRecTs = ts;
+      }
+
+      if (lat !== null && lon !== null && Math.abs(lat) <= 90 && Math.abs(lon) <= 180) {
+        pts.push([lat, lon]);
+      }
+    }
+  }
+
+  // Smooth and summarize HR points into 22 samples for a silky curve like the reference
+  let smoothedHr = [];
+  if (rawHrList.length >= 8) {
+    const buckets = 20;
+    const chunk = rawHrList.length / buckets;
+    for (let i = 0; i < buckets; i++) {
+      const start = Math.floor(i * chunk);
+      const endIdx = Math.max(start + 1, Math.floor((i + 1) * chunk));
+      const slice = rawHrList.slice(start, endIdx);
+      const avg = slice.reduce((a, b) => a + b, 0) / slice.length;
+      smoothedHr.push(Math.round(avg));
+    }
+  }
+
+  const finalSets = activeSetsCount > 0 ? activeSetsCount : activeLapsCount;
+  const isStrength = (fitSport === 10 || fitSubSport === 20 || activeSetsCount > 0);
+  const finalDurationSec = sessionTimerSec > 0 ? sessionTimerSec : (movingRecSec > 0 ? movingRecSec : ((minTs && maxTs) ? (maxTs - minTs) : 0));
+  let finalDistKm = sessionDistKm > 0 ? sessionDistKm : (maxDist > 0 ? maxDist / 1000 : 0);
+  // If the file has no session message, compute distance from the GPS points
+  if (!finalDistKm && pts.length > 1) {
+    let km = 0;
+    for (let i = 1; i < pts.length; i++) km += haversineKm(pts[i - 1][0], pts[i - 1][1], pts[i][0], pts[i][1]);
+    finalDistKm = km;
+  }
+
+  // A file with no readable data = explicit failure, never silent success
+  if (!pts.length && !rawHrList.length && !finalDurationSec && !finalDistKm && !finalSets && !sessionCalories) return null;
+
+  return {
+    isStrength,
+    fitSport,
+    activeSets: finalSets,
+    totalReps: totalRepsCount,
+    totalVolumeKg: Math.round(totalVolumeKg),
+    catCounts,
+    sessionCalories,
+    pts,
+    hrSeries: smoothedHr,
+    maxHr: rawHrList.length ? Math.max(...rawHrList) : 0,
+    minHr: rawHrList.length ? Math.min(...rawHrList) : 0,
+    distKm: finalDistKm,
+    durationSec: Math.round(finalDurationSec),
+    startEpochMs: minTs ? (minTs + 631065600) * 1000 : null,
+    avgHr: sessionAvgHr > 0 ? sessionAvgHr : (hrCnt ? Math.round(hrSum / hrCnt) : 0),
+    avgCad: cadCnt ? Math.round(cadSum / cadCnt) : 0,
+    avgPwr: pwrCnt ? Math.round(pwrSum / pwrCnt) : 0,
+    elevGain: sessionAscent > 0 ? sessionAscent : Math.round(elevGain)
+  };
+}
+
+/* Upload and read workout files (.FIT / .GPX / .TCX) */
+
+async function handleTrackFile(f) {
+  setTrackLabel(`⏳ Reading ${f.name}`);
+  msg.textContent = 'Parsing workout file and building the heart-rate curve...';
+  const lname = f.name.toLowerCase();
+
+  try {
+    if (lname.endsWith('.fit') || lname.endsWith('.fit.gz') || lname.endsWith('.gz')) {
+      let buf = await f.arrayBuffer();
+      if (lname.endsWith('.gz')) {
+        if (typeof DecompressionStream === 'undefined') {
+          setTrackLabel('⚠️ Compressed file (.gz)');
+          msg.textContent = 'This file is gzip-compressed. Extract it first, then upload the .FIT.';
+          return;
+        }
+        buf = await new Response(new Blob([buf]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer();
+      }
+      const res = parseFitBuffer(buf);
+      if (res) {
+        if (res.hrSeries && res.hrSeries.length >= 6) {
+          S.hrSeries = res.hrSeries;
+          S.maxHrVal = res.maxHr;
+          S.minHrVal = res.minHr;
+        }
+        let muscleNote = '';
+        if (res.isStrength) {
+          applySportMode('gym');
+          S.dist = String(res.activeSets || 17);
+          if (res.totalReps > 0) setStatValue('pace', res.totalReps);
+          if (res.totalVolumeKg > 0) setStatValue('elev', res.totalVolumeKg);
+          const hasCats = res.catCounts && Object.keys(res.catCounts).some(k => +k !== 65534);
+          if (hasCats) {
+            const r = applyCategoryCounts(res.catCounts, true);
+            S.muscleSource = 'fit';
+            muscleNote = ` · ${r.mapped} sets mapped to muscles${r.unassigned ? ' (' + r.unassigned + ' unassigned)' : ''}`;
+          } else {
+            S.muscleSets = {};
+            S.muscleUnassigned = res.activeSets || 0;
+            S.muscleSource = 'fit';
+            muscleNote = ' · no muscle tags in file — assign sets in the muscle editor';
+          }
+          renderMuscleEditor();
+        } else {
+          if (res.fitSport === 2) applySportMode('bike');
+          else applySportMode('run');
+
+          if (res.pts.length > 1) {
+            const step = Math.max(1, Math.floor(res.pts.length / 250));
+            S.route = res.pts.filter((_, idx) => idx % step === 0);
+          }
+          if (res.distKm > 0) S.dist = res.distKm.toFixed(2);
+          if (res.elevGain > 0) setStatValue('elev', res.elevGain);
+        }
+
+        if (res.durationSec > 0) {
+          setStatValue('time', formatDuration(res.durationSec));
+          if (!res.isStrength && res.distKm > 0) {
+            const pVal = S.sport === 'bike'
+              ? (res.distKm / (res.durationSec / 3600)).toFixed(1)
+              : formatPace(res.durationSec / res.distKm);
+            setStatValue('pace', pVal);
+          }
+        }
+        if (res.avgHr > 0) setStatValue('hr', res.avgHr);
+        if (res.sessionCalories > 0) setStatValue('cal', res.sessionCalories);
+        if (res.startEpochMs) S.date = new Date(res.startEpochMs).toISOString().slice(0, 10);
+
+        setTrackLabel('✓ Heart rate & data extracted');
+        msg.textContent = `Parsed ${f.name} · ${formatDuration(res.durationSec)}${res.distKm > 0 ? ' · ' + res.distKm.toFixed(2) + ' km' : ''}${res.avgHr > 0 ? ' · avg HR ' + res.avgHr : ''}${muscleNote}`;
+        syncInputsFromState();
+        return;
+      }
+      setTrackLabel('⚠️ Could not parse FIT file');
+      msg.textContent = 'The file is FIT but no data could be extracted. Export .TCX or .GPX from your watch and upload that.';
+      return;
+    }
+
+    const text = await f.text();
+    const doc = new DOMParser().parseFromString(text, 'text/xml');
+    if (doc.querySelector('parsererror')) {
+      setTrackLabel('⚠️ Invalid file');
+      msg.textContent = 'Could not read the file content. Make sure it is a valid GPX or TCX.';
+      return;
+    }
+    let trkpts = [...doc.querySelectorAll('trkpt')];
+    if (!trkpts.length) trkpts = [...doc.querySelectorAll('Trackpoint')];
+    if (!trkpts.length) trkpts = [...doc.querySelectorAll('rtept, wpt')];
+    if (!trkpts.length) {
+      setTrackLabel('⚠️ No track points in file');
+      msg.textContent = 'The file has no readable track points or heart rate.';
+      return;
+    }
+
+    // Sport type from TCX; assume running for GPS files when the chosen type is not distance-based
+    const isTcx = f.name.toLowerCase().endsWith('.tcx');
+    const actEl = isTcx ? doc.querySelector('Activity') : null;
+    const actSport = actEl ? (actEl.getAttribute('Sport') || '') : '';
+    if (/bik|cycl/i.test(actSport)) applySportMode('bike');
+    else if (/run|jog/i.test(actSport)) applySportMode('run');
+    else if (S.sport === 'gym' || S.sport === 'karate' || S.sport === 'rope') applySportMode('run');
+
+    const pts = [], rawHr = [];
+    let elevGain = 0, lastEle = null;
+    let hrSum = 0, hrCount = 0;
+    let firstTime = null, prevTime = null, movingSec = 0;
+
+    if (trkpts.length) {
+      trkpts.forEach(pt => {
+        let lat = parseFloat(pt.getAttribute('lat'));
+        let lon = parseFloat(pt.getAttribute('lon'));
+        if (isNaN(lat) || isNaN(lon)) {
+          const latEl = pt.querySelector('LatitudeDegrees, latitude');
+          const lonEl = pt.querySelector('LongitudeDegrees, longitude');
+          lat = latEl ? parseFloat(latEl.textContent) : NaN;
+          lon = lonEl ? parseFloat(lonEl.textContent) : NaN;
+        }
+        if (!isNaN(lat) && !isNaN(lon)) pts.push([lat, lon]);
+
+        const eleEl = pt.querySelector('ele, AltitudeMeters, altitude');
+        if (eleEl) {
+          const ele = parseFloat(eleEl.textContent);
+          if (!isNaN(ele)) {
+            if (lastEle !== null && ele > lastEle) elevGain += (ele - lastEle);
+            lastEle = ele;
+          }
+        }
+        const tEl = pt.querySelector('time, Time');
+        if (tEl) {
+          const ts = Date.parse(tEl.textContent);
+          if (!isNaN(ts)) {
+            if (!firstTime) firstTime = ts;
+            if (prevTime !== null) {
+              const dt = (ts - prevTime) / 1000;
+              if (dt > 0 && dt <= 15) movingSec += dt;
+            }
+            prevTime = ts;
+          }
+        }
+        const hrEl = pt.getElementsByTagName('gpxtpx:hr')[0]
+          || pt.getElementsByTagName('ns3:hr')[0]
+          || pt.querySelector('hr, HeartRateBpm Value');
+        if (hrEl) {
+          const h = parseFloat(hrEl.textContent);
+          if (!isNaN(h) && h > 35) { hrSum += h; hrCount++; rawHr.push(h); }
+        }
+      });
+    }
+
+    if (rawHr.length >= 8) {
+      const buckets = 20, chunk = rawHr.length / buckets;
+      S.hrSeries = Array.from({ length: buckets }, (_, i) => {
+        const sl = rawHr.slice(Math.floor(i * chunk), Math.max(Math.floor(i * chunk) + 1, Math.floor((i + 1) * chunk)));
+        return Math.round(sl.reduce((a, b) => a + b, 0) / sl.length);
+      });
+    }
+
+    let totalKm = 0;
+    if (pts.length > 1) {
+      const step = Math.max(1, Math.floor(pts.length / 250));
+      S.route = pts.filter((_, idx) => idx % step === 0);
+      for (let i = 1; i < pts.length; i++) totalKm += haversineKm(pts[i - 1][0], pts[i - 1][1], pts[i][0], pts[i][1]);
+      if (totalKm > 0) S.dist = totalKm.toFixed(2);
+    }
+    if (movingSec > 0) {
+      setStatValue('time', formatDuration(movingSec));
+      if (totalKm > 0) setStatValue('pace', S.sport === 'bike' ? (totalKm / (movingSec / 3600)).toFixed(1) : formatPace(movingSec / totalKm));
+    }
+    if (firstTime) S.date = new Date(firstTime).toISOString().slice(0, 10);
+    if (elevGain > 0) setStatValue('elev', Math.round(elevGain));
+    if (hrCount > 0) setStatValue('hr', Math.round(hrSum / hrCount));
+
+    if (pts.length > 1 || rawHr.length >= 8 || movingSec > 0 || hrCount > 0) {
+      setTrackLabel('✓ Data extracted');
+      msg.textContent = `Extracted from ${f.name}${totalKm > 0 ? ' · ' + totalKm.toFixed(2) + ' km' : ''}${movingSec > 0 ? ' · ' + formatDuration(movingSec) : ''}${hrCount > 0 ? ' · avg HR ' + Math.round(hrSum / hrCount) : ''}`;
+      syncInputsFromState();
+    } else {
+      setTrackLabel('⚠️ No usable data');
+      msg.textContent = 'Found points but no usable distance, heart rate or time.';
+    }
+  } catch (err) {
+    setTrackLabel('⚠️ Could not read file');
+    msg.textContent = 'Could not read the file (' + (err && err.message ? err.message : 'unknown reason') + '). Make sure it is FIT, GPX or TCX.';
+  }
+}
+
+function parseCorosTextOrHtml(raw) {
+  if (!raw) return false;
+  let found = false;
+
+  const setsMatch = raw.match(/(\d{1,3})\s*(?:sets|set)/i);
+  const repsMatch = raw.match(/(\d{1,4})\s*(?:reps|rep)/i);
+  const isStrengthText = /strength|gym|weight|muscle/i.test(raw) || (setsMatch && repsMatch);
+
+  if (isStrengthText) {
+    applySportMode('gym');
+    if (setsMatch) { S.dist = setsMatch[1]; found = true; }
+    if (repsMatch) { setStatValue('pace', repsMatch[1]); found = true; }
+    const volMatch = raw.match(/(\d+(?:[.,]\d+)?)\s*(?:kg)/i);
+    if (volMatch) { setStatValue('elev', volMatch[1].replace(',', '')); found = true; }
+    if (extractMusclesFromText(raw)) {
+      found = true;
+      renderMuscleEditor();
+    }
+  } else {
+    const distMatch = raw.match(/(\d+(?:\.\d+)?)\s*(?:km|kilometers)/i);
+    if (distMatch) { S.dist = distMatch[1]; found = true; }
+    const paceMatch = raw.match(/(\d{1,2})['’:](\d{2})(?:"|”)?\s*(?:\/km|min\/km)?/i);
+    if (paceMatch) { setStatValue('pace', `${paceMatch[1]}:${paceMatch[2]}`); found = true; }
+  }
+
+  const curPace = (S.stats.find(x => x.id === 'pace') || {}).val;
+  const timeMatches = [...raw.matchAll(/\b(\d{1,2}:\d{2}(?::\d{2})?)\b/g)].map(m => m[1]);
+  const durCandidate = timeMatches.find(t => t !== curPace && t.length >= 4);
+  if (durCandidate) { setStatValue('time', durCandidate.replace(/^00:/, '')); found = true; }
+
+  const hrMatch = raw.match(/(\d{2,3})\s*(?:bpm)/i);
+  if (hrMatch) { setStatValue('hr', hrMatch[1]); found = true; }
+
+  const calMatch = raw.match(/(\d{2,4})\s*(?:kcal|cal)/i);
+  if (calMatch) { setStatValue('cal', calMatch[1]); found = true; }
+
+  const tlMatch = raw.match(/(?:load|tl)[^\d]{0,10}(\d{1,3})/i);
+  if (tlMatch) { setStatValue('tl', tlMatch[1]); found = true; }
+
+  if (found) syncInputsFromState();
+  return found;
+}
+
+function formatDuration(sec) {
+  if (!sec || sec <= 0) return '';
+  const hrs = Math.floor(sec / 3600);
+  const mins = Math.floor((sec % 3600) / 60);
+  const s = Math.round(sec % 60);
+  if (hrs > 0) return `${hrs}:${String(mins).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  return `${mins}:${String(s).padStart(2, '0')}`;
+}
+
+function formatPace(secPerKm) {
+  if (!secPerKm || !isFinite(secPerKm) || secPerKm <= 0) return '';
+  const m = Math.floor(secPerKm / 60);
+  const s = Math.round(secPerKm % 60);
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
+
+/* ===================== TrainCard Studio — core ===================== */
+window.addEventListener('error', () => {
+  if (window.__tcReady) return;
+  const m = document.getElementById('msg');
+  if (m) m.textContent = 'The editor failed to start — reload the page (Ctrl+F5).';
+});
+
+const W = 1080, H = 1920;
+
+const FONT_STACKS = {
+  inter: "Inter, system-ui, sans-serif",
+  grotesk: "'Space Grotesk', Inter, system-ui, sans-serif",
+  black: "'Archivo Black', 'Arial Black', sans-serif",
+  bebas: "'Bebas Neue', 'Arial Narrow', Impact, sans-serif",
+  oswald: "Oswald, 'Arial Narrow', sans-serif",
+  mono: "'JetBrains Mono', Consolas, Menlo, monospace",
+  fraunces: "Fraunces, Georgia, serif",
+  georgia: "Georgia, 'Times New Roman', serif"
+};
+const FONT_OPTIONS = [
+  ['inter', 'Inter'], ['grotesk', 'Space Grotesk'], ['black', 'Archivo Black'], ['bebas', 'Bebas Neue'],
+  ['oswald', 'Oswald'], ['mono', 'JetBrains Mono'], ['fraunces', 'Fraunces'], ['georgia', 'Georgia']
+];
+
+/* 18 clean themes. kind: studio | anatomy | strain | rings */
+const THEMES = [
+  { name: 'Carbon',    kind: 'studio',  pal: { bg: '#0b0d10', surface: '#151a20', text: '#f2f5f8', muted: '#8b949e', accent: '#ff5c39', accent2: '#ffd166' }, fonts: { d: 'black', n: 'inter', b: 'inter' }, texture: 'grid', radius: 28, week: 'strip', glow: 30 },
+  { name: 'Paper',     kind: 'studio',  pal: { bg: '#f5f0e6', surface: '#fffdf7', text: '#191713', muted: '#7d766b', accent: '#c2452d', accent2: '#1f6f5c' }, fonts: { d: 'fraunces', n: 'fraunces', b: 'inter' }, texture: 'grain', radius: 10, week: 'dots', glow: 0 },
+  { name: 'Mono',      kind: 'studio',  pal: { bg: '#0a0a0a', surface: '#141414', text: '#fafafa', muted: '#9a9a9a', accent: '#fafafa', accent2: '#8a8a8a' }, fonts: { d: 'mono', n: 'mono', b: 'mono' }, texture: 'none', radius: 0, week: 'bars', glow: 0 },
+  { name: 'Court',     kind: 'studio',  pal: { bg: '#0e3b2e', surface: '#12483a', text: '#f2f7ee', muted: '#9dbbaa', accent: '#d8f34f', accent2: '#ffffff' }, fonts: { d: 'bebas', n: 'oswald', b: 'inter' }, texture: 'scan', radius: 18, week: 'strip', glow: 20 },
+  { name: 'Sunset',    kind: 'studio',  pal: { bg: '#1b1035', surface: '#2a1745', text: '#fdf4ff', muted: '#b9a8cf', accent: '#ffb35c', accent2: '#ff2fb3' }, mesh: ['#1b1035', '#4b1d5e', '#b3325e'], fonts: { d: 'grotesk', n: 'grotesk', b: 'inter' }, texture: 'none', radius: 32, week: 'heat', glow: 45 },
+  { name: 'Ocean',     kind: 'studio',  pal: { bg: '#061a26', surface: '#0c2836', text: '#eaf6fb', muted: '#8fb0bf', accent: '#35d0ff', accent2: '#7cf5d4' }, fonts: { d: 'grotesk', n: 'inter', b: 'inter' }, texture: 'grid', radius: 24, week: 'dots', glow: 30 },
+  { name: 'Acid',      kind: 'studio',  pal: { bg: '#0c0f0a', surface: '#151a10', text: '#f4ffe8', muted: '#9aa88c', accent: '#b6ff2e', accent2: '#ffffff' }, fonts: { d: 'black', n: 'mono', b: 'inter' }, texture: 'scan', radius: 8, week: 'bars', glow: 40 },
+  { name: 'Blush',     kind: 'studio',  pal: { bg: '#fdf6f4', surface: '#ffffff', text: '#2a2226', muted: '#96868c', accent: '#e0557b', accent2: '#7c5cff' }, fonts: { d: 'fraunces', n: 'inter', b: 'inter' }, texture: 'grain', radius: 30, week: 'ring', glow: 0 },
+  { name: 'Slate',     kind: 'studio',  pal: { bg: '#eef1f4', surface: '#ffffff', text: '#1d242b', muted: '#68727d', accent: '#2f6df6', accent2: '#0ea5e9' }, fonts: { d: 'inter', n: 'inter', b: 'inter' }, texture: 'none', radius: 20, week: 'strip', glow: 0 },
+  { name: 'Ember',     kind: 'studio',  pal: { bg: '#140b09', surface: '#20120d', text: '#fff4ea', muted: '#b09486', accent: '#ff8a3d', accent2: '#ffd166' }, mesh: ['#140b09', '#2b1208', '#3d1a0a'], fonts: { d: 'oswald', n: 'oswald', b: 'inter' }, texture: 'grain', radius: 16, week: 'heat', glow: 35 },
+  { name: 'Violet',    kind: 'studio',  pal: { bg: '#120b1e', surface: '#1c1330', text: '#f4efff', muted: '#a795c2', accent: '#a06bff', accent2: '#ff2fb3' }, mesh: ['#120b1e', '#241243', '#3a1a5e'], fonts: { d: 'grotesk', n: 'grotesk', b: 'inter' }, texture: 'none', radius: 34, week: 'ring', glow: 45 },
+  { name: 'Sand',      kind: 'studio',  pal: { bg: '#efe7da', surface: '#f8f3ea', text: '#26221b', muted: '#857c6c', accent: '#0f766e', accent2: '#b45309' }, fonts: { d: 'fraunces', n: 'inter', b: 'inter' }, texture: 'grain', radius: 12, week: 'dots', glow: 0 },
+  { name: 'Forest',    kind: 'studio',  pal: { bg: '#0f1f16', surface: '#16291d', text: '#eef7ee', muted: '#93ac97', accent: '#79d97c', accent2: '#ffd166' }, fonts: { d: 'inter', n: 'inter', b: 'inter' }, texture: 'grid', radius: 22, week: 'strip', glow: 25 },
+  { name: 'Ice',       kind: 'studio',  pal: { bg: '#f2f7fa', surface: '#ffffff', text: '#16222b', muted: '#6b7a86', accent: '#0ea5e9', accent2: '#6366f1' }, fonts: { d: 'grotesk', n: 'inter', b: 'inter' }, texture: 'none', radius: 26, week: 'dots', glow: 0 },
+  { name: 'Blueprint', kind: 'studio',  pal: { bg: '#0d2137', surface: '#123049', text: '#eaf2ff', muted: '#8fa8c4', accent: '#ffd166', accent2: '#7fb4ff' }, fonts: { d: 'mono', n: 'mono', b: 'mono' }, texture: 'grid', radius: 6, week: 'bars', glow: 15 },
+  { name: 'WHOOP',     kind: 'whoop',   pal: { bg: '#000000', surface: '#121417', text: '#ffffff', muted: '#8a8d91', accent: '#0093e7', accent2: '#4ec98e' }, fonts: { d: 'grotesk', n: 'inter', b: 'inter' }, texture: 'none', radius: 24, week: 'strip', glow: 25 },
+  { name: 'Strain',    kind: 'strain',  pal: { bg: '#000000', surface: '#101214', text: '#ffffff', muted: '#8a8d91', accent: '#0093e7', accent2: '#4ec98e' }, fonts: { d: 'inter', n: 'inter', b: 'inter' }, texture: 'none', radius: 28, week: 'ring', glow: 35 }
+];
+const TH_WHOOP = 15, TH_STRAIN = 16;
+
+const S = {
+  sport: 'gym', icon: 'auto', belt: '#f4f1ea',
+  title: 'UPPER 1', tag: 'TRAINING SESSION', device: '', muscleTag: 'Strength Training',
+  chartMode: 'hr', dist: '17', mainLbl: 'Total Sets',
+  date: new Date().toISOString().slice(0, 10),
+  weekCount: [1, 0, 1, 1, 2, 0, 1],
+  muscleSets: { chest: 4, lats: 3, shoulders: 3, biceps: 2, triceps: 2, core: 2, forearms: 1 },
+  muscleUnassigned: 0, muscleSource: 'demo',
+  muscleLow: '#00b3a4', muscleHigh: '#ff4326',
+  whoopStrain: '#0093e7', whoopZones: ['#a8c4d4', '#38a8d8', '#4ec98e', '#f2a03d', '#ff5a36'],
+  whoopMaxHr: 190, whoopStrainOverride: '',
+  route: [], hrSeries: [96, 104, 112, 108, 122, 134, 128, 142, 138, 152, 146, 158, 149, 162, 155, 166],
+  maxHrVal: 166, minHrVal: 96,
+  stats: [
+    { id: 'time', label: 'Workout Time', val: '1:30:52', unit: '', on: true },
+    { id: 'hr', label: 'Avg Heart Rate', val: '116', unit: '', on: true },
+    { id: 'cal', label: 'Active Calories', val: '359', unit: '', on: true },
+    { id: 'pace', label: 'Total Reps', val: '164', unit: '', on: true },
+    { id: 'tl', label: 'Training Load', val: '82', unit: '', on: true }
+  ],
+  /* design kit */
+  style: 0, mesh: null,
+  accent: '#ff5c39', accent2: '#ffd166', cardBg: '#0b0d10', surface: '#151a20', textCol: '#f2f5f8', muted: '#8b949e',
+  titleFont: FONT_STACKS.black, numFont: FONT_STACKS.inter, bodyFont: FONT_STACKS.inter,
+  fontScale: 100, weight: 800, tracking: 0, upper: true,
+  radius: 28, texture: 'grid', glow: 30, weekStyle: 'strip',
+  sep: '·', doneSym: '✓', done2Sym: '✓✓', dateFormat: 'mdy',
+  unitSets: 'SETS', unitBpm: 'BPM', weekHdr: 'WEEKLY ACTIVITY',
+  showStats: true, transparent: false, showSafeGuide: false, safeShift: 0
+};
+
+const DESIGN_KEYS = ['style', 'mesh', 'accent', 'accent2', 'cardBg', 'surface', 'textCol', 'muted',
+  'titleFont', 'numFont', 'bodyFont', 'fontScale', 'weight', 'tracking', 'upper', 'radius', 'texture',
+  'glow', 'weekStyle', 'sep', 'doneSym', 'done2Sym', 'dateFormat', 'unitSets', 'unitBpm', 'weekHdr',
+  'showStats', 'transparent', 'showSafeGuide', 'muscleLow', 'muscleHigh',
+  'whoopStrain', 'whoopZones', 'chartMode'];
+const SESSION_KEYS = DESIGN_KEYS.concat(['sport', 'icon', 'belt', 'title', 'tag', 'device', 'muscleTag',
+  'dist', 'mainLbl', 'date', 'weekCount', 'muscleSets', 'muscleUnassigned', 'muscleSource',
+  'whoopMaxHr', 'whoopStrainOverride', 'stats', 'hrSeries', 'route', 'maxHrVal', 'minHrVal']);
+
+/* ===================== UI glue ===================== */
+const $ = id => document.getElementById(id);
+const msg = $('msg');
+const prev = $('prev');
+const pctx = prev.getContext('2d');
+const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+
+let toastTimer = 0;
+function toast(text, kind) {
+  const t = $('toast');
+  t.textContent = text;
+  t.className = 'show' + (kind ? ' ' + kind : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.className = ''; }, 2200);
+}
+
+const fs = n => n * S.fontScale / 100;
+const up = s => S.upper ? String(s).toUpperCase() : String(s);
+
+function txt(c, s, x, y, size, wt, col, al = 'left', fam, mw = null) {
+  fam = fam || S.bodyFont;
+  let sz = size;
+  c.save();
+  c.font = `${wt} ${sz}px ${fam}`;
+  if (mw) {
+    const w0 = c.measureText(s).width;
+    if (w0 > mw) { sz = Math.max(10, sz * mw / w0); c.font = `${wt} ${sz}px ${fam}`; }
+  }
+  if ('letterSpacing' in c) c.letterSpacing = (S.tracking * sz / 44).toFixed(2) + 'px';
+  c.fillStyle = col;
+  c.textAlign = al;
+  c.textBaseline = 'alphabetic';
+  c.fillText(s, x, y);
+  c.restore();
+}
+
+function fmtDate() {
+  if (!S.date) return '';
+  const d = new Date(S.date + 'T12:00:00');
+  if (isNaN(d)) return '';
+  const mo = d.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
+  const wd = d.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
+  const day = d.getDate(), yr = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0'), dd = String(day).padStart(2, '0');
+  switch (S.dateFormat) {
+    case 'dmy': return `${day} ${mo} ${yr}`;
+    case 'iso': return `${yr}-${mm}-${dd}`;
+    case 'md': return `${mo} ${day}`;
+    case 'wd': return `${wd} ${day} ${mo}`;
+    default: return `${mo} ${day}, ${yr}`;
+  }
+}
+
+let queued = false;
+function sched() {
+  if (queued) return;
+  queued = true;
+  requestAnimationFrame(() => { queued = false; render(); saveSession(); });
+}
+function render() {
+  drawCard(pctx, W, S.style, false);
+  $('themeChip').textContent = (THEMES[S.style] || THEMES[0]).name.toUpperCase();
+  document.querySelectorAll('[data-v]').forEach(el => { el.textContent = S[el.dataset.v]; });
+}
+
+function setTrackLabel(t) { const el = $('trackFileLabel'); if (el) el.textContent = t; }
+
+function applySportMode(sport) {
+  S.sport = sport;
+  const sp = I18N.en.sports[sport] || I18N.en.sports.gym;
+  S.mainLbl = sp.mainLbl;
+  S.muscleTag = sp.badge;
+  const paceIt = S.stats.find(x => x.id === 'pace');
+  if (paceIt) paceIt.label = sp.paceLbl;
+  const elevIt = S.stats.find(x => x.id === 'elev');
+  if (elevIt) elevIt.label = sp.elevLbl;
+  updateBeltVisibility();
+  renderStatsManager();
+  syncWords();
+  sched();
+}
+function applyIconMode(icon) { S.icon = icon; updateBeltVisibility(); sched(); }
+function updateBeltVisibility() {
+  const g = $('beltGroup');
+  if (g) g.hidden = !(S.sport === 'karate' || S.icon === 'karate');
+}
+function buildBeltRow() {
+  const box = $('beltRow');
+  box.innerHTML = '';
+  KARATE_BELTS.forEach(belt => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'wday' + (S.belt === belt.c ? ' on' : '');
+    btn.style.background = belt.c;
+    btn.title = belt.n;
+    btn.setAttribute('aria-label', belt.n + ' belt');
+    btn.innerHTML = '<b style="color:' + (readableOn(belt.c) === '#08111a' ? '#08111a' : '#fff') + '">' + (S.belt === belt.c ? '✓' : '') + '</b>';
+    btn.onclick = () => { S.belt = belt.c; buildBeltRow(); sched(); };
+    box.appendChild(btn);
+  });
+}
+
+/* ---- week editor ---- */
+function buildWeekGrid() {
+  const box = $('weekGrid');
+  box.innerHTML = '';
+  const days = I18N.en.days;
+  const today = new Date().getDay();
+  S.weekCount.forEach((_, i) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    const paint = () => {
+      const v = S.weekCount[i] | 0;
+      b.className = 'wday' + (v ? ' on' : '') + (i === today ? ' today' : '');
+      b.innerHTML = '<span>' + days[i] + '</span><b>' + (v >= 2 ? S.done2Sym : v ? S.doneSym : '–') + '</b>';
+    };
+    paint();
+    b.onclick = () => { S.weekCount[i] = ((S.weekCount[i] | 0) + 1) % 3; paint(); sched(); };
+    box.appendChild(b);
+  });
+}
+
+/* ---- stats manager ---- */
+function renderStatsManager() {
+  const box = $('statsRows');
+  box.innerHTML = '';
+  S.stats.forEach((st, i) => {
+    const row = document.createElement('div');
+    row.className = 'statrow';
+    const ck = document.createElement('input');
+    ck.type = 'checkbox'; ck.checked = !!st.on; ck.title = 'Show on card';
+    ck.onchange = () => { st.on = ck.checked; sched(); };
+    const lb = document.createElement('input');
+    lb.className = 'inp'; lb.value = st.label; lb.placeholder = 'Label';
+    lb.oninput = () => { st.label = lb.value; sched(); };
+    const vl = document.createElement('input');
+    vl.className = 'inp'; vl.value = st.val; vl.placeholder = 'Value';
+    vl.oninput = () => { st.val = vl.value; sched(); };
+    const un = document.createElement('input');
+    un.className = 'inp'; un.value = st.unit || ''; un.placeholder = 'Unit';
+    un.oninput = () => { st.unit = un.value; sched(); };
+    const rm = document.createElement('button');
+    rm.type = 'button'; rm.className = 'iconbtn'; rm.textContent = '✕'; rm.title = 'Remove stat';
+    rm.onclick = () => { S.stats.splice(i, 1); renderStatsManager(); sched(); };
+    row.append(ck, lb, vl, un, rm);
+    box.appendChild(row);
+  });
+}
+
+/* ---- muscle editor ---- */
+function renderMuscleEditor() {
+  const box = $('muscleRows');
+  box.innerHTML = '';
+  MUSCLES.forEach(m => {
+    const row = document.createElement('div');
+    row.className = 'mrow';
+    const name = document.createElement('span');
+    name.className = 'mn';
+    const dot = document.createElement('i');
+    const val = Math.round(+(S.muscleSets[m.k] || 0));
+    dot.style.background = val > 0 ? heatColor(Math.min(1, val / Math.max(1, ...Object.values(S.muscleSets).map(Number)))) : 'var(--line2)';
+    name.append(dot, document.createTextNode(m.n));
+    const step = document.createElement('span');
+    step.className = 'stepper';
+    const minus = document.createElement('button'); minus.type = 'button'; minus.textContent = '−';
+    const plus = document.createElement('button'); plus.type = 'button'; plus.textContent = '+';
+    const num = document.createElement('b'); num.textContent = val;
+    const setV = v => {
+      v = Math.max(0, Math.min(99, v));
+      if (v === 0) delete S.muscleSets[m.k]; else S.muscleSets[m.k] = v;
+      S.muscleSource = 'manual';
+      num.textContent = v;
+      dot.style.background = v > 0 ? heatColor(Math.min(1, v / Math.max(1, ...Object.values(S.muscleSets).map(Number)))) : 'var(--line2)';
+      updateMuscleTagLine();
+      sched();
+    };
+    minus.onclick = () => setV(Math.round(+(S.muscleSets[m.k] || 0)) - 1);
+    plus.onclick = () => setV(Math.round(+(S.muscleSets[m.k] || 0)) + 1);
+    step.append(minus, num, plus);
+    row.append(name, step);
+    box.appendChild(row);
+  });
+  updateMuscleTagLine();
+}
+function updateMuscleTagLine() {
+  const src = { fit: 'FIT file', text: 'pasted text', manual: 'manual', demo: 'demo' }[S.muscleSource] || S.muscleSource;
+  $('muscleTagLine').innerHTML = '<b>' + muscleTotal() + '</b> muscle sets · source: <b>' + src + '</b>' +
+    (S.muscleUnassigned ? ' · ' + S.muscleUnassigned + ' unassigned' : '') +
+    ' · compound lifts count toward every muscle they train';
+}
+
+/* ---- zone colors ---- */
+function buildZoneGrid() {
+  const box = $('zoneRow');
+  box.innerHTML = '';
+  const strainLab = document.createElement('label');
+  strainLab.className = 'field';
+  strainLab.innerHTML = '<span class="lbl">Strain</span>';
+  const strainInp = document.createElement('input');
+  strainInp.type = 'color'; strainInp.className = 'swatch'; strainInp.value = S.whoopStrain;
+  strainInp.oninput = () => { S.whoopStrain = strainInp.value; sched(); };
+  strainLab.appendChild(strainInp);
+  box.appendChild(strainLab);
+  S.whoopZones.forEach((z, i) => {
+    const lab = document.createElement('label');
+    lab.className = 'field';
+    lab.innerHTML = '<span class="lbl">Zone ' + (i + 1) + '</span>';
+    const inp = document.createElement('input');
+    inp.type = 'color'; inp.className = 'swatch'; inp.value = z;
+    inp.oninput = () => { S.whoopZones[i] = inp.value; sched(); };
+    lab.appendChild(inp);
+    box.appendChild(lab);
+  });
+}
+
+/* ---- theme / design kit ---- */
+function applyTheme(i, silent) {
+  const t = THEMES[i] || THEMES[0];
+  S.style = i;
+  Object.assign(S, {
+    cardBg: t.pal.bg, surface: t.pal.surface, textCol: t.pal.text, muted: t.pal.muted,
+    accent: t.pal.accent, accent2: t.pal.accent2, mesh: t.mesh || null,
+    titleFont: FONT_STACKS[t.fonts.d], numFont: FONT_STACKS[t.fonts.n], bodyFont: FONT_STACKS[t.fonts.b],
+    texture: t.texture, radius: t.radius, weekStyle: t.week, glow: t.glow
+  });
+  syncUI();
+  sched();
+  if (!silent) toast(t.name + ' theme applied', 'ok');
+}
+function collectDesign() {
+  const d = {};
+  DESIGN_KEYS.forEach(k => { d[k] = Array.isArray(S[k]) ? S[k].slice() : S[k]; });
+  return d;
+}
+function applyDesign(d) {
+  DESIGN_KEYS.forEach(k => { if (d[k] !== undefined) S[k] = Array.isArray(d[k]) ? d[k].slice() : d[k]; });
+  if (!THEMES[S.style]) S.style = 0;
+  syncUI();
+  sched();
+}
+function syncWords() {
+  ['tag', 'title', 'muscleTag', 'mainLbl', 'weekHdr', 'device'].forEach(k => {
+    const el = document.querySelector('[data-k="' + k + '"]');
+    if (el) el.value = S[k];
+  });
+}
+function syncUI() {
+  document.querySelectorAll('[data-k]').forEach(el => {
+    const k = el.dataset.k;
+    if (S[k] === undefined) return;
+    if (el.type === 'checkbox') el.checked = !!S[k];
+    else el.value = S[k];
+  });
+  document.querySelectorAll('.tile').forEach((t, i) => t.classList.toggle('active', i === S.style));
+  buildZoneGrid();
+  buildWeekGrid();
+  updateBeltVisibility();
+  syncWords();
+}
+
+/* ---- presets & session ---- */
+const LS = {
+  get(k, fallback) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+const PRESET_KEY = 'tcstudio.presets.v1';
+const SESSION_KEY = 'tcstudio.session.v1';
+let sessionTimer = 0;
+function saveSession() {
+  clearTimeout(sessionTimer);
+  sessionTimer = setTimeout(() => {
+    const d = {};
+    SESSION_KEYS.forEach(k => { d[k] = S[k]; });
+    LS.set(SESSION_KEY, d);
+  }, 500);
+}
+function renderPresets() {
+  const list = LS.get(PRESET_KEY, []);
+  const box = $('presetList');
+  box.innerHTML = '';
+  if (!list.length) {
+    box.innerHTML = '<div class="empty">No saved themes yet — tune a look you love, name it, and save it here.</div>';
+    return;
+  }
+  list.forEach(p => {
+    const row = document.createElement('div');
+    row.className = 'presetrow';
+    const dots = document.createElement('span');
+    dots.className = 'dots';
+    [p.design.accent, p.design.accent2, p.design.cardBg, p.design.textCol].forEach(col => {
+      const i = document.createElement('i'); i.style.background = col || '#888'; dots.appendChild(i);
+    });
+    const nm = document.createElement('span');
+    nm.className = 'pn'; nm.textContent = p.name;
+    const dt = document.createElement('span');
+    dt.className = 'pd'; dt.textContent = new Date(p.ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const ap = document.createElement('button');
+    ap.type = 'button'; ap.className = 'btn sm'; ap.textContent = 'Apply';
+    ap.onclick = () => { applyDesign(p.design); toast('"' + p.name + '" applied', 'ok'); };
+    const del = document.createElement('button');
+    del.type = 'button'; del.className = 'btn sm ghost'; del.textContent = 'Delete';
+    let armed = false, armTimer = 0;
+    del.onclick = () => {
+      if (!armed) {
+        armed = true; del.textContent = 'Sure?';
+        armTimer = setTimeout(() => { armed = false; del.textContent = 'Delete'; }, 2500);
+        return;
+      }
+      clearTimeout(armTimer);
+      const next = LS.get(PRESET_KEY, []).filter(x => x.id !== p.id);
+      LS.set(PRESET_KEY, next);
+      renderPresets();
+      toast('Preset deleted', 'warn');
+    };
+    row.append(dots, nm, dt, ap, del);
+    box.appendChild(row);
+  });
+}
+
+/* ===================== card renderers ===================== */
+function paintBackground(c) {
+  c.fillStyle = S.cardBg;
+  c.fillRect(0, 0, W, H);
+  if (S.mesh && S.mesh.length > 1) {
+    const g = c.createLinearGradient(0, 0, W * 0.35, H);
+    S.mesh.forEach((col, i) => g.addColorStop(i / (S.mesh.length - 1), col));
+    c.fillStyle = g;
+    c.fillRect(0, 0, W, H);
+    const r = c.createRadialGradient(W * 0.85, H * 0.12, 40, W * 0.85, H * 0.12, 900);
+    r.addColorStop(0, hexA(S.accent2, 0.14));
+    r.addColorStop(1, 'rgba(0,0,0,0)');
+    c.fillStyle = r;
+    c.fillRect(0, 0, W, H);
+  }
+  const dark = readableOn(S.cardBg) !== '#08111a';
+  const v = c.createRadialGradient(W / 2, H * 0.42, 200, W / 2, H * 0.5, 1300);
+  v.addColorStop(0, 'rgba(0,0,0,0)');
+  v.addColorStop(1, dark ? 'rgba(0,0,0,0.26)' : 'rgba(0,0,0,0.06)');
+  c.fillStyle = v;
+  c.fillRect(0, 0, W, H);
+
+  if (S.texture === 'grid') {
+    c.strokeStyle = hexA(S.textCol, 0.05);
+    c.lineWidth = 1;
+    c.beginPath();
+    for (let x = 54; x < W; x += 54) { c.moveTo(x, 0); c.lineTo(x, H); }
+    for (let y = 54; y < H; y += 54) { c.moveTo(0, y); c.lineTo(W, y); }
+    c.stroke();
+  } else if (S.texture === 'scan') {
+    c.fillStyle = hexA(S.textCol, 0.03);
+    for (let y = 0; y < H; y += 7) c.fillRect(0, y, W, 2);
+  } else if (S.texture === 'grain') {
+    let seed = 42;
+    const rnd = () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296;
+    c.fillStyle = hexA(S.textCol, 0.05);
+    for (let i = 0; i < 1500; i++) c.fillRect(rnd() * W, rnd() * H, 2, 2);
+  }
+}
+
+function drawHeader(c, M, TOP) {
+  txt(c, up(S.tag), M, TOP, fs(30), 700, S.accent, 'left', S.bodyFont);
+  txt(c, fmtDate(), W - M, TOP, fs(26), 600, S.muted, 'right', S.numFont);
+  const tSize = fs(104);
+  txt(c, S.title, M, TOP + fs(98), tSize, S.weight, S.textCol, 'left', S.titleFont, W - 2 * M - 150);
+  txt(c, S.muscleTag, M, TOP + fs(152), fs(34), 500, S.muted, 'left', S.bodyFont, W - 2 * M - 260);
+  if (S.device) txt(c, S.device, W - M, TOP + fs(152), fs(26), 500, S.muted, 'right', S.bodyFont, 300);
+  drawSportBadge(c, W - M - 50, TOP + fs(72), 50, {
+    fill: hexA(S.accent, 0.14), stroke: hexA(S.accent, 0.65), ink: S.accent, lineWidth: 2.4
+  });
+}
+
+function drawHeroMetric(c, M, y, mult = 1) {
+  txt(c, up(S.mainLbl), M, y, fs(28), 700, S.muted, 'left', S.bodyFont);
+  const val = String(S.dist || '0');
+  txt(c, val, M, y + fs(150) * mult, fs(168) * mult, S.weight, S.textCol, 'left', S.numFont, W - 2 * M - 200);
+  c.save();
+  if (S.glow > 0) { c.shadowColor = hexA(S.accent, 0.5 * S.glow / 100); c.shadowBlur = 24 * S.glow / 100; }
+  c.fillStyle = S.accent;
+  rr(c, M, y + fs(176) * mult, 132, 9, 4.5);
+  c.fill();
+  c.restore();
+  return y + fs(210) * mult;
+}
+
+function drawChartPanel(c, M, y, w, h = 300) {
+  const hasHr = S.chartMode === 'hr' && S.hrSeries && S.hrSeries.length >= 6;
+  const hasRoute = S.chartMode === 'route' && S.route && S.route.length >= 3;
+  if (!hasHr && !hasRoute) return y;
+  c.save();
+  c.fillStyle = hexA(S.surface, 0.92);
+  rr(c, M, y, w, h, S.radius);
+  c.fill();
+  c.strokeStyle = hexA(S.textCol, 0.08);
+  c.lineWidth = 1.5;
+  rr(c, M, y, w, h, S.radius);
+  c.stroke();
+  c.restore();
+  const pad = 34;
+  if (hasHr) {
+    txt(c, up('Heart rate'), M + pad, y + 44, fs(22), 700, S.muted, 'left', S.bodyFont);
+    txt(c, S.maxHrVal ? 'MAX ' + S.maxHrVal : '', M + w - pad, y + 44, fs(22), 700, S.muted, 'right', S.numFont);
+    drawSmoothHeartRateChart(c, M + pad, y + 66, w - pad * 2, h - 100, S.accent, S.textCol, 0.16, 18 * S.glow / 100, 5);
+  } else {
+    txt(c, up('Route'), M + pad, y + 44, fs(22), 700, S.muted, 'left', S.bodyFont);
+    txt(c, S.dist + ' KM', M + w - pad, y + 44, fs(22), 700, S.muted, 'right', S.numFont);
+    drawMiniRoute(c, M + pad, y + 60, w - pad * 2, h - 92, S.accent);
+  }
+  return y + h;
+}
+
+function drawStatsRow(c, M, y, w, rowH = 112, tiles = false) {
+  if (!S.showStats) return y;
+  const items = S.stats.filter(x => x.on).slice(0, 6);
+  if (!items.length) return y;
+  if (tiles) {
+    const gap = 24, tw = (w - gap) / 2;
+    const rows = Math.ceil(items.length / 2);
+    items.forEach((st, i) => {
+      const lastOdd = i === items.length - 1 && items.length % 2 === 1;
+      const bw = lastOdd ? w : tw;
+      const tx = M + (i % 2) * (tw + gap);
+      const ty = y + Math.floor(i / 2) * (rowH + gap);
+      c.save();
+      c.fillStyle = hexA(S.surface, 0.92);
+      rr(c, tx, ty, bw, rowH, S.radius); c.fill();
+      c.strokeStyle = hexA(S.textCol, 0.08); c.lineWidth = 1.5;
+      rr(c, tx, ty, bw, rowH, S.radius); c.stroke();
+      c.restore();
+      txt(c, up(st.label), tx + 32, ty + 46, fs(22), 700, S.muted, 'left', S.bodyFont, bw - 64);
+      const vSize = fs(64);
+      txt(c, String(st.val), tx + 32, ty + rowH - 40, vSize, Math.min(800, S.weight), S.textCol, 'left', S.numFont, bw - 150);
+      if (st.unit) {
+        c.save();
+        c.font = `${Math.min(800, S.weight)} ${vSize}px ${S.numFont}`;
+        const vw = c.measureText(String(st.val)).width;
+        c.restore();
+        txt(c, st.unit, tx + 32 + Math.min(vw, bw - 150) + 12, ty + rowH - 40, fs(24), 600, S.muted, 'left', S.bodyFont);
+      }
+    });
+    return y + rows * (rowH + gap) - gap;
+  }
+  const cols = Math.min(3, items.length);
+  const rows = Math.ceil(items.length / cols);
+  c.save();
+  c.strokeStyle = hexA(S.textCol, 0.12);
+  c.lineWidth = 1.5;
+  c.beginPath(); c.moveTo(M, y); c.lineTo(M + w, y); c.stroke();
+  c.restore();
+  items.forEach((st, i) => {
+    const cx = M + (i % cols) * (w / cols);
+    const cy = y + 44 + Math.floor(i / cols) * rowH;
+    txt(c, up(st.label), cx, cy, fs(22), 700, S.muted, 'left', S.bodyFont, w / cols - 30);
+    const vSize = fs(56);
+    txt(c, String(st.val), cx, cy + fs(58), vSize, Math.min(800, S.weight), S.textCol, 'left', S.numFont, w / cols - 90);
+    if (st.unit) {
+      c.save();
+      c.font = `${Math.min(800, S.weight)} ${vSize}px ${S.numFont}`;
+      const vw = c.measureText(String(st.val)).width;
+      c.restore();
+      txt(c, st.unit, cx + Math.min(vw, w / cols - 90) + 12, cy + fs(58), fs(24), 600, S.muted, 'left', S.bodyFont);
+    }
+  });
+  return y + 30 + rows * rowH;
+}
+
+/* ---- week widgets: six clean variants ---- */
+function weekSummary() {
+  const done = S.weekCount.filter(v => (v | 0) > 0).length;
+  return done;
+}
+function drawWeek(c, M, y, w, h) {
+  const style = S.weekStyle;
+  if (style === 'none') return;
+  const days = I18N.en.days;
+  const today = new Date().getDay();
+  const done = weekSummary();
+  txt(c, up(S.weekHdr), M, y + 26, fs(24), 700, S.muted, 'left', S.bodyFont);
+  txt(c, done + '/7', M + w, y + 26, fs(26), 800, S.accent, 'right', S.numFont);
+  const gy = y + 52, gh = h - 62;
+  const cw = w / 7;
+  const inkOnAcc = readableOn(S.accent) === '#08111a' ? '#08111a' : '#ffffff';
+
+  if (style === 'strip') {
+    for (let i = 0; i < 7; i++) {
+      const v = S.weekCount[i] | 0;
+      const cx = M + cw * i + cw / 2, cy = gy + gh / 2 - 6;
+      txt(c, days[i][0], cx, gy + 16, fs(22), 700, i === today ? S.accent : S.muted, 'center', S.bodyFont);
+      c.save();
+      c.beginPath(); c.arc(cx, cy + 16, 30, 0, Math.PI * 2);
+      if (v > 0) {
+        if (S.glow > 0) { c.shadowColor = hexA(S.accent, 0.45 * S.glow / 100); c.shadowBlur = 16 * S.glow / 100; }
+        c.fillStyle = v >= 2 ? S.accent2 : S.accent;
+        c.fill();
+        c.shadowBlur = 0;
+        c.fillStyle = v >= 2 ? (readableOn(S.accent2) === '#08111a' ? '#08111a' : '#fff') : inkOnAcc;
+        c.font = `800 ${fs(24)}px ${S.bodyFont}`;
+        c.textAlign = 'center'; c.textBaseline = 'middle';
+        c.fillText(v >= 2 ? S.done2Sym : S.doneSym, cx, cy + 17);
+      } else {
+        c.strokeStyle = hexA(S.muted, 0.45);
+        c.lineWidth = 2;
+        c.stroke();
+      }
+      c.restore();
+      if (i === today) {
+        c.save();
+        c.beginPath(); c.arc(cx, cy + 16, 38, 0, Math.PI * 2);
+        c.strokeStyle = hexA(S.accent, 0.8); c.lineWidth = 2.5; c.stroke();
+        c.restore();
+      }
+    }
+  } else if (style === 'dots') {
+    for (let i = 0; i < 7; i++) {
+      const v = S.weekCount[i] | 0;
+      const cx = M + cw * i + cw / 2, cy = gy + gh / 2 - 4;
+      c.save();
+      c.beginPath(); c.arc(cx, cy, v ? 15 : 10, 0, Math.PI * 2);
+      if (v) { c.fillStyle = v >= 2 ? S.accent2 : S.accent; c.fill(); }
+      else { c.fillStyle = hexA(S.muted, 0.35); c.fill(); }
+      if (v >= 2) { c.beginPath(); c.arc(cx, cy, 22, 0, Math.PI * 2); c.strokeStyle = hexA(S.accent2, 0.7); c.lineWidth = 2.5; c.stroke(); }
+      if (i === today) { c.beginPath(); c.arc(cx, cy, 28, 0, Math.PI * 2); c.strokeStyle = hexA(S.accent, 0.8); c.lineWidth = 2.5; c.stroke(); }
+      c.restore();
+      txt(c, days[i][0], cx, cy + 52, fs(22), 700, i === today ? S.accent : S.muted, 'center', S.bodyFont);
+    }
+  } else if (style === 'bars') {
+    const maxV = Math.max(1, ...S.weekCount.map(v => v | 0));
+    const bw = Math.min(64, cw * 0.5);
+    for (let i = 0; i < 7; i++) {
+      const v = S.weekCount[i] | 0;
+      const cx = M + cw * i + cw / 2;
+      const bh = v ? 26 + (v / maxV) * (gh - 66) : 6;
+      const by = gy + gh - 34 - bh;
+      c.save();
+      c.fillStyle = v ? (v >= 2 ? S.accent2 : S.accent) : hexA(S.muted, 0.3);
+      rr(c, cx - bw / 2, by, bw, bh, Math.min(8, S.radius / 2));
+      c.fill();
+      c.restore();
+      if (v) txt(c, String(v), cx, by - 10, fs(22), 800, S.textCol, 'center', S.numFont);
+      txt(c, days[i][0], cx, gy + gh - 6, fs(22), 700, i === today ? S.accent : S.muted, 'center', S.bodyFont);
+    }
+  } else if (style === 'heat') {
+    const sq = Math.min(88, cw - 18);
+    for (let i = 0; i < 7; i++) {
+      const v = S.weekCount[i] | 0;
+      const cx = M + cw * i + cw / 2;
+      const sy = gy + (gh - sq) / 2 - 8;
+      c.save();
+      c.fillStyle = v === 0 ? hexA(S.surface, 0.9) : v === 1 ? hexA(S.accent, 0.22) : S.accent;
+      rr(c, cx - sq / 2, sy, sq, sq, Math.min(18, S.radius / 2 + 4));
+      c.fill();
+      c.strokeStyle = i === today ? hexA(S.accent2, 0.9) : v === 1 ? hexA(S.accent, 0.55) : hexA(S.textCol, 0.08);
+      c.lineWidth = i === today ? 3 : 1.5;
+      rr(c, cx - sq / 2, sy, sq, sq, Math.min(18, S.radius / 2 + 4));
+      c.stroke();
+      if (v) {
+        c.fillStyle = v === 1 ? S.textCol : inkOnAcc;
+        c.font = `800 ${fs(26)}px ${S.bodyFont}`;
+        c.textAlign = 'center'; c.textBaseline = 'middle';
+        c.fillText(v >= 2 ? S.done2Sym : S.doneSym, cx, sy + sq / 2);
+      }
+      c.restore();
+      txt(c, days[i][0], cx, sy + sq + 30, fs(22), 700, i === today ? S.accent : S.muted, 'center', S.bodyFont);
+    }
+  } else if (style === 'ring') {
+    const r = Math.min(64, gh / 2 - 4);
+    const cx = M + r + 6, cy = gy + gh / 2;
+    c.save();
+    c.lineWidth = 12; c.lineCap = 'round';
+    c.strokeStyle = hexA(S.muted, 0.25);
+    c.beginPath(); c.arc(cx, cy, r, 0, Math.PI * 2); c.stroke();
+    if (done > 0) {
+      if (S.glow > 0) { c.shadowColor = hexA(S.accent, 0.5 * S.glow / 100); c.shadowBlur = 14 * S.glow / 100; }
+      c.strokeStyle = S.accent;
+      c.beginPath(); c.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + (done / 7) * Math.PI * 2); c.stroke();
+    }
+    c.restore();
+    txt(c, String(done), cx, cy + fs(16), fs(44), 800, S.textCol, 'center', S.numFont);
+    const lx = cx + r + 50;
+    txt(c, up('days active'), lx, cy - 6, fs(26), 700, S.textCol, 'left', S.bodyFont);
+    txt(c, 'this week', lx, cy + 30, fs(24), 500, S.muted, 'left', S.bodyFont);
+    const dx = M + w - 7 * 44;
+    for (let i = 0; i < 7; i++) {
+      const v = S.weekCount[i] | 0;
+      const x = dx + i * 44 + 12;
+      c.save();
+      c.beginPath(); c.arc(x, cy - 12, 8, 0, Math.PI * 2);
+      c.fillStyle = v ? (v >= 2 ? S.accent2 : S.accent) : hexA(S.muted, 0.35);
+      c.fill();
+      c.restore();
+      txt(c, days[i][0], x, cy + 26, fs(20), 700, i === today ? S.accent : S.muted, 'center', S.bodyFont);
+    }
+  }
+}
+
+function drawStudioTheme(c, TOP, contentBot, weekY, weekH) {
+  const M = 72;
+  drawHeader(c, M, TOP);
+  const base = TOP + fs(210);
+  const hasChart = (S.chartMode === 'hr' && S.hrSeries.length >= 6) || (S.chartMode === 'route' && S.route.length >= 3);
+  const nStats = S.showStats ? Math.min(6, S.stats.filter(x => x.on).length) : 0;
+  const tiles = !hasChart && nStats > 0;
+  const rows = Math.ceil(nStats / (tiles ? 2 : 3));
+  const baseRow = tiles ? 150 : 112;
+  const chartH = hasChart ? 300 : 0;
+  const statsNom = nStats ? (tiles ? rows * (baseRow + 24) - 24 : 30 + rows * baseRow) : 0;
+  const nominal = fs(210) + chartH + statsNom;
+  const slack = Math.max(0, contentBot - base - nominal);
+  const mult = 1 + Math.min(0.28, slack / 1600);
+  const rowH = baseRow + Math.min(tiles ? 40 : 56, slack / 7);
+  const statsH = nStats ? (tiles ? rows * (rowH + 24) - 24 : 30 + rows * rowH) : 0;
+  const used = fs(210) * mult + chartH + statsH;
+  const g = Math.min(hasChart ? 70 : 100, Math.max(18, (contentBot - base - used) / (hasChart ? 3 : 2)));
+  let y = drawHeroMetric(c, M, base, mult);
+  y += g;
+  if (hasChart) { y = drawChartPanel(c, M, y, W - 2 * M, 300); y += g; }
+  drawStatsRow(c, M, y, W - 2 * M, rowH, tiles);
+}
+
+/* ---- WHOOP workout-details theme ---- */
+function strainCategory(s) {
+  if (s >= 18) return { word: 'ALL OUT', col: S.whoopZones[4] };
+  if (s >= 14) return { word: 'HIGH', col: S.whoopZones[3] };
+  if (s >= 10) return { word: 'MODERATE', col: S.whoopZones[2] };
+  return { word: 'LIGHT', col: S.whoopZones[1] };
+}
+
+function drawWhoopHero(c, M, y, w, h) {
+  const strain = computeStrain();
+  const cat = strainCategory(strain);
+  const cx = M + 138, cy = y + h * 0.46, r = Math.min(116, h * 0.40);
+  const a0 = Math.PI * 0.75, a1 = Math.PI * 2.25;
+  c.save();
+  c.lineCap = 'round';
+  c.lineWidth = 22;
+  c.strokeStyle = hexA(S.textCol, 0.10);
+  c.beginPath(); c.arc(cx, cy, r, a0, a1); c.stroke();
+  const frac = Math.max(0.004, Math.min(1, strain / 21));
+  if (S.glow > 0) { c.shadowColor = hexA(cat.col, 0.6 * S.glow / 100); c.shadowBlur = 26 * S.glow / 100; }
+  c.strokeStyle = cat.col;
+  c.beginPath(); c.arc(cx, cy, r, a0, a0 + (a1 - a0) * frac); c.stroke();
+  c.restore();
+  txt(c, up('strain'), cx, cy - fs(46), fs(20), 700, S.muted, 'center', S.bodyFont);
+  txt(c, strain.toFixed(1), cx, cy + fs(26), fs(92), S.weight, S.textCol, 'center', S.numFont);
+  txt(c, up(cat.word), cx, cy + r + 34, fs(26), 800, cat.col, 'center', S.bodyFont);
+  txt(c, '0', cx - r * 0.74, cy + r * 0.80, fs(20), 600, S.muted, 'center', S.numFont);
+  txt(c, '21', cx + r * 0.74, cy + r * 0.80, fs(20), 600, S.muted, 'center', S.numFont);
+
+  const isStrength = S.sport === 'gym' || S.sport === 'karate';
+  const muscLoad = isStrength ? strain * 0.62 : strain * 0.18;
+  const cardioLoad = Math.max(0, strain - muscLoad);
+  const lx = M + 300, lw = w - 300;
+  const loadRow = (ry, label, val, col) => {
+    txt(c, up(label), lx, ry, fs(22), 700, S.muted, 'left', S.bodyFont, lw - 110);
+    txt(c, val.toFixed(1), lx + lw, ry + fs(4), fs(36), 800, S.textCol, 'right', S.numFont);
+    c.save();
+    c.fillStyle = hexA(S.textCol, 0.10);
+    rr(c, lx, ry + 18, lw, 14, 7); c.fill();
+    if (S.glow > 0) { c.shadowColor = hexA(col, 0.5 * S.glow / 100); c.shadowBlur = 14 * S.glow / 100; }
+    c.fillStyle = col;
+    rr(c, lx, ry + 18, Math.max(14, lw * Math.min(1, val / 21)), 14, 7); c.fill();
+    c.restore();
+  };
+  loadRow(y + h * 0.20, 'Muscular load', muscLoad, S.accent);
+  loadRow(y + h * 0.60, 'Cardio load', cardioLoad, S.whoopStrain);
+}
+
+function drawWhoopChart(c, M, y, w, h) {
+  c.save();
+  c.fillStyle = hexA(S.surface, 0.92);
+  rr(c, M, y, w, h, S.radius); c.fill();
+  c.strokeStyle = hexA(S.textCol, 0.08); c.lineWidth = 1.5;
+  rr(c, M, y, w, h, S.radius); c.stroke();
+  c.restore();
+  const pad = 34;
+  const hasHr = S.chartMode === 'hr' && S.hrSeries.length >= 6;
+  if (!hasHr) {
+    txt(c, up('Route'), M + pad, y + 44, fs(22), 700, S.muted, 'left', S.bodyFont);
+    txt(c, S.dist + ' KM', M + w - pad, y + 44, fs(22), 700, S.muted, 'right', S.numFont);
+    drawMiniRoute(c, M + pad, y + 60, w - pad * 2, h - 92, S.accent);
+    return;
+  }
+  txt(c, up('Heart rate'), M + pad, y + 44, fs(22), 700, S.muted, 'left', S.bodyFont);
+  txt(c, S.maxHrVal ? 'MAX ' + S.maxHrVal : '', M + w - pad, y + 44, fs(22), 700, S.muted, 'right', S.numFont);
+  const gx = M + pad, gy = y + 64, gw = w - pad * 2, gh = h - 96;
+  const pts = S.hrSeries;
+  const max = whoopMaxHr();
+  const bounds = [0.5, 0.6, 0.7, 0.8, 0.9].map(f => f * max);
+  const minV = Math.min(...pts, bounds[0]) - 4;
+  const maxV = Math.max(...pts, max) + 4;
+  const range = Math.max(12, maxV - minV);
+  const X = i => gx + (i / (pts.length - 1)) * gw;
+  const Y = v => gy + gh - ((v - minV) / range) * gh;
+  const zoneOf = v => { let z = 0; for (let i = 0; i < 5; i++) if (v >= bounds[i]) z = i; return z; };
+  c.save();
+  bounds.forEach((b, i) => {
+    const by = Y(b);
+    if (by > gy + 2 && by < gy + gh - 2) {
+      c.strokeStyle = hexA(S.whoopZones[i + 1] || S.muted, 0.16);
+      c.lineWidth = 1; c.setLineDash([4, 7]);
+      c.beginPath(); c.moveTo(gx, by); c.lineTo(gx + gw, by); c.stroke();
+    }
+  });
+  c.setLineDash([]);
+  c.restore();
+  const mid = (a, b) => [(X(a) + X(b)) / 2, (Y(pts[a]) + Y(pts[b])) / 2];
+  c.save();
+  c.beginPath();
+  c.moveTo(X(0), Y(pts[0]));
+  for (let i = 0; i < pts.length - 1; i++) { const m = mid(i, i + 1); c.quadraticCurveTo(X(i), Y(pts[i]), m[0], m[1]); }
+  c.lineTo(X(pts.length - 1), Y(pts[pts.length - 1]));
+  c.lineTo(gx + gw, gy + gh); c.lineTo(gx, gy + gh); c.closePath();
+  const ag = c.createLinearGradient(0, gy, 0, gy + gh);
+  ag.addColorStop(0, hexA(S.whoopStrain, 0.20));
+  ag.addColorStop(1, 'rgba(0,0,0,0)');
+  c.fillStyle = ag; c.fill();
+  c.restore();
+  c.save();
+  c.lineWidth = 4.5; c.lineCap = 'round'; c.lineJoin = 'round';
+  for (let i = 0; i < pts.length; i++) {
+    const z = zoneOf(pts[i]);
+    c.strokeStyle = S.whoopZones[z];
+    if (S.glow > 0) { c.shadowColor = hexA(S.whoopZones[z], 0.55 * S.glow / 100); c.shadowBlur = 12 * S.glow / 100; }
+    c.beginPath();
+    if (i === 0) c.moveTo(X(0), Y(pts[0])); else { const m0 = mid(i - 1, i); c.moveTo(m0[0], m0[1]); }
+    if (i === pts.length - 1) c.lineTo(X(i), Y(pts[i])); else { const m1 = mid(i, i + 1); c.quadraticCurveTo(X(i), Y(pts[i]), m1[0], m1[1]); }
+    c.stroke();
+  }
+  c.restore();
+}
+
+function drawWhoopZones(c, M, y, w) {
+  const zones = computeZoneMinutes();
+  const total = zones.reduce((a, b) => a + b, 0) || 1;
+  txt(c, up('Heart rate zones'), M, y + fs(20), fs(24), 700, S.muted, 'left', S.bodyFont);
+  txt(c, Math.round(total) + ' min', M + w, y + fs(20), fs(24), 800, S.textCol, 'right', S.numFont);
+  const by = y + 38, bh = 18;
+  c.save();
+  rr(c, M, by, w, bh, bh / 2); c.clip();
+  let bx = M;
+  zones.forEach((min, i) => {
+    const segW = w * (min / total);
+    c.fillStyle = S.whoopZones[i];
+    c.fillRect(bx, by, segW + 0.6, bh);
+    bx += segW;
+  });
+  c.restore();
+  const ly = by + bh + 30, zw = w / 5;
+  zones.forEach((min, i) => {
+    const x = M + i * zw;
+    c.save();
+    c.beginPath(); c.arc(x + 7, ly - 8, 7, 0, Math.PI * 2);
+    c.fillStyle = S.whoopZones[i]; c.fill();
+    c.restore();
+    txt(c, 'Z' + (i + 1), x + 24, ly, fs(22), 700, S.muted, 'left', S.bodyFont);
+    txt(c, Math.round(min) + 'm', x + zw - 14, ly, fs(26), 800, S.textCol, 'right', S.numFont);
+  });
+}
+
+function drawWhoopMuscles(c, M, y, w) {
+  const entries = Object.entries(S.muscleSets || {}).filter(([, v]) => +v > 0).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  const maxSets = Math.max(1, ...entries.map(([, v]) => +v));
+  txt(c, up('Muscle groups'), M, y + fs(18), fs(24), 700, S.muted, 'left', S.bodyFont);
+  let cxp = M, cyp = y + 34;
+  entries.forEach(([k, v]) => {
+    const name = (MUSCLES.find(m => m.k === k) || { n: k }).n;
+    const t = Math.pow(Math.min(1, +v / maxSets), 0.85);
+    const col = heatColor(t);
+    const label = name + '  ' + Math.round(+v);
+    c.save();
+    c.font = `700 ${fs(23)}px ${S.bodyFont}`;
+    const tw = Math.min(w, c.measureText(label).width + 58);
+    c.restore();
+    if (cxp + tw > M + w) { cxp = M; cyp += 50; }
+    c.save();
+    c.fillStyle = hexA(col, 0.16);
+    rr(c, cxp, cyp, tw, 42, 21); c.fill();
+    c.strokeStyle = hexA(col, 0.55); c.lineWidth = 1.5;
+    rr(c, cxp, cyp, tw, 42, 21); c.stroke();
+    c.beginPath(); c.arc(cxp + 22, cyp + 21, 6, 0, Math.PI * 2);
+    c.fillStyle = col; c.fill();
+    c.restore();
+    txt(c, label, cxp + 38, cyp + 29, fs(23), 700, S.textCol, 'left', S.bodyFont, tw - 50);
+    cxp += tw + 12;
+  });
+}
+
+function drawWhoopTheme(c, TOP, contentBot, weekY, weekH) {
+  const M = 72, w = W - 2 * M;
+  drawHeader(c, M, TOP);
+  const hasChart = (S.chartMode === 'hr' && S.hrSeries.length >= 6) || (S.chartMode === 'route' && S.route.length >= 3);
+  const isStrength = S.sport === 'gym' || S.sport === 'karate';
+  const hasMuscles = isStrength && Object.values(S.muscleSets || {}).some(v => +v > 0);
+  const nStats = S.showStats ? Math.min(6, S.stats.filter(x => x.on).length) : 0;
+  const useTiles = nStats > 0 && nStats <= 4;
+  const statRows = nStats ? Math.ceil(nStats / (useTiles ? 2 : 3)) : 0;
+  const statsH = nStats ? (useTiles ? statRows * 154 - 22 : 30 + statRows * 112) : 0;
+  const heroH = 270, chartH = 210, zonesH = 100, muscH = 128, gap = 20;
+  const avail = contentBot - TOP;
+  const baseUsed = fs(186) + heroH + zonesH + statsH + gap * 2;
+  let budget = avail - baseUsed;
+  const showChart = hasChart && budget >= chartH + gap;
+  if (showChart) budget -= chartH + gap;
+  const showMuscles = hasMuscles && budget >= muscH + gap;
+  if (showMuscles) budget -= muscH + gap;
+  const extra = Math.max(0, budget);
+  const g = gap + Math.min(26, extra / 4);
+  const heroH2 = heroH + Math.min(28, extra * 0.3);
+
+  let y = TOP + fs(186);
+  drawWhoopHero(c, M, y, w, heroH2); y += heroH2 + g;
+  if (showChart) { drawWhoopChart(c, M, y, w, chartH); y += chartH + g; }
+  drawWhoopZones(c, M, y, w); y += zonesH + g;
+  if (showMuscles) { drawWhoopMuscles(c, M, y, w); y += muscH + g; }
+  if (nStats) {
+    const remH = Math.max(0, contentBot - y);
+    if (useTiles) {
+      const rowH = Math.max(112, Math.min(184, (remH - (statRows - 1) * 22) / statRows));
+      drawStatsRow(c, M, y, w, rowH, true);
+    } else {
+      const rowH = Math.max(96, Math.min(150, (remH - 30) / statRows));
+      drawStatsRow(c, M, y, w, rowH, false);
+    }
+  }
+}
+
+function drawStrainTheme(c, TOP, contentBot, weekY, weekH) {
+  const M = 72;
+  drawHeader(c, M, TOP);
+  const strain = computeStrain();
+  const cx = W / 2, cy = TOP + fs(400), r = 230;
+  const a0 = Math.PI * 0.75, a1 = Math.PI * 2.25;
+  c.save();
+  c.lineCap = 'round';
+  c.lineWidth = 30;
+  c.strokeStyle = hexA(S.surface, 1);
+  c.beginPath(); c.arc(cx, cy, r, a0, a1); c.stroke();
+  const frac = Math.max(0.001, strain / 21);
+  if (S.glow > 0) { c.shadowColor = hexA(S.whoopStrain, 0.55 * S.glow / 100); c.shadowBlur = 30 * S.glow / 100; }
+  c.strokeStyle = S.whoopStrain;
+  c.beginPath(); c.arc(cx, cy, r, a0, a0 + (a1 - a0) * frac); c.stroke();
+  c.restore();
+  txt(c, strain.toFixed(1), cx, cy + fs(40), fs(150), S.weight, S.textCol, 'center', S.numFont);
+  txt(c, up('strain'), cx, cy + fs(96), fs(30), 700, S.muted, 'center', S.bodyFont);
+  txt(c, '0', cx - r * 0.72, cy + r * 0.86, fs(24), 600, S.muted, 'center', S.numFont);
+  txt(c, '21', cx + r * 0.72, cy + r * 0.86, fs(24), 600, S.muted, 'center', S.numFont);
+
+  let y = cy + r + fs(110);
+  const zones = computeZoneMinutes();
+  const zGap = 30;
+  const zw = (W - 2 * M - 4 * zGap) / 5;
+  const nStats = S.showStats ? Math.min(6, S.stats.filter(x => x.on).length) : 0;
+  const statsH = nStats ? 30 + Math.ceil(nStats / 3) * 112 : 0;
+  const slack = Math.max(0, contentBot - (y + 118 + statsH));
+  y += Math.min(120, slack * 0.4);
+  txt(c, up('heart rate zones'), M, y, fs(24), 700, S.muted, 'left', S.bodyFont);
+  y += 26;
+  zones.forEach((min, i) => {
+    const x = M + i * (zw + zGap);
+    c.save();
+    c.fillStyle = S.whoopZones[i];
+    rr(c, x, y, zw, 12, 6); c.fill();
+    c.restore();
+    txt(c, 'Z' + (i + 1), x, y + 48, fs(24), 700, S.muted, 'left', S.bodyFont);
+    txt(c, Math.round(min) + 'm', x + zw, y + 48, fs(26), 800, S.textCol, 'right', S.numFont);
+  });
+  y += 92;
+  drawStatsRow(c, M, y, W - 2 * M);
+}
+
+function drawSafeOverlay(c) {
+  if (!S.showSafeGuide) return;
+  c.save();
+  c.fillStyle = 'rgba(255, 60, 60, 0.14)';
+  c.fillRect(0, 0, W, 240);
+  c.fillRect(0, 1710, W, 210);
+  c.strokeStyle = 'rgba(255, 90, 90, 0.7)';
+  c.setLineDash([14, 10]);
+  c.lineWidth = 3;
+  c.beginPath();
+  c.moveTo(0, 240); c.lineTo(W, 240);
+  c.moveTo(0, 1710); c.lineTo(W, 1710);
+  c.stroke();
+  c.setLineDash([]);
+  txt(c, 'Story avatar & username safe zone', 540, 145, 28, 700, '#ff8080', 'center', S.bodyFont);
+  txt(c, 'Story replies safe zone', 540, 1810, 28, 700, '#ff8080', 'center', S.bodyFont);
+  c.restore();
+}
+
+function drawCard(c, w, st, isExport = false) {
+  const u = w / W;
+  c.save();
+  c.setTransform(1, 0, 0, 1, 0, 0);
+  c.clearRect(0, 0, w, Math.round(w * 16 / 9));
+  c.scale(u, u);
+  if (!(isExport && S.transparent)) paintBackground(c);
+  const TOP = 250 + (S.safeShift || 0);
+  const BOT = 1710;
+  const weekH = S.weekStyle === 'none' ? 0 : (S.weekStyle === 'ring' ? 190 : 176);
+  const weekY = BOT - 16 - weekH;
+  const contentBot = weekH ? weekY - 26 : BOT;
+  const kind = (THEMES[st] || THEMES[0]).kind;
+  if (kind === 'whoop') drawWhoopTheme(c, TOP, contentBot, weekY, weekH);
+  else if (kind === 'strain') drawStrainTheme(c, TOP, contentBot, weekY, weekH);
+  else drawStudioTheme(c, TOP, contentBot, weekY, weekH);
+  if (weekH) drawWeek(c, 72, weekY, W - 144, weekH);
+  if (!isExport) drawSafeOverlay(c);
+  c.restore();
+}
+
+/* ===================== UI wiring ===================== */
+function buildThemeTiles() {
+  const box = $('themeGrid');
+  box.innerHTML = '';
+  THEMES.forEach((t, i) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'tile';
+    const sw = document.createElement('span');
+    sw.className = 'sw';
+    [t.pal.bg, t.pal.accent, t.pal.accent2, t.pal.text].forEach(col => {
+      const d = document.createElement('i'); d.style.background = col; sw.appendChild(d);
+    });
+    const nm = document.createElement('div'); nm.className = 'tn'; nm.textContent = t.name;
+    const tt = document.createElement('div'); tt.className = 'tt'; tt.textContent = t.kind === 'studio' ? 'card' : t.kind === 'whoop' ? 'workout' : t.kind;
+    b.append(sw, nm, tt);
+    b.onclick = () => applyTheme(i);
+    box.appendChild(b);
+  });
+}
+function buildFontSelects() {
+  document.querySelectorAll('select[data-font]').forEach(sel => {
+    sel.innerHTML = '';
+    FONT_OPTIONS.forEach(([key, label]) => {
+      const o = document.createElement('option');
+      o.value = FONT_STACKS[key];
+      o.textContent = label;
+      sel.appendChild(o);
+    });
+  });
+}
+
+document.querySelectorAll('[data-k]').forEach(el => {
+  const k = el.dataset.k;
+  el.addEventListener('input', () => {
+    let v;
+    if (el.type === 'checkbox') v = el.checked;
+    else if (el.type === 'number' || el.type === 'range') v = el.value === '' ? '' : +el.value;
+    else v = el.value;
+    if (k === 'sport') { applySportMode(v); return; }
+    if (k === 'icon') { applyIconMode(v); return; }
+    S[k] = v;
+    if (k === 'whoopMaxHr') S.whoopMaxHr = Math.max(120, Math.min(230, +v || 190));
+    sched();
+  });
+});
+
+$('trackDrop').onclick = () => $('trackFile').click();
+$('trackFile').onchange = e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  e.target.value = '';
+  handleTrackFile(f);
+};
+['dragenter', 'dragover'].forEach(t => $('trackDrop').addEventListener(t, ev => {
+  ev.preventDefault();
+  $('trackDrop').classList.add('dragging');
+}));
+['dragleave', 'drop'].forEach(t => $('trackDrop').addEventListener(t, ev => {
+  ev.preventDefault();
+  $('trackDrop').classList.remove('dragging');
+}));
+$('trackDrop').addEventListener('drop', ev => {
+  const f = ev.dataTransfer && ev.dataTransfer.files && ev.dataTransfer.files[0];
+  if (f) handleTrackFile(f);
+});
+
+$('pasteBtn').onclick = () => {
+  const raw = $('pasteBox').value;
+  if (!raw.trim()) { toast('Paste a workout list first', 'warn'); return; }
+  if (extractMusclesFromText(raw)) {
+    S.muscleSource = 'text';
+    renderMuscleEditor();
+    syncInputsFromState();
+    toast(muscleTotal() + ' muscle sets extracted', 'ok');
+    msg.textContent = 'Extracted muscles from pasted text.';
+  } else if (parseCorosTextOrHtml(raw)) {
+    renderMuscleEditor();
+    syncInputsFromState();
+    toast('Workout data extracted', 'ok');
+  } else {
+    toast('No exercises recognised — try "Bench Press 4 x 8 60kg"', 'warn');
+  }
+};
+$('clearMuscles').onclick = () => {
+  S.muscleSets = {};
+  S.muscleUnassigned = 0;
+  S.muscleSource = 'manual';
+  renderMuscleEditor();
+  sched();
+  toast('Muscle sets cleared', 'warn');
+};
+$('fetchBtn').onclick = async () => {
+  const val = $('corosUrl').value.trim();
+  if (!val) { toast('Paste a workout link or workout text first', 'warn'); return; }
+  if (!/^https?:\/\//i.test(val) && parseCorosTextOrHtml(val)) {
+    renderMuscleEditor();
+    toast('Workout stats filled automatically', 'ok');
+    return;
+  }
+  const urlMatch = val.match(/https?:\/\/[^\s]+/i);
+  const targetUrl = urlMatch ? urlMatch[0] : val;
+  msg.textContent = 'Fetching workout data from the link...';
+  $('fetchBtn').disabled = true;
+  const endpoints = [
+    'https://r.jina.ai/' + targetUrl,
+    'https://api.allorigins.win/raw?url=' + encodeURIComponent(targetUrl),
+    'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(targetUrl)
+  ];
+  let fetchedText = '';
+  for (const ep of endpoints) {
+    try {
+      const ctl = new AbortController();
+      const to = setTimeout(() => ctl.abort(), 7500);
+      const r = await fetch(ep, { signal: ctl.signal });
+      clearTimeout(to);
+      if (r.ok) {
+        const t = await r.text();
+        if (t && t.length > 40) {
+          fetchedText += '\n' + t;
+          if (parseCorosTextOrHtml(fetchedText)) break;
+        }
+      }
+    } catch (e) {}
+  }
+  $('fetchBtn').disabled = false;
+  if (parseCorosTextOrHtml(fetchedText) || parseCorosTextOrHtml(val)) {
+    renderMuscleEditor();
+    msg.textContent = 'Workout stats fetched and filled.';
+    toast('Workout link imported', 'ok');
+  } else {
+    msg.textContent = 'The link is protected; upload a .FIT/.GPX file from the watch app, or edit the fields manually.';
+    toast('Could not read that link', 'warn');
+  }
+};
+
+/* ===================== Zepp cloud connector (Amazfit) =====================
+   Cloud history needs an account login (email + password) or an app token +
+   user ID. The Bluetooth auth key pairs the watch over BLE and cannot read
+   cloud history on its own. Requests go direct first, then via a CORS proxy. */
+const ZEPP_TOKENS_URL = 'https://api-user-us2.zepp.com/v2/registrations/tokens';
+const ZEPP_LOGIN_URL = 'https://api-mifit-us2.zepp.com/v2/client/login';
+const ZEPP_DATA_HOST = 'https://api-mifit.zepp.com';
+const ZEPP_SPORTS = { 1: 'running', 6: 'walking', 8: 'treadmill_running', 9: 'cycling', 10: 'indoor_cycling', 16: 'other', 23: 'indoor_rowing', 92: 'badminton' };
+const ZEPP_TOKEN_HEADERS = {
+  'app_name': 'com.huami.midong', 'appname': 'com.huami.midong', 'cv': '151689_9.12.5', 'v': '2.0',
+  'appplatform': 'android_phone', 'vb': '202509151347', 'vn': '9.12.5', 'x-hm-ekv': '1',
+  'content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
+};
+const ZEPP_LOGIN_HEADERS = {
+  'app_name': 'com.huami.webapp', 'appname': 'com.huami.webapp',
+  'content-type': 'application/x-www-form-urlencoded; charset=UTF-8', 'accept': 'application/json, text/plain, */*'
+};
+let zeppState = { appToken: null, uid: null, list: [] };
+
+function zeppUuid() {
+  if (crypto.randomUUID) return crypto.randomUUID();
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, ch => {
+    const r = Math.random() * 16 | 0; return (ch === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
+}
+function zeppDataHeaders(appToken) {
+  return {
+    'hm-privacy-diagnostics': 'false', 'country': 'US', 'appplatform': 'android_phone', 'hm-privacy-ceip': 'true',
+    'x-request-id': zeppUuid(), 'timezone': 'Europe/London', 'channel': 'a100900101016',
+    'vb': '202509151347', 'cv': '151689_9.12.5', 'appname': 'com.huami.midong', 'v': '2.0', 'vn': '9.12.5',
+    'apptoken': appToken, 'lang': 'en_US'
+  };
+}
+const zeppProxify = url => 'https://corsproxy.io/?url=' + encodeURIComponent(url);
+let zeppProxyCoolUntil = 0;
+async function zeppFetch(url, opts = {}) {
+  const candidates = Date.now() < zeppProxyCoolUntil ? [url] : [url, zeppProxify(url)];
+  let lastErr = null;
+  for (const u of candidates) {
+    try {
+      const ctl = new AbortController();
+      const to = setTimeout(() => ctl.abort(), 12000);
+      const r = await fetch(u, {
+        method: opts.method || 'GET', headers: opts.headers || {},
+        body: opts.body, redirect: opts.redirect || 'follow', signal: ctl.signal
+      });
+      clearTimeout(to);
+      return r;
+    } catch (e) {
+      lastErr = e;
+      if (u !== url) zeppProxyCoolUntil = Date.now() + 60000;
+    }
+  }
+  throw lastErr || new Error('Network request failed');
+}
+async function zeppEncrypt(payloadStr) {
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey('raw', enc.encode('xeNtBVqzDc6tuNTh'), { name: 'AES-CBC' }, false, ['encrypt']);
+  return crypto.subtle.encrypt({ name: 'AES-CBC', iv: enc.encode('MAAAYAAAAAAAAABg') }, key, enc.encode(payloadStr));
+}
+function zeppIsInvalidToken(j) {
+  if (!j || typeof j !== 'object') return false;
+  const m = String(j.message || '').toLowerCase();
+  const dc = j.data && typeof j.data === 'object' ? String(j.data.code || '') : '';
+  return m.includes('invalid token') || dc === '0102';
+}
+async function zeppGetJson(url, headers) {
+  const r = await zeppFetch(url, { headers });
+  if (!r.ok) throw new Error('HTTP_' + r.status);
+  const t = await r.text();
+  let j; try { j = JSON.parse(t); } catch (e) { throw new Error('BAD_JSON'); }
+  if (zeppIsInvalidToken(j)) throw new Error('INVALID_TOKEN');
+  return j;
+}
+async function zeppGetTokens(email, pass) {
+  const payload = 'emailOrPhone=' + encodeURIComponent(email) +
+    '&state=REDIRECTION&client_id=HuaMi&password=' + encodeURIComponent(pass) +
+    '&redirect_uri=' + encodeURIComponent('https://s3-us-west-2.amazonaws.com/hm-registration/successsignin.html') +
+    '&region=us-west-2&token=access&token=refresh&country_code=US';
+  const body = await zeppEncrypt(payload);
+  const parseLoc = loc => {
+    if (!loc) return null;
+    const q = loc.split('?')[1] || '';
+    const p = new URLSearchParams(q);
+    const access = p.get('access');
+    return access ? { access, refresh: p.get('refresh') } : null;
+  };
+  for (const redirect of ['manual', 'follow']) {
+    try {
+      const r = await zeppFetch(ZEPP_TOKENS_URL, { method: 'POST', headers: ZEPP_TOKEN_HEADERS, body, redirect });
+      const tok = parseLoc(r.headers && r.headers.get ? r.headers.get('location') : null) || parseLoc(r.url);
+      if (tok) return tok;
+      if (redirect === 'manual' && r.type !== 'opaqueredirect' && r.status !== 0) break;
+    } catch (e) {}
+  }
+  throw new Error('TOKENS');
+}
+async function zeppLogin(email, pass) {
+  const { access } = await zeppGetTokens(email, pass);
+  const payload = 'code=' + encodeURIComponent(access) + '&device_id=' + zeppUuid() +
+    '&device_model=android_phone&app_version=9.12.5' +
+    '&dn=' + encodeURIComponent('api-mifit.zepp.com,api-user.zepp.com,api-mifit.zepp.com,api-watch.zepp.com,app-analytics.zepp.com,auth.zepp.com,api-analytics.zepp.com') +
+    '&third_name=huami&source=' + encodeURIComponent('com.huami.watch.hmwatchmanager:9.12.5:151689') +
+    '&app_name=com.huami.midong&country_code=US&grant_type=access_token&allow_registration=false&lang=en&countryState=US-NY';
+  const r = await zeppFetch(ZEPP_LOGIN_URL, { method: 'POST', headers: ZEPP_LOGIN_HEADERS, body: payload });
+  if (!r.ok) throw new Error('LOGIN_HTTP_' + r.status);
+  const j = await r.json();
+  const ti = j.token_info || {};
+  if (!ti.app_token || !ti.user_id) throw new Error('LOGIN_NO_TOKEN');
+  return { app_token: ti.app_token, user_id: String(ti.user_id) };
+}
+function zeppExtractList(j) {
+  const data = j && j.data !== undefined ? j.data : j;
+  if (data && typeof data === 'object' && !Array.isArray(data)) {
+    let summary = data.summary;
+    if (typeof summary === 'string') { try { summary = JSON.parse(summary); } catch (e) {} }
+    if (summary && typeof summary === 'object' && Array.isArray(summary.data)) return summary.data;
+    if (Array.isArray(summary)) return summary;
+    if (Array.isArray(data.items)) return data.items;
+  }
+  if (Array.isArray(data)) return data;
+  return [];
+}
+async function zeppHistory(appToken, uid, limit) {
+  const url = ZEPP_DATA_HOST + '/v1/sport/run/history.json?source=run.mi.com&userid=' + encodeURIComponent(uid) + '&limit=' + limit;
+  const j = await zeppGetJson(url, zeppDataHeaders(appToken));
+  return zeppExtractList(j).filter(x => x && typeof x === 'object' && x.trackid);
+}
+async function zeppDetail(appToken, uid, trackid, source) {
+  const url = ZEPP_DATA_HOST + '/v1/sport/run/detail.json?trackid=' + encodeURIComponent(trackid) +
+    '&source=' + encodeURIComponent(source || 'run.mi.com') + '&userid=' + encodeURIComponent(uid);
+  const j = await zeppGetJson(url, zeppDataHeaders(appToken));
+  return j && j.data && typeof j.data === 'object' ? j.data : j;
+}
+
+/* ---- encoded series decoders (delta / absolute) ---- */
+const zSplit = raw => typeof raw === 'string' ? raw.trim().split(';').filter(p => p !== '') : [];
+function zInt(tok, d = 0) { tok = String(tok).trim(); if (tok === '') return d; const n = parseInt(tok, 10); if (!isNaN(n)) return n; const f = parseFloat(tok); return isNaN(f) ? d : Math.trunc(f); }
+function zFloat(tok, d = 0) { tok = String(tok).trim(); if (tok === '') return d; const f = parseFloat(tok); return isNaN(f) ? d : f; }
+function zDecodeHr(raw) {
+  let t = 0, hr = 0; const out = [];
+  for (const p of zSplit(raw)) {
+    const parts = p.split(','); const dtTok = parts[0] || '', dhrTok = parts[1] || '';
+    t += dtTok.trim() !== '' ? zInt(dtTok, 1) : 1; hr += zInt(dhrTok);
+    out.push({ t, bpm: hr });
+  }
+  return out;
+}
+function zDecodeGps(raw) {
+  let lat = 0, lon = 0; const out = [];
+  for (const p of zSplit(raw)) {
+    const parts = p.split(','); if (parts.length < 2) continue;
+    lat += zInt(parts[0]); lon += zInt(parts[1]); out.push([lat / 1e8, lon / 1e8]);
+  }
+  return out;
+}
+function zDecodeTime(raw) { let acc = 0; const out = []; for (const p of zSplit(raw)) { acc += zInt(p.split(',')[0]); out.push(acc); } return out; }
+function zDecodeDistance(raw) { let d = 0; const out = []; for (const p of zSplit(raw)) { const parts = p.split(','); d += zFloat(parts.length >= 2 ? parts[1] : parts[0]); out.push(d); } return out; }
+function bucketSeries(vals, n) {
+  if (vals.length <= n) return vals.slice();
+  const out = [], chunk = vals.length / n;
+  for (let i = 0; i < n; i++) {
+    const sl = vals.slice(Math.floor(i * chunk), Math.max(Math.floor(i * chunk) + 1, Math.floor((i + 1) * chunk)));
+    out.push(Math.round(sl.reduce((a, b) => a + b, 0) / sl.length));
+  }
+  return out;
+}
+function decodeZeppSport(code) { const c = parseInt(code, 10); return isNaN(c) ? 'unknown_' + code : (ZEPP_SPORTS[c] || 'unknown_' + c); }
+function prettifySport(name) { if (!name || /^unknown_/.test(name)) return ''; return name.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '); }
+function sportAbbr(name) {
+  if (/cycl|bike/i.test(name)) return 'BIKE';
+  if (/strength|gym|weight/i.test(name)) return 'GYM';
+  if (/walk/i.test(name)) return 'WALK';
+  if (/row/i.test(name)) return 'ROW';
+  if (/badminton/i.test(name)) return 'BDM';
+  if (/run|treadmill/i.test(name)) return 'RUN';
+  return 'ACT';
+}
+
+function applyZeppWorkout(item, data) {
+  const name = item.type_name || decodeZeppSport(item.type);
+  let sport = 'run';
+  if (/cycl|bike/i.test(name)) sport = 'bike';
+  else if (/strength|gym|weight/i.test(name)) sport = 'gym';
+  else if (+item.dis > 0) sport = 'run';
+  else sport = 'gym';
+  applySportMode(sport);
+  const sp = I18N.en.sports[sport] || I18N.en.sports.gym;
+  S.title = prettifySport(name) || sp.defTitle;
+  S.tag = 'TRAINING SESSION';
+  S.muscleTag = sp.badge;
+  const epoch = +(item.start_time || item.end_time) || 0;
+  if (epoch) S.date = new Date(epoch * 1000).toISOString().slice(0, 10);
+
+  const hr = zDecodeHr(data.heart_rate);
+  const hrVals = hr.map(h => h.bpm).filter(v => v >= 20 && v <= 240);
+  const times = zDecodeTime(data.time);
+  let dur = +(item.run_time || item.duration) || 0;
+  if (!dur && times.length) dur = times[times.length - 1];
+  if (!dur && hr.length) dur = hr[hr.length - 1].t;
+  if (dur > 0) setStatValue('time', formatDuration(dur));
+
+  const distSeries = zDecodeDistance(data.distance);
+  const distM = +item.dis || (distSeries.length ? distSeries[distSeries.length - 1] : 0);
+  if (distM > 0) S.dist = (distM / 1000).toFixed(2);
+
+  const avg = +item.avg_heart_rate || (hrVals.length ? Math.round(hrVals.reduce((a, b) => a + b, 0) / hrVals.length) : 0);
+  if (avg > 0) setStatValue('hr', avg);
+  if (hrVals.length >= 6) {
+    S.hrSeries = bucketSeries(hrVals, 40);
+    S.maxHrVal = Math.max(...hrVals); S.minHrVal = Math.min(...hrVals);
+  }
+  const cal = +item.calorie || 0; if (cal > 0) setStatValue('cal', cal);
+  if (distM > 0 && dur > 0) {
+    if (sport === 'bike') setStatValue('pace', (distM / 1000 / (dur / 3600)).toFixed(1));
+    else setStatValue('pace', formatPace(dur / (distM / 1000)));
+  }
+  const gps = zDecodeGps(data.longitude_latitude);
+  if (gps.length > 1) { const step = Math.max(1, Math.floor(gps.length / 250)); S.route = gps.filter((_, i) => i % step === 0); }
+  else S.route = [];
+  S.chartMode = S.hrSeries.length >= 6 ? 'hr' : (S.route.length >= 3 ? 'route' : 'none');
+  syncInputsFromState();
+}
+
+function setZeppMsg(text, kind) { const el = $('zeppMsg'); el.textContent = text; el.className = 'zmsg' + (kind ? ' ' + kind : ''); }
+function zeppErrText(e) {
+  const m = String(e && e.message || e);
+  if (m === 'AUTHKEY') return 'That looks like a Bluetooth auth key. Cloud history needs your Zepp email + password, or an app token + user ID.';
+  if (m === 'NEEDUID') return 'App token detected — add your User ID too, or sign in with email + password instead.';
+  if (m === 'NOCRED') return 'Enter your Zepp email + password, or paste an app token + user ID.';
+  if (m === 'TOKENS' || m === 'LOGIN_NO_TOKEN' || m.indexOf('LOGIN_HTTP') === 0) return 'Zepp sign-in was blocked (browser CORS). Use an app token + user ID, or export a .FIT file and drop it below.';
+  if (m === 'INVALID_TOKEN') return 'The token was rejected. Connect again or paste a fresh app token.';
+  if (m === 'BAD_JSON') return 'Zepp returned an unexpected response. Try again, or drop a .FIT file below.';
+  if (/Failed to fetch|NetworkError|abort|HTTP_/i.test(m)) return 'Network / CORS blocked the request. Try again, use an app token + user ID, or drop a .FIT file below.';
+  return m;
+}
+function renderZeppList(list) {
+  const box = $('zeppList'); box.innerHTML = '';
+  if (!list.length) { box.innerHTML = '<div class="empty">No workouts found on this account.</div>'; return; }
+  list.forEach(item => {
+    const name = item.type_name || decodeZeppSport(item.type);
+    const row = document.createElement('div'); row.className = 'zrow'; row.dataset.trackid = String(item.trackid);
+    const icon = document.createElement('div'); icon.className = 'zi'; icon.textContent = sportAbbr(name);
+    const tw = document.createElement('div'); tw.className = 'zt';
+    const b = document.createElement('b'); b.textContent = prettifySport(name) || 'Workout';
+    const meta = document.createElement('span');
+    const d = item.end_time ? new Date(+item.end_time * 1000) : null;
+    const dateStr = d && !isNaN(d) ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+    const dur = +(item.run_time || item.duration) || 0;
+    const dist = +item.dis > 0 ? (+item.dis / 1000).toFixed(2) + ' km' : '';
+    meta.textContent = [dateStr, dur ? formatDuration(dur) : '', dist].filter(Boolean).join(' · ');
+    tw.append(b, meta);
+    const use = document.createElement('button'); use.type = 'button'; use.className = 'btn sm'; use.textContent = 'Use';
+    use.onclick = () => useZeppWorkout(item);
+    row.append(icon, tw, use);
+    box.appendChild(row);
+  });
+}
+async function useZeppWorkout(item) {
+  if (!zeppState.appToken) { setZeppMsg('Connect to Zepp first.', 'err'); return; }
+  setZeppMsg('Loading workout details…');
+  try {
+    const detail = await zeppDetail(zeppState.appToken, zeppState.uid, item.trackid, item.source);
+    applyZeppWorkout(item, detail);
+    document.querySelectorAll('.zrow').forEach(r => r.classList.toggle('used', r.dataset.trackid === String(item.trackid)));
+    setZeppMsg('Workout loaded into the card.', 'ok');
+    toast('Zepp workout imported', 'ok');
+  } catch (e) {
+    setZeppMsg('Could not load that workout: ' + zeppErrText(e), 'err');
+  }
+}
+$('zeppConnect').onclick = async () => {
+  const key = $('zeppKey').value.trim();
+  const email = $('zeppEmail').value.trim();
+  const pass = $('zeppPass').value;
+  const uid = $('zeppUserId').value.trim();
+  const limit = +$('zeppLimit').value || 50;
+  const btn = $('zeppConnect'); btn.disabled = true;
+  $('zeppList').innerHTML = '';
+  setZeppMsg('Connecting to Zepp…');
+  try {
+    let appToken, userId;
+    if (email && pass) {
+      setZeppMsg('Signing in to Zepp…');
+      const r = await zeppLogin(email, pass); appToken = r.app_token; userId = r.user_id;
+    } else if (key && uid) { appToken = key; userId = uid; }
+    else if (/^[0-9a-fA-F]{32}$/.test(key)) { throw new Error('AUTHKEY'); }
+    else if (key && !uid) { throw new Error('NEEDUID'); }
+    else { throw new Error('NOCRED'); }
+    zeppState = { appToken, uid: userId, list: [] };
+    setZeppMsg('Loading workouts…');
+    const list = await zeppHistory(appToken, userId, limit);
+    zeppState.list = list;
+    renderZeppList(list);
+    setZeppMsg(list.length + ' workout' + (list.length === 1 ? '' : 's') + ' loaded — pick one to fill the card.', 'ok');
+  } catch (e) {
+    setZeppMsg(zeppErrText(e), 'err');
+  } finally { btn.disabled = false; }
+};
+
+$('addStat').onclick = () => {
+  S.stats.push({ id: 'x' + Date.now(), label: 'New stat', val: '0', unit: '', on: true });
+  renderStatsManager();
+  sched();
+};
+$('demoBtn').onclick = () => {
+  S.sport = 'gym';
+  S.title = 'UPPER 1';
+  S.tag = 'TRAINING SESSION';
+  S.muscleTag = 'Strength Training';
+  S.mainLbl = 'Total Sets';
+  S.dist = '17';
+  S.date = new Date().toISOString().slice(0, 10);
+  S.weekCount = [1, 0, 1, 1, 2, 0, 1];
+  S.muscleSets = { chest: 4, lats: 3, shoulders: 3, biceps: 2, triceps: 2, core: 2, forearms: 1 };
+  S.muscleUnassigned = 0;
+  S.muscleSource = 'demo';
+  S.hrSeries = [96, 104, 112, 108, 122, 134, 128, 142, 138, 152, 146, 158, 149, 162, 155, 166];
+  S.maxHrVal = 166; S.minHrVal = 96;
+  S.route = [];
+  S.stats = [
+    { id: 'time', label: 'Workout Time', val: '1:30:52', unit: '', on: true },
+    { id: 'hr', label: 'Avg Heart Rate', val: '116', unit: '', on: true },
+    { id: 'cal', label: 'Active Calories', val: '359', unit: '', on: true },
+    { id: 'pace', label: 'Total Reps', val: '164', unit: '', on: true },
+    { id: 'tl', label: 'Training Load', val: '82', unit: '', on: true }
+  ];
+  renderStatsManager();
+  renderMuscleEditor();
+  syncUI();
+  sched();
+  toast('Demo session loaded', 'ok');
+};
+
+function syncInputsFromState() {
+  syncUI();
+  renderStatsManager();
+  renderMuscleEditor();
+  render();
+}
+
+/* ---- presets ---- */
+$('presetSave').onclick = () => {
+  const name = ($('presetName').value || '').trim() || ('My theme ' + (LS.get(PRESET_KEY, []).length + 1));
+  const list = LS.get(PRESET_KEY, []);
+  list.unshift({ id: 'p' + Date.now(), name, ts: Date.now(), design: collectDesign() });
+  LS.set(PRESET_KEY, list.slice(0, 40));
+  $('presetName').value = '';
+  renderPresets();
+  toast('"' + name + '" saved', 'ok');
+};
+$('resetTweaks').onclick = () => { applyTheme(S.style, true); toast('Tweaks reset to theme defaults', 'ok'); };
+$('presetExport').onclick = () => {
+  const blob = new Blob([JSON.stringify(LS.get(PRESET_KEY, []), null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'traincard-presets.json';
+  a.click();
+  toast('Presets exported', 'ok');
+};
+$('presetImport').onclick = () => $('presetImportFile').click();
+$('presetImportFile').onchange = async e => {
+  const f = e.target.files[0];
+  e.target.value = '';
+  if (!f) return;
+  try {
+    const arr = JSON.parse(await f.text());
+    if (!Array.isArray(arr)) throw new Error('bad shape');
+    const clean = arr.filter(p => p && p.name && p.design).map(p => ({ id: p.id || 'p' + Date.now() + Math.random(), name: String(p.name), ts: p.ts || Date.now(), design: p.design }));
+    const merged = clean.concat(LS.get(PRESET_KEY, [])).slice(0, 40);
+    LS.set(PRESET_KEY, merged);
+    renderPresets();
+    toast(clean.length + ' presets imported', 'ok');
+  } catch (err) {
+    toast('Could not read preset file', 'warn');
+  }
+};
+
+/* ---- export ---- */
+$('share').onclick = async () => {
+  try {
+    drawCard(cv.getContext('2d'), W, S.style, true);
+    const b = await new Promise(r => cv.toBlob(r, 'image/png'));
+    const file = new File([b], 'traincard-story.png', { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file] });
+    } else {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(file);
+      a.download = 'traincard-story.png';
+      a.click();
+      toast('PNG download started', 'ok');
+    }
+  } catch (err) {
+    toast('Export failed — try again', 'warn');
+  }
+};
+
+/* ---- PWA ---- */
+function buildIconDataURL(size) {
+  const ic = document.createElement('canvas');
+  ic.width = ic.height = size;
+  const k = ic.getContext('2d');
+  k.fillStyle = '#0d1015';
+  k.fillRect(0, 0, size, size);
+  const u = size / 6, r = size * 0.052;
+  for (let row = 0; row < 3; row++) {
+    for (let col = 0; col < 3; col++) {
+      const center = row === 1 && col === 1;
+      k.fillStyle = center ? S.accent : 'rgba(255,255,255,0.9)';
+      k.beginPath();
+      k.arc(u * (1.6 + col * 1.4), u * (1.6 + row * 1.4), center ? r * 1.25 : r, 0, Math.PI * 2);
+      k.fill();
+    }
+  }
+  return ic.toDataURL('image/png');
+}
+let installPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  installPrompt = e;
+  $('installBtn').textContent = 'Install App';
+});
+window.addEventListener('appinstalled', () => {
+  installPrompt = null;
+  toast('Installed! Find TrainCard Studio on your home screen.', 'ok');
+});
+(function setupPWA() {
+  const icon = buildIconDataURL(512);
+  const manifest = {
+    name: 'TrainCard Studio', short_name: 'TrainCard',
+    description: 'Build workout story cards from your FIT / GPX / TCX files.',
+    display: 'standalone', orientation: 'portrait',
+    background_color: '#0d1015', theme_color: '#0d1015',
+    icons: [
+      { src: icon, sizes: '512x512', type: 'image/png', purpose: 'any' },
+      { src: icon, sizes: '512x512', type: 'image/png', purpose: 'maskable' }
+    ]
+  };
+  const mLink = document.createElement('link');
+  mLink.rel = 'manifest';
+  mLink.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' }));
+  document.head.appendChild(mLink);
+  const aLink = document.createElement('link');
+  aLink.rel = 'apple-touch-icon';
+  aLink.href = icon;
+  document.head.appendChild(aLink);
+  $('installBtn').onclick = async () => {
+    if (installPrompt) {
+      installPrompt.prompt();
+      installPrompt = null;
+      $('installBtn').textContent = 'Add to Home Screen';
+      return;
+    }
+    toast('Chrome (Android): menu → "Add to Home screen". Elsewhere use Share → "Add to Home screen".', 'warn');
+  };
+})();
+
+/* ===================== boot ===================== */
+buildFontSelects();
+buildThemeTiles();
+buildBeltRow();
+renderStatsManager();
+renderMuscleEditor();
+renderPresets();
+const session = LS.get(SESSION_KEY, null);
+if (session && typeof session === 'object') {
+  SESSION_KEYS.forEach(k => { if (session[k] !== undefined) S[k] = session[k]; });
+  if (!THEMES[S.style]) S.style = 0;
+  syncUI();
+} else {
+  applyTheme(0, true);
+}
+render();
+[
+  '700 40px "Inter"', '700 40px "Space Grotesk"', '400 40px "Archivo Black"',
+  '400 40px "Bebas Neue"', '600 40px "Oswald"', '700 40px "JetBrains Mono"', '700 40px "Fraunces"'
+].forEach(f => document.fonts.load(f).then(sched).catch(() => {}));
+window.__tcReady = true;
+</script>
+</body>
+</html>
