@@ -166,7 +166,12 @@ input[type=color].swatch::-moz-color-swatch{border:none; border-radius:6px}
 .stepper button{width:26px; height:26px; border-radius:7px; background:var(--panel); border:1px solid var(--line2);
   font-weight:800; color:var(--muted); transition:color .12s, border-color .12s}
 .stepper button:hover{color:var(--acc); border-color:var(--acc)}
-.stepper b{min-width:34px; text-align:center; font:800 14px/1 var(--ui); color:var(--text)}
+.stepper .mval{width:40px; height:26px; text-align:center; font:800 14px/1 var(--ui); color:var(--text);
+  background:var(--panel); border:1px solid var(--line2); border-radius:7px; transition:border-color .12s}
+.stepper .mval:hover{border-color:var(--acc)}
+.stepper .mval:focus{outline:none; border-color:var(--acc); box-shadow:0 0 0 2px color-mix(in srgb, var(--acc) 25%, transparent)}
+.stepper .mval::-webkit-outer-spin-button,.stepper .mval::-webkit-inner-spin-button{-webkit-appearance:none; margin:0}
+.stepper .mval{-moz-appearance:textfield; appearance:textfield}
 .tagline{font-size:12px; color:var(--muted)}
 .tagline b{color:var(--acc2)}
 
@@ -296,8 +301,9 @@ input[type=color].swatch::-moz-color-swatch{border:none; border-radius:6px}
           <label class="field"><span class="lbl">Eyebrow</span><input class="inp" data-k="tag"></label>
           <label class="field"><span class="lbl">Title</span><input class="inp" data-k="title"></label>
           <label class="field"><span class="lbl">Subtitle</span><input class="inp" data-k="muscleTag"></label>
-          <label class="field"><span class="lbl">Main metric label</span><input class="inp" data-k="mainLbl"></label>
           <label class="field"><span class="lbl">Week header</span><input class="inp" data-k="weekHdr"></label>
+          <label class="field"><span class="lbl">Main metric label</span><input class="inp" data-k="mainLbl"></label>
+          <label class="field"><span class="lbl">Main metric value</span><input class="inp" data-k="dist" inputmode="decimal" placeholder="sets or km"></label>
           <label class="field"><span class="lbl">Device / footer</span><input class="inp" data-k="device"></label>
         </div>
         <div class="grid3">
@@ -1868,16 +1874,21 @@ function renderMuscleEditor() {
     step.className = 'stepper';
     const minus = document.createElement('button'); minus.type = 'button'; minus.textContent = '−';
     const plus = document.createElement('button'); plus.type = 'button'; plus.textContent = '+';
-    const num = document.createElement('b'); num.textContent = val;
+    const num = document.createElement('input');
+    num.type = 'number'; num.min = 0; num.max = 99; num.step = 1;
+    num.className = 'mval'; num.value = val;
+    num.setAttribute('aria-label', m.n + ' sets');
     const setV = v => {
       v = Math.max(0, Math.min(99, v));
       if (v === 0) delete S.muscleSets[m.k]; else S.muscleSets[m.k] = v;
       S.muscleSource = 'manual';
-      num.textContent = v;
+      if (document.activeElement !== num) num.value = v;
       dot.style.background = v > 0 ? heatColor(Math.min(1, v / Math.max(1, ...Object.values(S.muscleSets).map(Number)))) : 'var(--line2)';
       updateMuscleTagLine();
       sched();
     };
+    num.oninput = () => { const v = parseInt(num.value, 10); if (!isNaN(v)) setV(v); };
+    num.onblur = () => { num.value = Math.round(+(S.muscleSets[m.k] || 0)); };
     minus.onclick = () => setV(Math.round(+(S.muscleSets[m.k] || 0)) - 1);
     plus.onclick = () => setV(Math.round(+(S.muscleSets[m.k] || 0)) + 1);
     step.append(minus, num, plus);
