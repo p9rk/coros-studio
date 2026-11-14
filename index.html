@@ -13,6 +13,7 @@
   --bg:#0d1015; --panel:#151a21; --panel2:#1b212a; --line:#262e39; --line2:#333d4a;
   --text:#e9eef4; --muted:#8f9aa8; --acc:#ff5c39; --acc2:#35d0ff; --ok:#3ecf8e; --warn:#ffd166; --bad:#ff4d5e;
   --r:14px; --ui:'Inter',system-ui,sans-serif; --disp:'Space Grotesk',Inter,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
 }
 *{box-sizing:border-box; margin:0; padding:0}
 html{scrollbar-color:var(--line2) var(--panel); scrollbar-width:thin}
@@ -142,7 +143,7 @@ input[type=color].swatch::-moz-color-swatch{border:none; border-radius:6px}
 .tile.active{border-color:var(--acc); box-shadow:0 0 0 2px rgba(255,92,57,.35), 0 8px 22px rgba(0,0,0,.4)}
 .tile.active::after{content:'✓'; position:absolute; top:8px; right:9px; color:var(--acc); font-weight:800}
 
-/* ---------- week / stats / muscle editors ---------- */
+/* ---------- week / stats editors ---------- */
 .weekrow{display:grid; grid-template-columns:repeat(7,1fr); gap:8px}
 .wday{display:flex; flex-direction:column; align-items:center; gap:6px; padding:9px 4px; border-radius:10px;
   background:var(--panel2); border:1px solid var(--line2); transition:border-color .15s ease, transform .12s ease}
@@ -157,24 +158,6 @@ input[type=color].swatch::-moz-color-swatch{border:none; border-radius:6px}
 .iconbtn{width:28px; height:28px; border-radius:8px; display:grid; place-items:center; color:var(--muted);
   border:1px solid transparent; font-size:14px}
 .iconbtn:hover{color:var(--bad); border-color:var(--line2); background:var(--panel2)}
-.mrow{display:grid; grid-template-columns:1fr auto; gap:10px; align-items:center; padding:7px 10px;
-  border-radius:10px; background:var(--panel2); border:1px solid var(--line)}
-.mrow .mn{font-size:13px; font-weight:600}
-.mrow .mn i{display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:8px; background:var(--line2)}
-#muscleRows{display:grid; grid-template-columns:1fr 1fr; gap:8px}
-.stepper{display:flex; align-items:center; gap:2px}
-.stepper button{width:26px; height:26px; border-radius:7px; background:var(--panel); border:1px solid var(--line2);
-  font-weight:800; color:var(--muted); transition:color .12s, border-color .12s}
-.stepper button:hover{color:var(--acc); border-color:var(--acc)}
-.stepper .mval{width:40px; height:26px; text-align:center; font:800 14px/1 var(--ui); color:var(--text);
-  background:var(--panel); border:1px solid var(--line2); border-radius:7px; transition:border-color .12s}
-.stepper .mval:hover{border-color:var(--acc)}
-.stepper .mval:focus{outline:none; border-color:var(--acc); box-shadow:0 0 0 2px color-mix(in srgb, var(--acc) 25%, transparent)}
-.stepper .mval::-webkit-outer-spin-button,.stepper .mval::-webkit-inner-spin-button{-webkit-appearance:none; margin:0}
-.stepper .mval{-moz-appearance:textfield; appearance:textfield}
-.tagline{font-size:12px; color:var(--muted)}
-.tagline b{color:var(--acc2)}
-
 /* ---------- drop zone / presets ---------- */
 .drop{border:1.5px dashed var(--line2); border-radius:12px; padding:16px; text-align:center; color:var(--muted);
   font-size:13px; cursor:pointer; transition:border-color .15s ease, background .15s ease, color .15s ease}
@@ -191,6 +174,29 @@ input[type=color].swatch::-moz-color-swatch{border:none; border-radius:6px}
 /* ---------- zepp cloud ---------- */
 .zhint{font-size:12px; line-height:1.55; color:var(--muted)}
 .zhint b{color:var(--acc2); font-weight:700}
+.zbridge{display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:10px;
+  background:var(--panel2); border:1px solid var(--line)}
+.zbstatus{display:flex; align-items:center; gap:7px; flex:1; min-width:0; cursor:pointer;
+  font-size:11.5px; line-height:1.4; color:var(--muted); border-radius:6px; outline-offset:3px}
+.zbstatus:hover{color:var(--text)}
+.bdot{width:8px; height:8px; flex:none; border-radius:50%; background:#5a6675; transition:background .2s ease, box-shadow .2s ease}
+.bdot.on{background:var(--ok); box-shadow:0 0 8px rgba(62,207,142,.75)}
+.bdot.off{background:var(--warn); box-shadow:0 0 7px rgba(255,209,102,.5)}
+.zbridge .btn.sm{flex:none}
+
+/* ---------- use on phone ---------- */
+.ph-status{font-size:12px; line-height:1.5; color:var(--acc2)}
+.ph-urlrow{display:flex; gap:8px; align-items:stretch}
+.ph-url{flex:1; min-width:0; font:600 13px/1.4 var(--mono); color:var(--text); background:var(--panel2);
+  border:1px solid var(--line2); border-radius:10px; padding:10px 12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.ph-qrwrap{display:flex; gap:14px; align-items:center; padding:12px; border-radius:12px; background:var(--panel2); border:1px solid var(--line)}
+.ph-qrwrap canvas{border-radius:8px; background:#fff; flex:none}
+.ph-qrnote{font-size:12px; line-height:1.55; color:var(--muted)}
+.ph-steps{margin:0; padding-left:18px; font-size:12.5px; line-height:1.7; color:var(--muted)}
+.ph-steps b{color:var(--text)}
+.ph-steps code{font:600 11.5px var(--mono); color:var(--acc2); background:var(--panel2); border:1px solid var(--line); border-radius:6px; padding:1px 6px}
+.ph-alt{font-size:12px; line-height:1.6; color:var(--muted)}
+.ph-alt b{color:var(--acc2)}
 .zmsg{font-size:12px; min-height:16px; line-height:1.5; color:var(--acc2)}
 .zmsg.err{color:var(--bad)} .zmsg.ok{color:var(--ok)}
 .zlist{display:flex; flex-direction:column; gap:8px; max-height:344px; overflow-y:auto; padding-right:2px}
@@ -223,9 +229,36 @@ input[type=color].swatch::-moz-color-swatch{border:none; border-radius:6px}
   .grid2,.grid3{grid-template-columns:1fr}
   .statrow{grid-template-columns:22px 1fr 70px 54px 28px}
   .brand small{display:none}
-  #muscleRows{grid-template-columns:1fr}
 }
 </style>
+<script>
+/* Boot watchdog (ES5): if the main app never reaches boot, show the real cause
+   instead of a silent half-rendered shell. Runs even on old engines. */
+(function () {
+  window.__tcErr = [];
+  window.addEventListener('error', function (e) {
+    window.__tcErr.push((e.message || 'Script error') + (e.lineno ? ' (line ' + e.lineno + ')' : ''));
+  }, true);
+  function show() {
+    if (window.__tcReady) return;
+    if (document.getElementById('tcBootFail')) return;
+    var d = document.createElement('div');
+    d.id = 'tcBootFail';
+    d.style.cssText = 'position:fixed;inset:0;z-index:9999;background:#0d1015;color:#e9eef4;' +
+      'display:flex;align-items:center;justify-content:center;padding:24px;font:14px/1.6 system-ui,sans-serif;text-align:center';
+    var why = window.__tcErr.length ? window.__tcErr.join(' · ') : 'The app script did not run in this viewer.';
+    d.innerHTML = '<div style="max-width:520px">' +
+      '<div style="font-size:40px;margin-bottom:12px">&#9888;</div>' +
+      '<b style="font-size:18px;display:block;margin-bottom:8px">TrainCard could not start here</b>' +
+      '<span style="color:#8f9aa8;display:block;margin-bottom:14px">' + why.replace(/</g, '&lt;') + '</span>' +
+      '<span style="color:#8f9aa8;display:block">Open this file in a full browser (Chrome / Edge / Safari), not an embedded preview. ' +
+      'If you copied the file elsewhere, re-copy the latest <b>index (1).html</b>.</span></div>';
+    document.body.appendChild(d);
+  }
+  if (document.readyState === 'complete') setTimeout(show, 2500);
+  else window.addEventListener('load', function () { setTimeout(show, 2500); });
+})();
+</script>
 </head>
 <body>
 <header class="top">
@@ -245,6 +278,7 @@ input[type=color].swatch::-moz-color-swatch{border:none; border-radius:6px}
     <div class="stage-meta">
       <span class="chip">1080 × 1920</span>
       <span class="chip" id="themeChip">CARBON</span>
+      <span class="chip" id="buildChip" title="Build identifier — match this against the latest file">build …</span>
       <span id="msg" role="status"></span>
     </div>
   </section>
@@ -267,11 +301,6 @@ input[type=color].swatch::-moz-color-swatch{border:none; border-radius:6px}
           <label class="field"><span class="lbl">Muted</span><input class="swatch" type="color" data-k="muted"></label>
         </div>
         <div class="divider"></div>
-        <span class="sub">Muscle heat</span>
-        <div class="grid2">
-          <label class="field"><span class="lbl">Heat low</span><input class="swatch" type="color" data-k="muscleLow"></label>
-          <label class="field"><span class="lbl">Heat high</span><input class="swatch" type="color" data-k="muscleHigh"></label>
-        </div>
         <span class="sub">Strain &amp; zones</span>
         <div class="grid3" id="zoneRow"></div>
       </div>
@@ -351,7 +380,11 @@ input[type=color].swatch::-moz-color-swatch{border:none; border-radius:6px}
         <div class="field" id="beltGroup" hidden><span class="lbl">Belt</span><div class="weekrow" id="beltRow" style="grid-template-columns:repeat(9,1fr)"></div></div>
         <div class="divider"></div>
         <span class="sub">Zepp cloud · Amazfit</span>
-        <p class="zhint">Pull workouts straight from your Zepp account. Sign in with your Zepp <b>email + password</b>, or paste a cloud <b>app token + user ID</b>. The Bluetooth <b>auth key</b> pairs the watch over BLE — on its own it can't read cloud history.</p>
+        <p class="zhint">Pull workouts straight from your Zepp account. Browsers block direct cloud sign-in, so run the tiny <b>local bridge</b> (download below — your credentials never leave your machine), then sign in with your Zepp <b>email + password</b>. A cloud <b>app token + user ID</b> works too. The Bluetooth <b>auth key</b> pairs the watch over BLE — on its own it can't read cloud history.</p>
+        <div class="zbridge">
+          <span class="zbstatus" id="zeppBridgeStatus" role="button" tabindex="0" title="Click to re-check the bridge"><span class="bdot" id="zeppBridgeDot"></span><span id="zeppBridgeText">Checking for local bridge…</span></span>
+          <button class="btn sm" id="zeppBridgeGet" type="button">Get bridge</button>
+        </div>
         <label class="field"><span class="lbl">Auth key / app token</span><input class="inp" id="zeppKey" type="password" autocomplete="off" spellcheck="false" placeholder="32-char auth key, or a cloud app token"></label>
         <div class="grid2">
           <label class="field"><span class="lbl">Zepp email</span><input class="inp" id="zeppEmail" type="email" autocomplete="off" spellcheck="false" placeholder="you@email.com"></label>
@@ -366,13 +399,10 @@ input[type=color].swatch::-moz-color-swatch{border:none; border-radius:6px}
         <div id="zeppList" class="zlist"></div>
         <div class="divider"></div>
         <span class="sub">Workout files · COROS / Zepp / Garmin</span>
-        <div class="drop" id="trackDrop"><b>Drop a workout file</b> or click to browse — .FIT .GPX .TCX<br><span id="trackFileLabel">heart rate, route, sets &amp; muscle tags are extracted automatically</span></div>
+        <div class="drop" id="trackDrop"><b>Drop a workout file</b> or click to browse — .FIT .GPX .TCX<br><span id="trackFileLabel">heart rate, route, sets &amp; reps are extracted automatically</span></div>
         <input type="file" id="trackFile" accept=".fit,.gz,.gpx,.tcx,.xml" hidden>
         <label class="field"><span class="lbl">Or paste a workout list</span><textarea class="inp" id="pasteBox" placeholder="Bench Press 4 x 8 60kg&#10;Squat 5 x 5 100kg&#10;Lat Pulldown 3 x 10"></textarea></label>
-        <div class="grid2">
-          <button class="btn" id="pasteBtn" type="button">Extract muscles from text</button>
-          <button class="btn ghost" id="clearMuscles" type="button">Clear muscle sets</button>
-        </div>
+        <button class="btn" id="pasteBtn" type="button">Extract sets &amp; reps from text</button>
         <label class="field"><span class="lbl">Or a shared workout link (COROS)</span>
           <span class="rng-row"><input class="inp" id="corosUrl" placeholder="https://share.coros.com/…"><button class="btn" id="fetchBtn" type="button">Fetch</button></span>
         </label>
@@ -380,10 +410,6 @@ input[type=color].swatch::-moz-color-swatch{border:none; border-radius:6px}
         <span class="sub">Stats on the card</span>
         <div id="statsRows" style="display:flex; flex-direction:column; gap:8px"></div>
         <button class="btn sm ghost" id="addStat" type="button">+ Add stat</button>
-        <div class="divider"></div>
-        <span class="sub">Muscle sets</span>
-        <div class="tagline" id="muscleTagLine"></div>
-        <div id="muscleRows"></div>
         <div class="divider"></div>
         <span class="sub">Strain engine</span>
         <div class="grid2">
@@ -407,6 +433,38 @@ input[type=color].swatch::-moz-color-swatch{border:none; border-radius:6px}
           <button class="btn sm" id="presetImport" type="button">Import presets</button>
         </div>
         <input type="file" id="presetImportFile" accept=".json" hidden>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-h"><span class="n">8</span><h2>Use on phone</h2><span class="hint">Zepp cloud, on the go</span></div>
+      <div class="panel-b">
+        <div class="ph-status" id="phoneStatus">Checking how this copy is served…</div>
+        <div class="divider"></div>
+        <span class="sub">Same Wi-Fi as your computer</span>
+        <div class="ph-qrwrap">
+          <canvas id="phoneQr" width="132" height="132" aria-label="QR code linking to the phone bridge"></canvas>
+          <div class="ph-qrnote" id="phoneQrNote">Run the bridge on your computer in phone mode, then scan this code with your phone camera. Both devices must be on the same Wi-Fi network.</div>
+        </div>
+        <div class="ph-urlrow">
+          <div class="ph-url" id="phoneUrl">—</div>
+          <button class="btn sm" id="phoneCopy" type="button">Copy</button>
+        </div>
+        <ol class="ph-steps">
+          <li>On your computer run <code>python zepp-bridge.py --lan</code> and keep the window open.</li>
+          <li>On your phone (same Wi-Fi) scan the code or open the address above.</li>
+          <li>Sign in with your Zepp <b>email + password</b> — the bridge on your computer does the cloud call, so it works on the phone too.</li>
+        </ol>
+        <div class="divider"></div>
+        <span class="sub">No computer nearby?</span>
+        <p class="ph-alt"><b>Android:</b> install Termux, then <code>pkg install python</code> and run <code>python zepp-bridge.py</code> on the phone itself; open <code>http://127.0.0.1:8787</code> in the phone browser. <b>iPhone:</b> the cloud bridge needs a computer or server — instead export a <b>.FIT</b> file from your watch app and drop it in Session data above; it fills the card with no sign-in at all.</p>
+        <div class="divider"></div>
+        <span class="sub">Advanced · bridge address</span>
+        <div class="ph-urlrow">
+          <input class="inp" id="bridgeUrl" placeholder="http://127.0.0.1:8787" spellcheck="false" autocomplete="off">
+          <button class="btn sm" id="bridgeUrlApply" type="button">Use</button>
+          <button class="btn sm ghost" id="bridgeUrlReset" type="button">Auto</button>
+        </div>
       </div>
     </section>
   </div>
@@ -478,152 +536,30 @@ function setStatValue(id, val) {
   }
 }
 
-const MUSCLES = [
-  { k: 'chest',      n: 'Chest' },
-  { k: 'lats',       n: 'Lats' },
-  { k: 'shoulders',  n: 'Shoulders' },
-  { k: 'traps',      n: 'Traps' },
-  { k: 'lowerback',  n: 'Lower Back' },
-  { k: 'biceps',     n: 'Biceps' },
-  { k: 'triceps',    n: 'Triceps' },
-  { k: 'forearms',   n: 'Forearms' },
-  { k: 'core',       n: 'Abs / Core' },
-  { k: 'obliques',   n: 'Obliques' },
-  { k: 'glutes',     n: 'Glutes' },
-  { k: 'quads',      n: 'Quads' },
-  { k: 'hamstrings', n: 'Hamstrings' },
-  { k: 'calves',     n: 'Calves' }
-];
-
-/* FIT exercise_category enum -> weighted muscle involvement (primary + synergists) */
-const FIT_CAT_MUSCLES = {
-  0:  { chest: 1, triceps: 0.4, shoulders: 0.3 },            // bench press
-  1:  { calves: 1 },                                          // calf raise
-  3:  { forearms: 0.5, traps: 0.5, core: 0.5 },               // carry
-  4:  { obliques: 1, core: 0.5 },                             // chop
-  5:  { core: 1 },                                            // core
-  6:  { core: 1 },                                            // crunch
-  7:  { biceps: 1, forearms: 0.3 },                           // curl
-  8:  { hamstrings: 0.7, glutes: 0.7, lowerback: 0.6, traps: 0.4, forearms: 0.3 }, // deadlift
-  9:  { chest: 1, shoulders: 0.2 },                           // flye
-  10: { glutes: 1, hamstrings: 0.4 },                         // hip raise
-  11: { glutes: 0.8, core: 0.3 },                             // hip stability
-  12: { glutes: 0.8, hamstrings: 0.5, core: 0.3 },            // hip swing
-  13: { lowerback: 1, glutes: 0.5, hamstrings: 0.4 },         // hyperextension
-  14: { shoulders: 1 },                                       // lateral raise
-  15: { hamstrings: 1, calves: 0.2 },                         // leg curl
-  16: { core: 1, obliques: 0.3, quads: 0.2 },                 // leg raise
-  17: { quads: 1, glutes: 0.6, hamstrings: 0.3 },             // lunge
-  18: { quads: 0.5, glutes: 0.5, traps: 0.5, shoulders: 0.4, lowerback: 0.4, hamstrings: 0.3 }, // olympic lift
-  19: { core: 1, shoulders: 0.3 },                            // plank
-  20: { quads: 0.6, calves: 0.5, glutes: 0.4 },               // plyo
-  21: { lats: 1, biceps: 0.5, forearms: 0.3 },                // pull up
-  22: { chest: 0.8, triceps: 0.6, shoulders: 0.3, core: 0.2 },// push up
-  23: { lats: 0.8, traps: 0.4, biceps: 0.4, lowerback: 0.3 }, // row
-  24: { shoulders: 1, triceps: 0.5, traps: 0.2 },             // shoulder press
-  25: { shoulders: 0.8, traps: 0.3 },                         // shoulder stability
-  26: { traps: 1, forearms: 0.3 },                            // shrug
-  27: { core: 1, obliques: 0.4 },                             // sit up
-  28: { quads: 1, glutes: 0.6, hamstrings: 0.3, lowerback: 0.3, core: 0.2 }, // squat
-  29: { quads: 0.3, chest: 0.3, lats: 0.3, shoulders: 0.3, core: 0.3 },      // total body
-  30: { triceps: 1 },                                         // triceps extension
-  32: { quads: 0.3, calves: 0.4, hamstrings: 0.3, glutes: 0.3, core: 0.2 },  // run
-  33: { quads: 0.5, glutes: 0.3, calves: 0.2 }                 // bike
-};
-
-/* Exercise-name keywords -> FIT category (first match wins; specific before generic) */
-const NAME_TO_CAT = [
-  [/leg\s*curl|hamstring|nordic/i, 15],
-  [/tricep|push\s*down|pushdown|skull|close\s*grip/i, 30],
-  [/hip\s*thrust|glute|bridge|donkey\s*kick/i, 10],
-  [/back\s*extension|hyperextension|superman|good\s*morning/i, 13],
-  [/shoulder\s*press|overhead|ohp|military|arnold|push\s*press/i, 24],
-  [/lateral\s*raise|side\s*raise|front\s*raise|rear\s*delt|reverse\s*fly|face\s*pull/i, 14],
-  [/pull\s*up|pullup|chin\s*up|chinup|lat\s*pull|pulldown|pull\s*down|pullover/i, 21],
-  [/deadlift|rdl|romanian/i, 8],
-  [/squat|leg\s*press|leg\s*extension|hack/i, 28],
-  [/lunge|split\s*squat|step\s*up/i, 17],
-  [/calf|سمان/i, 1],
-  [/shrug|ترابيس/i, 26],
-  [/row|سحب/i, 23],
-  [/incline|decline|bench|chest\s*press|push\s*up|pushup|dip|بنش|صدر/i, 0],
-  [/fly|flye|pec\s*deck|crossover|تجميع/i, 9],
-  [/russian\s*twist|wood\s*chop|woodchop|oblique|side\s*bend/i, 4],
-  [/plank|بلانك/i, 19],
-  [/crunch|sit\s*up|situp|leg\s*raise|hanging\s*knee|ab\s*wheel|بطن/i, 6],
-  [/farmer|carry/i, 3],
-  [/clean|snatch|jerk|thruster/i, 18],
-  [/burpee|mountain\s*climber|jumping\s*jack/i, 29],
-  [/curl|باي|بايسبس/i, 7],
-  [/shoulder|كتف|lateral/i, 14],
-  [/warm\s*up|stretch/i, 31],
-  [/run|treadmill|جري/i, 32],
-  [/bike|cycl|دراج/i, 33]
-];
-
-function catToMuscles(cat) { return FIT_CAT_MUSCLES[cat] || null; }
-
-function nameToCat(line) {
-  for (const [re, cat] of NAME_TO_CAT) if (re.test(line)) return cat;
-  return null;
-}
-
-/* Accumulate {cat: {sets,reps,volume}} into per-muscle set counts */
-function applyCategoryCounts(catCounts, replace = true) {
-  const next = replace ? {} : Object.assign({}, S.muscleSets);
-  let unassigned = 0, mapped = 0;
-  for (const cat in catCounts) {
-    const c = catCounts[cat];
-    const w = catToMuscles(+cat);
-    if (!w) { unassigned += c.sets; continue; }
-    mapped += c.sets;
-    for (const m in w) next[m] = (next[m] || 0) + w[m] * c.sets;
-  }
-  for (const m in next) next[m] = Math.round(next[m] * 10) / 10;
-  S.muscleSets = next;
-  S.muscleUnassigned = unassigned;
-  return { mapped, unassigned };
-}
-
-function muscleTotal() {
-  // sum of the rounded per-muscle counts so header, list and editor always agree
-  return Object.values(S.muscleSets || {}).reduce((a, b) => a + Math.round(+b || 0), 0);
-}
-
-/* Parse pasted workout text lines like "Bench Press 4 x 8 60kg" into category counts */
-function extractMusclesFromText(raw) {
+/* Parse pasted workout lines like "Bench Press 4 x 8 60kg" into sets / reps / volume */
+function extractWorkoutFromText(raw) {
   const lines = String(raw).split(/\r?\n|;|\|/);
-  const counts = {};
-  let hit = 0;
+  let sets = 0, reps = 0, volume = 0, exercises = 0;
   for (const line of lines) {
     if (!line || line.length > 120) continue;
-    const cat = nameToCat(line);
-    if (cat === null) continue;
-    let sets = 0;
-    const xm = line.match(/(\d{1,2})\s*[x×*]\s*\d{1,3}/i);
+    const xm = line.match(/(\d{1,2})\s*[x×*]\s*(\d{1,3})/i);
     const sm = line.match(/(\d{1,2})\s*(?:sets?|مجموعات|مجموعة)/i);
-    if (xm) sets = +xm[1];
-    else if (sm) sets = +sm[1];
-    else {
-      const lead = line.match(/^\s*(\d{1,2})\s*[x×]/i);
-      if (lead) sets = +lead[1];
-    }
-    if (!sets || sets > 30) continue;
-    const rm = line.match(/[x×*]\s*(\d{1,3})/i);
+    let st = 0, rp = 0;
+    if (xm) { st = +xm[1]; rp = +xm[2]; }
+    else if (sm) { st = +sm[1]; const rm = line.match(/[x×*]\s*(\d{1,3})/i); rp = rm ? +rm[1] : 0; }
+    if (!st || st > 30) continue;
     const wm = line.match(/(\d+(?:[.,]\d+)?)\s*(?:kg|كغ)/i);
-    const reps = rm ? +rm[1] : 0;
-    const vol = wm ? parseFloat(wm[1].replace(',', '')) * reps : 0;
-    if (!counts[cat]) counts[cat] = { sets: 0, reps: 0, volume: 0 };
-    counts[cat].sets += sets;
-    counts[cat].reps += reps * sets;
-    counts[cat].volume += vol * sets;
-    hit += sets;
+    const w = wm ? parseFloat(wm[1].replace(',', '.')) : 0;
+    sets += st; reps += rp * st; volume += w * rp * st; exercises++;
   }
-  if (!hit) return false;
-  applyCategoryCounts(counts, true);
-  S.muscleSource = 'text';
-  if (S.sport === 'gym') { S.dist = String(muscleTotal()); }
-  return true;
+  if (!sets) return null;
+  return { sets, reps, volume: Math.round(volume), exercises };
+}
+function applyWorkoutTotals(t) {
+  applySportMode('gym');
+  S.dist = String(t.sets);
+  if (t.reps > 0) setStatValue('pace', t.reps);
+  if (t.volume > 0) setStatValue('elev', t.volume);
 }
 
 /* ---- WHOOP-style strain + HR zone math ---- */
@@ -1092,17 +1028,6 @@ function hexToHsl(hex) {
   }
   return { h: hh, s: s * 100, l: l * 100 };
 }
-function heatColor(t) {
-  const a = hexToHsl(S.muscleLow), b = hexToHsl(S.muscleHigh);
-  let dh = b.h - a.h;
-  if (dh > 180) dh -= 360;
-  if (dh < -180) dh += 360;
-  const h = (a.h + dh * t + 360) % 360;
-  const s = a.s + (b.s - a.s) * t;
-  const l = a.l + (b.l - a.l) * t;
-  return `hsl(${h.toFixed(1)}, ${s.toFixed(1)}%, ${l.toFixed(1)}%)`;
-}
-
 function haversineKm(lat1, lon1, lat2, lon2) {
   const R = 6371;
   const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -1143,7 +1068,6 @@ function parseFitBuffer(buf) {
   let totalRepsCount = 0;
   let totalVolumeKg = 0;
   let activeLapsCount = 0;
-  const catCounts = {};
 
   while (pos < end) {
     const hdr = view.getUint8(pos++);
@@ -1186,7 +1110,6 @@ function parseFitBuffer(buf) {
       if (!def) break;
       let lat = null, lon = null;
       let setType = null, setReps = null, setWeight = 0;
-      let setCats = null;
       let lapIntensity = null;
 
       for (const f of def.fields) {
@@ -1224,13 +1147,6 @@ function parseFitBuffer(buf) {
           } else if (f.num === 4 && f.size === 2) {
             const w = view.getUint16(pos, def.le);
             if (w !== 0xFFFF) setWeight = w / 16;
-          } else if (f.num === 5 && f.size >= 2 && f.size % 2 === 0) {
-            // exercise_category array (uint16 per element)
-            setCats = [];
-            for (let ci = 0; ci < f.size / 2; ci++) {
-              const cv = view.getUint16(pos + ci * 2, def.le);
-              if (cv !== 0xFFFF) setCats.push(cv);
-            }
           }
         }
         else if (def.gMsg === 19) {
@@ -1293,13 +1209,6 @@ function parseFitBuffer(buf) {
           const repsVal = setReps || 0;
           totalRepsCount += repsVal;
           if (setWeight > 0 && repsVal > 0) totalVolumeKg += (setWeight * repsVal);
-          const cats = (setCats && setCats.length) ? setCats : [65534];
-          cats.forEach(cat => {
-            if (!catCounts[cat]) catCounts[cat] = { sets: 0, reps: 0, volume: 0 };
-            catCounts[cat].sets++;
-            catCounts[cat].reps += repsVal;
-            catCounts[cat].volume += setWeight * repsVal;
-          });
         }
       }
 
@@ -1361,7 +1270,6 @@ function parseFitBuffer(buf) {
     activeSets: finalSets,
     totalReps: totalRepsCount,
     totalVolumeKg: Math.round(totalVolumeKg),
-    catCounts,
     sessionCalories,
     pts,
     hrSeries: smoothedHr,
@@ -1402,24 +1310,11 @@ async function handleTrackFile(f) {
           S.maxHrVal = res.maxHr;
           S.minHrVal = res.minHr;
         }
-        let muscleNote = '';
         if (res.isStrength) {
           applySportMode('gym');
           S.dist = String(res.activeSets || 17);
           if (res.totalReps > 0) setStatValue('pace', res.totalReps);
           if (res.totalVolumeKg > 0) setStatValue('elev', res.totalVolumeKg);
-          const hasCats = res.catCounts && Object.keys(res.catCounts).some(k => +k !== 65534);
-          if (hasCats) {
-            const r = applyCategoryCounts(res.catCounts, true);
-            S.muscleSource = 'fit';
-            muscleNote = ` · ${r.mapped} sets mapped to muscles${r.unassigned ? ' (' + r.unassigned + ' unassigned)' : ''}`;
-          } else {
-            S.muscleSets = {};
-            S.muscleUnassigned = res.activeSets || 0;
-            S.muscleSource = 'fit';
-            muscleNote = ' · no muscle tags in file — assign sets in the muscle editor';
-          }
-          renderMuscleEditor();
         } else {
           if (res.fitSport === 2) applySportMode('bike');
           else applySportMode('run');
@@ -1446,7 +1341,7 @@ async function handleTrackFile(f) {
         if (res.startEpochMs) S.date = new Date(res.startEpochMs).toISOString().slice(0, 10);
 
         setTrackLabel('✓ Heart rate & data extracted');
-        msg.textContent = `Parsed ${f.name} · ${formatDuration(res.durationSec)}${res.distKm > 0 ? ' · ' + res.distKm.toFixed(2) + ' km' : ''}${res.avgHr > 0 ? ' · avg HR ' + res.avgHr : ''}${muscleNote}`;
+        msg.textContent = `Parsed ${f.name} · ${formatDuration(res.durationSec)}${res.distKm > 0 ? ' · ' + res.distKm.toFixed(2) + ' km' : ''}${res.avgHr > 0 ? ' · avg HR ' + res.avgHr : ''}${res.isStrength && res.activeSets ? ' · ' + res.activeSets + ' sets' : ''}`;
         syncInputsFromState();
         return;
       }
@@ -1577,10 +1472,8 @@ function parseCorosTextOrHtml(raw) {
     if (repsMatch) { setStatValue('pace', repsMatch[1]); found = true; }
     const volMatch = raw.match(/(\d+(?:[.,]\d+)?)\s*(?:kg)/i);
     if (volMatch) { setStatValue('elev', volMatch[1].replace(',', '')); found = true; }
-    if (extractMusclesFromText(raw)) {
-      found = true;
-      renderMuscleEditor();
-    }
+    const totals = extractWorkoutFromText(raw);
+    if (totals) { applyWorkoutTotals(totals); found = true; }
   } else {
     const distMatch = raw.match(/(\d+(?:\.\d+)?)\s*(?:km|kilometers)/i);
     if (distMatch) { S.dist = distMatch[1]; found = true; }
@@ -1663,10 +1556,11 @@ const THEMES = [
   { name: 'Forest',    kind: 'studio',  pal: { bg: '#0f1f16', surface: '#16291d', text: '#eef7ee', muted: '#93ac97', accent: '#79d97c', accent2: '#ffd166' }, fonts: { d: 'inter', n: 'inter', b: 'inter' }, texture: 'grid', radius: 22, week: 'strip', glow: 25 },
   { name: 'Ice',       kind: 'studio',  pal: { bg: '#f2f7fa', surface: '#ffffff', text: '#16222b', muted: '#6b7a86', accent: '#0ea5e9', accent2: '#6366f1' }, fonts: { d: 'grotesk', n: 'inter', b: 'inter' }, texture: 'none', radius: 26, week: 'dots', glow: 0 },
   { name: 'Blueprint', kind: 'studio',  pal: { bg: '#0d2137', surface: '#123049', text: '#eaf2ff', muted: '#8fa8c4', accent: '#ffd166', accent2: '#7fb4ff' }, fonts: { d: 'mono', n: 'mono', b: 'mono' }, texture: 'grid', radius: 6, week: 'bars', glow: 15 },
-  { name: 'WHOOP',     kind: 'whoop',   pal: { bg: '#000000', surface: '#121417', text: '#ffffff', muted: '#8a8d91', accent: '#0093e7', accent2: '#4ec98e' }, fonts: { d: 'grotesk', n: 'inter', b: 'inter' }, texture: 'none', radius: 24, week: 'strip', glow: 25 },
-  { name: 'Strain',    kind: 'strain',  pal: { bg: '#000000', surface: '#101214', text: '#ffffff', muted: '#8a8d91', accent: '#0093e7', accent2: '#4ec98e' }, fonts: { d: 'inter', n: 'inter', b: 'inter' }, texture: 'none', radius: 28, week: 'ring', glow: 35 }
+  { name: 'Detail',    kind: 'detail',  pal: { bg: '#0b0e11', surface: '#161b20', text: '#f9fafb', muted: '#8b949e', accent: '#38a8d8', accent2: '#4ec98e' }, fonts: { d: 'grotesk', n: 'inter', b: 'inter' }, texture: 'none', radius: 24, week: 'strip', glow: 20 },
+  { name: 'Bento',     kind: 'dash',    pal: { bg: '#101418', surface: '#1a2026', text: '#f2f5f8', muted: '#8b949e', accent: '#ffb35c', accent2: '#35d0ff' }, fonts: { d: 'grotesk', n: 'inter', b: 'inter' }, texture: 'grid', radius: 26, week: 'dots', glow: 30 },
+  { name: 'Receipt',   kind: 'ticket',  pal: { bg: '#101010', surface: '#f4efe4', text: '#1b1813', muted: '#8a8378', accent: '#e05537', accent2: '#f4efe4' }, fonts: { d: 'mono', n: 'mono', b: 'mono' }, texture: 'grain', radius: 6, week: 'none', glow: 0 }
 ];
-const TH_WHOOP = 15, TH_STRAIN = 16;
+const TH_DETAIL = 15, TH_DASH = 16, TH_TICKET = 17;
 
 const S = {
   sport: 'gym', icon: 'auto', belt: '#f4f1ea',
@@ -1674,9 +1568,6 @@ const S = {
   chartMode: 'hr', dist: '17', mainLbl: 'Total Sets',
   date: new Date().toISOString().slice(0, 10),
   weekCount: [1, 0, 1, 1, 2, 0, 1],
-  muscleSets: { chest: 4, lats: 3, shoulders: 3, biceps: 2, triceps: 2, core: 2, forearms: 1 },
-  muscleUnassigned: 0, muscleSource: 'demo',
-  muscleLow: '#00b3a4', muscleHigh: '#ff4326',
   whoopStrain: '#0093e7', whoopZones: ['#a8c4d4', '#38a8d8', '#4ec98e', '#f2a03d', '#ff5a36'],
   whoopMaxHr: 190, whoopStrainOverride: '',
   route: [], hrSeries: [96, 104, 112, 108, 122, 134, 128, 142, 138, 152, 146, 158, 149, 162, 155, 166],
@@ -1702,10 +1593,10 @@ const S = {
 const DESIGN_KEYS = ['style', 'mesh', 'accent', 'accent2', 'cardBg', 'surface', 'textCol', 'muted',
   'titleFont', 'numFont', 'bodyFont', 'fontScale', 'weight', 'tracking', 'upper', 'radius', 'texture',
   'glow', 'weekStyle', 'sep', 'doneSym', 'done2Sym', 'dateFormat', 'unitSets', 'unitBpm', 'weekHdr',
-  'showStats', 'transparent', 'showSafeGuide', 'muscleLow', 'muscleHigh',
+  'showStats', 'transparent', 'showSafeGuide',
   'whoopStrain', 'whoopZones', 'chartMode'];
 const SESSION_KEYS = DESIGN_KEYS.concat(['sport', 'icon', 'belt', 'title', 'tag', 'device', 'muscleTag',
-  'dist', 'mainLbl', 'date', 'weekCount', 'muscleSets', 'muscleUnassigned', 'muscleSource',
+  'dist', 'mainLbl', 'date', 'weekCount',
   'whoopMaxHr', 'whoopStrainOverride', 'stats', 'hrSeries', 'route', 'maxHrVal', 'minHrVal']);
 
 /* ===================== UI glue ===================== */
@@ -1855,53 +1746,6 @@ function renderStatsManager() {
     row.append(ck, lb, vl, un, rm);
     box.appendChild(row);
   });
-}
-
-/* ---- muscle editor ---- */
-function renderMuscleEditor() {
-  const box = $('muscleRows');
-  box.innerHTML = '';
-  MUSCLES.forEach(m => {
-    const row = document.createElement('div');
-    row.className = 'mrow';
-    const name = document.createElement('span');
-    name.className = 'mn';
-    const dot = document.createElement('i');
-    const val = Math.round(+(S.muscleSets[m.k] || 0));
-    dot.style.background = val > 0 ? heatColor(Math.min(1, val / Math.max(1, ...Object.values(S.muscleSets).map(Number)))) : 'var(--line2)';
-    name.append(dot, document.createTextNode(m.n));
-    const step = document.createElement('span');
-    step.className = 'stepper';
-    const minus = document.createElement('button'); minus.type = 'button'; minus.textContent = '−';
-    const plus = document.createElement('button'); plus.type = 'button'; plus.textContent = '+';
-    const num = document.createElement('input');
-    num.type = 'number'; num.min = 0; num.max = 99; num.step = 1;
-    num.className = 'mval'; num.value = val;
-    num.setAttribute('aria-label', m.n + ' sets');
-    const setV = v => {
-      v = Math.max(0, Math.min(99, v));
-      if (v === 0) delete S.muscleSets[m.k]; else S.muscleSets[m.k] = v;
-      S.muscleSource = 'manual';
-      if (document.activeElement !== num) num.value = v;
-      dot.style.background = v > 0 ? heatColor(Math.min(1, v / Math.max(1, ...Object.values(S.muscleSets).map(Number)))) : 'var(--line2)';
-      updateMuscleTagLine();
-      sched();
-    };
-    num.oninput = () => { const v = parseInt(num.value, 10); if (!isNaN(v)) setV(v); };
-    num.onblur = () => { num.value = Math.round(+(S.muscleSets[m.k] || 0)); };
-    minus.onclick = () => setV(Math.round(+(S.muscleSets[m.k] || 0)) - 1);
-    plus.onclick = () => setV(Math.round(+(S.muscleSets[m.k] || 0)) + 1);
-    step.append(minus, num, plus);
-    row.append(name, step);
-    box.appendChild(row);
-  });
-  updateMuscleTagLine();
-}
-function updateMuscleTagLine() {
-  const src = { fit: 'FIT file', text: 'pasted text', manual: 'manual', demo: 'demo' }[S.muscleSource] || S.muscleSource;
-  $('muscleTagLine').innerHTML = '<b>' + muscleTotal() + '</b> muscle sets · source: <b>' + src + '</b>' +
-    (S.muscleUnassigned ? ' · ' + S.muscleUnassigned + ' unassigned' : '') +
-    ' · compound lifts count toward every muscle they train';
 }
 
 /* ---- zone colors ---- */
@@ -2331,257 +2175,585 @@ function drawStudioTheme(c, TOP, contentBot, weekY, weekH) {
   drawStatsRow(c, M, y, W - 2 * M, rowH, tiles);
 }
 
-/* ---- WHOOP workout-details theme ---- */
-function strainCategory(s) {
-  if (s >= 18) return { word: 'ALL OUT', col: S.whoopZones[4] };
-  if (s >= 14) return { word: 'HIGH', col: S.whoopZones[3] };
-  if (s >= 10) return { word: 'MODERATE', col: S.whoopZones[2] };
-  return { word: 'LIGHT', col: S.whoopZones[1] };
+/* ---- workout-detail widgets (Detail / Bento / Receipt themes) ---- */
+function panelCard(c, x, y, w, h, fillA) {
+  c.save();
+  c.fillStyle = hexA(S.surface, fillA === undefined ? 0.92 : fillA);
+  rr(c, x, y, w, h, S.radius); c.fill();
+  c.strokeStyle = hexA(S.textCol, 0.07); c.lineWidth = 1.5;
+  rr(c, x, y, w, h, S.radius); c.stroke();
+  c.restore();
 }
 
-function drawWhoopHero(c, M, y, w, h) {
-  const strain = computeStrain();
-  const cat = strainCategory(strain);
-  const cx = M + 138, cy = y + h * 0.46, r = Math.min(116, h * 0.40);
-  const a0 = Math.PI * 0.75, a1 = Math.PI * 2.25;
+function hatchBar(c, x, y, w, h, frac, col) {
   c.save();
-  c.lineCap = 'round';
-  c.lineWidth = 22;
-  c.strokeStyle = hexA(S.textCol, 0.10);
-  c.beginPath(); c.arc(cx, cy, r, a0, a1); c.stroke();
-  const frac = Math.max(0.004, Math.min(1, strain / 21));
-  if (S.glow > 0) { c.shadowColor = hexA(cat.col, 0.6 * S.glow / 100); c.shadowBlur = 26 * S.glow / 100; }
-  c.strokeStyle = cat.col;
-  c.beginPath(); c.arc(cx, cy, r, a0, a0 + (a1 - a0) * frac); c.stroke();
-  c.restore();
-  txt(c, up('strain'), cx, cy - fs(46), fs(20), 700, S.muted, 'center', S.bodyFont);
-  txt(c, strain.toFixed(1), cx, cy + fs(26), fs(92), S.weight, S.textCol, 'center', S.numFont);
-  txt(c, up(cat.word), cx, cy + r + 34, fs(26), 800, cat.col, 'center', S.bodyFont);
-  txt(c, '0', cx - r * 0.74, cy + r * 0.80, fs(20), 600, S.muted, 'center', S.numFont);
-  txt(c, '21', cx + r * 0.74, cy + r * 0.80, fs(20), 600, S.muted, 'center', S.numFont);
-
-  const isStrength = S.sport === 'gym' || S.sport === 'karate';
-  const muscLoad = isStrength ? strain * 0.62 : strain * 0.18;
-  const cardioLoad = Math.max(0, strain - muscLoad);
-  const lx = M + 300, lw = w - 300;
-  const loadRow = (ry, label, val, col) => {
-    txt(c, up(label), lx, ry, fs(22), 700, S.muted, 'left', S.bodyFont, lw - 110);
-    txt(c, val.toFixed(1), lx + lw, ry + fs(4), fs(36), 800, S.textCol, 'right', S.numFont);
-    c.save();
-    c.fillStyle = hexA(S.textCol, 0.10);
-    rr(c, lx, ry + 18, lw, 14, 7); c.fill();
-    if (S.glow > 0) { c.shadowColor = hexA(col, 0.5 * S.glow / 100); c.shadowBlur = 14 * S.glow / 100; }
-    c.fillStyle = col;
-    rr(c, lx, ry + 18, Math.max(14, lw * Math.min(1, val / 21)), 14, 7); c.fill();
-    c.restore();
-  };
-  loadRow(y + h * 0.20, 'Muscular load', muscLoad, S.accent);
-  loadRow(y + h * 0.60, 'Cardio load', cardioLoad, S.whoopStrain);
-}
-
-function drawWhoopChart(c, M, y, w, h) {
-  c.save();
-  c.fillStyle = hexA(S.surface, 0.92);
-  rr(c, M, y, w, h, S.radius); c.fill();
-  c.strokeStyle = hexA(S.textCol, 0.08); c.lineWidth = 1.5;
-  rr(c, M, y, w, h, S.radius); c.stroke();
-  c.restore();
-  const pad = 34;
-  const hasHr = S.chartMode === 'hr' && S.hrSeries.length >= 6;
-  if (!hasHr) {
-    txt(c, up('Route'), M + pad, y + 44, fs(22), 700, S.muted, 'left', S.bodyFont);
-    txt(c, S.dist + ' KM', M + w - pad, y + 44, fs(22), 700, S.muted, 'right', S.numFont);
-    drawMiniRoute(c, M + pad, y + 60, w - pad * 2, h - 92, S.accent);
-    return;
+  rr(c, x, y, w, h, h / 2); c.clip();
+  c.fillStyle = hexA(S.textCol, 0.06);
+  c.fillRect(x, y, w, h);
+  c.strokeStyle = hexA(S.textCol, 0.14);
+  c.lineWidth = 3;
+  for (let hx = x - h; hx < x + w + h; hx += 11) {
+    c.beginPath(); c.moveTo(hx, y + h + 2); c.lineTo(hx + h + 4, y - 2); c.stroke();
   }
-  txt(c, up('Heart rate'), M + pad, y + 44, fs(22), 700, S.muted, 'left', S.bodyFont);
-  txt(c, S.maxHrVal ? 'MAX ' + S.maxHrVal : '', M + w - pad, y + 44, fs(22), 700, S.muted, 'right', S.numFont);
-  const gx = M + pad, gy = y + 64, gw = w - pad * 2, gh = h - 96;
-  const pts = S.hrSeries;
-  const max = whoopMaxHr();
-  const bounds = [0.5, 0.6, 0.7, 0.8, 0.9].map(f => f * max);
-  const minV = Math.min(...pts, bounds[0]) - 4;
-  const maxV = Math.max(...pts, max) + 4;
-  const range = Math.max(12, maxV - minV);
-  const X = i => gx + (i / (pts.length - 1)) * gw;
-  const Y = v => gy + gh - ((v - minV) / range) * gh;
-  const zoneOf = v => { let z = 0; for (let i = 0; i < 5; i++) if (v >= bounds[i]) z = i; return z; };
-  c.save();
-  bounds.forEach((b, i) => {
-    const by = Y(b);
-    if (by > gy + 2 && by < gy + gh - 2) {
-      c.strokeStyle = hexA(S.whoopZones[i + 1] || S.muted, 0.16);
-      c.lineWidth = 1; c.setLineDash([4, 7]);
-      c.beginPath(); c.moveTo(gx, by); c.lineTo(gx + gw, by); c.stroke();
-    }
-  });
-  c.setLineDash([]);
+  const f = Math.max(0, Math.min(1, frac));
+  if (f > 0.004) {
+    const fw = Math.max(h, w * f);
+    c.fillStyle = col;
+    c.fillRect(x, y, fw, h);
+    c.fillStyle = hexA(S.textCol, 0.9);
+    c.fillRect(x + fw - 2.5, y, 2.5, h);
+  }
   c.restore();
-  const mid = (a, b) => [(X(a) + X(b)) / 2, (Y(pts[a]) + Y(pts[b])) / 2];
+}
+
+function statGlyph(c, id, x, y, s, col) {
+  const r = s / 2;
+  c.save();
+  c.strokeStyle = col; c.fillStyle = col;
+  c.lineWidth = Math.max(2, s * 0.11); c.lineCap = 'round'; c.lineJoin = 'round';
+  if (id === 'hr') {
+    c.beginPath();
+    c.moveTo(x, y + r * 0.68);
+    c.bezierCurveTo(x - r * 1.15, y - r * 0.05, x - r * 0.62, y - r * 0.95, x, y - r * 0.32);
+    c.bezierCurveTo(x + r * 0.62, y - r * 0.95, x + r * 1.15, y - r * 0.05, x, y + r * 0.68);
+    c.stroke();
+  } else if (id === 'cal') {
+    c.beginPath();
+    c.moveTo(x + r * 0.28, y - r);
+    c.lineTo(x - r * 0.55, y + r * 0.16);
+    c.lineTo(x - r * 0.04, y + r * 0.16);
+    c.lineTo(x - r * 0.28, y + r);
+    c.lineTo(x + r * 0.55, y - r * 0.16);
+    c.lineTo(x + r * 0.04, y - r * 0.16);
+    c.closePath(); c.stroke();
+  } else if (id === 'time') {
+    c.beginPath(); c.arc(x, y, r * 0.85, 0, Math.PI * 2); c.stroke();
+    c.beginPath(); c.moveTo(x, y - r * 0.45); c.lineTo(x, y); c.lineTo(x + r * 0.42, y + r * 0.16); c.stroke();
+  } else if (id === 'pace' && (S.sport === 'gym' || S.sport === 'karate')) {
+    c.beginPath(); c.moveTo(x - r * 0.5, y); c.lineTo(x + r * 0.5, y); c.stroke();
+    c.beginPath(); c.moveTo(x - r * 0.5, y - r * 0.55); c.lineTo(x - r * 0.5, y + r * 0.55); c.stroke();
+    c.beginPath(); c.moveTo(x + r * 0.5, y - r * 0.55); c.lineTo(x + r * 0.5, y + r * 0.55); c.stroke();
+    c.beginPath(); c.moveTo(x - r * 0.85, y - r * 0.3); c.lineTo(x - r * 0.85, y + r * 0.3); c.stroke();
+    c.beginPath(); c.moveTo(x + r * 0.85, y - r * 0.3); c.lineTo(x + r * 0.85, y + r * 0.3); c.stroke();
+  } else if (id === 'tl' || id === 'pace') {
+    c.beginPath();
+    c.moveTo(x - r, y + r * 0.55); c.lineTo(x - r * 0.28, y - r * 0.12);
+    c.lineTo(x + r * 0.16, y + r * 0.22); c.lineTo(x + r * 0.9, y - r * 0.55);
+    c.stroke();
+    c.beginPath(); c.moveTo(x + r * 0.42, y - r * 0.55); c.lineTo(x + r * 0.9, y - r * 0.55); c.lineTo(x + r * 0.9, y - r * 0.08); c.stroke();
+  } else {
+    c.beginPath(); c.moveTo(x - r * 0.6, y + r * 0.7); c.lineTo(x - r * 0.6, y - r * 0.1); c.stroke();
+    c.beginPath(); c.moveTo(x, y + r * 0.7); c.lineTo(x, y - r * 0.7); c.stroke();
+    c.beginPath(); c.moveTo(x + r * 0.6, y + r * 0.7); c.lineTo(x + r * 0.6, y + r * 0.15); c.stroke();
+  }
+  c.restore();
+}
+
+function zoneBounds() {
+  const max = whoopMaxHr();
+  return [0.5, 0.6, 0.7, 0.8, 0.9].map(f => Math.round(f * max));
+}
+function zoneRangeLabel(i, b) {
+  const u = ' ' + up(S.unitBpm || 'bpm');
+  if (i === 0) return '<' + b[0] + u;
+  if (i === 4) return b[4] + '+' + u;
+  return b[i - 1] + '–' + (b[i] - 1) + u;
+}
+function fmtClock(min) {
+  let m = Math.floor(min), s = Math.round((min - m) * 60);
+  if (s === 60) { m++; s = 0; }
+  return [String(m), String(s).padStart(2, '0')];
+}
+function measW(c, s, size, wt, fam) {
+  c.save(); c.font = wt + ' ' + size + 'px ' + fam;
+  const w = c.measureText(s).width; c.restore(); return w;
+}
+function wrapLines(c, text, maxW, size, wt, fam, maxLines) {
+  const words = String(text).split(/\s+/);
+  const lines = [];
+  let cur = '';
+  words.forEach(wd => {
+    const t = cur ? cur + ' ' + wd : wd;
+    if (measW(c, t, size, wt, fam) > maxW && cur) { lines.push(cur); cur = wd; }
+    else cur = t;
+  });
+  if (cur) lines.push(cur);
+  return lines.slice(0, maxLines || 3);
+}
+
+function effectInfo() {
+  const strain = computeStrain();
+  const score = Math.max(0, Math.min(5, strain / 21 * 5));
+  let word, col;
+  if (score < 2) { word = 'MINOR'; col = S.whoopZones[1]; }
+  else if (score < 3) { word = 'MODERATE'; col = S.whoopZones[2]; }
+  else if (score < 4) { word = 'MAJOR'; col = S.whoopZones[3]; }
+  else { word = 'MAXIMAL'; col = S.whoopZones[4]; }
+  const strength = S.sport === 'gym' || S.sport === 'karate';
+  const table = strength ? [
+    ['Recovery', 'Light work that helps you recover.'],
+    ['Strength', 'Solid stimulus for muscle and tendon.'],
+    ['Hypertrophy', 'Hard sets that drive muscle growth.'],
+    ['Peak power', 'Maximal effort across your heaviest sets.']
+  ] : [
+    ['Recovery', 'Easy movement that keeps blood flowing.'],
+    ['Aerobic base', 'Steady work that builds your engine.'],
+    ['Threshold', 'Tempo effort that lifts your ceiling.'],
+    ['VO2 max', 'Hard intervals that raise your top end.']
+  ];
+  const bi = score < 2 ? 0 : score < 3 ? 1 : score < 4 ? 2 : 3;
+  return {
+    strain, score, word, col,
+    benefit: table[bi][0], desc: table[bi][1],
+    recH: strain * 1.05 + (strength ? 1.5 : 0.5)
+  };
+}
+function fmtHours(h) {
+  let hh = Math.floor(h), mm = Math.round((h - hh) * 60);
+  if (mm === 60) { hh++; mm = 0; }
+  return hh + ' h ' + mm + ' min';
+}
+function statContext(st) {
+  const sets = parseFloat(S.dist) || 0;
+  const sec = timeStatSec();
+  const strength = S.sport === 'gym' || S.sport === 'karate';
+  if (st.id === 'time') return strength ? Math.round(sets) + ' ' + up(S.unitSets || 'sets') : (+S.dist || 0).toFixed(1) + ' km';
+  if (st.id === 'hr') return 'max ' + (S.maxHrVal || Math.round(whoopMaxHr() * 0.9));
+  if (st.id === 'cal') return sec > 0 ? (statNum('cal') / (sec / 60)).toFixed(1) + '/min' : 'session';
+  if (st.id === 'pace') return strength ? (sets > 0 ? (statNum('pace') / sets).toFixed(1) + '/set' : 'reps') : (st.unit || '/km');
+  if (st.id === 'tl') return effectInfo().word.toLowerCase();
+  if (st.id === 'elev') return strength ? (sets > 0 ? Math.round(statNum('elev') / sets) + '/set' : 'volume') : (st.unit || 'm');
+  return st.unit || 'session';
+}
+
+function sparkline(c, x, y, w, h, colored) {
+  const pts = S.hrSeries;
+  if (!pts || pts.length < 6) return false;
+  const max = whoopMaxHr();
+  const b = zoneBounds();
+  const minV = Math.min.apply(null, pts.concat([b[0]])) - 4;
+  const maxV = Math.max.apply(null, pts.concat([max])) + 4;
+  const range = Math.max(12, maxV - minV);
+  const X = i => x + (i / (pts.length - 1)) * w;
+  const Y = v => y + h - ((v - minV) / range) * h;
+  const zoneOf = v => { let z = 0; for (let i = 0; i < 5; i++) if (v >= b[i]) z = i; return z; };
+  const mid = (a, bb) => [(X(a) + X(bb)) / 2, (Y(pts[a]) + Y(pts[bb])) / 2];
   c.save();
   c.beginPath();
   c.moveTo(X(0), Y(pts[0]));
   for (let i = 0; i < pts.length - 1; i++) { const m = mid(i, i + 1); c.quadraticCurveTo(X(i), Y(pts[i]), m[0], m[1]); }
   c.lineTo(X(pts.length - 1), Y(pts[pts.length - 1]));
-  c.lineTo(gx + gw, gy + gh); c.lineTo(gx, gy + gh); c.closePath();
-  const ag = c.createLinearGradient(0, gy, 0, gy + gh);
-  ag.addColorStop(0, hexA(S.whoopStrain, 0.20));
+  c.lineTo(x + w, y + h); c.lineTo(x, y + h); c.closePath();
+  const ag = c.createLinearGradient(0, y, 0, y + h);
+  ag.addColorStop(0, hexA(colored ? S.whoopStrain : S.accent, 0.20));
   ag.addColorStop(1, 'rgba(0,0,0,0)');
   c.fillStyle = ag; c.fill();
   c.restore();
   c.save();
-  c.lineWidth = 4.5; c.lineCap = 'round'; c.lineJoin = 'round';
+  c.lineWidth = 4; c.lineCap = 'round'; c.lineJoin = 'round';
   for (let i = 0; i < pts.length; i++) {
-    const z = zoneOf(pts[i]);
-    c.strokeStyle = S.whoopZones[z];
-    if (S.glow > 0) { c.shadowColor = hexA(S.whoopZones[z], 0.55 * S.glow / 100); c.shadowBlur = 12 * S.glow / 100; }
+    const col = colored ? S.whoopZones[zoneOf(pts[i])] : S.accent;
+    c.strokeStyle = col;
+    if (S.glow > 0) { c.shadowColor = hexA(col, 0.5 * S.glow / 100); c.shadowBlur = 10 * S.glow / 100; }
     c.beginPath();
     if (i === 0) c.moveTo(X(0), Y(pts[0])); else { const m0 = mid(i - 1, i); c.moveTo(m0[0], m0[1]); }
     if (i === pts.length - 1) c.lineTo(X(i), Y(pts[i])); else { const m1 = mid(i, i + 1); c.quadraticCurveTo(X(i), Y(pts[i]), m1[0], m1[1]); }
     c.stroke();
   }
   c.restore();
+  return true;
 }
 
-function drawWhoopZones(c, M, y, w) {
+function zoneDonut(c, cx, cy, r, th) {
   const zones = computeZoneMinutes();
-  const total = zones.reduce((a, b) => a + b, 0) || 1;
-  txt(c, up('Heart rate zones'), M, y + fs(20), fs(24), 700, S.muted, 'left', S.bodyFont);
-  txt(c, Math.round(total) + ' min', M + w, y + fs(20), fs(24), 800, S.textCol, 'right', S.numFont);
-  const by = y + 38, bh = 18;
+  const total = zones.reduce((a, b) => a + b, 0);
   c.save();
-  rr(c, M, by, w, bh, bh / 2); c.clip();
-  let bx = M;
-  zones.forEach((min, i) => {
-    const segW = w * (min / total);
-    c.fillStyle = S.whoopZones[i];
-    c.fillRect(bx, by, segW + 0.6, bh);
-    bx += segW;
-  });
+  c.lineWidth = th; c.lineCap = 'butt';
+  if (total <= 0) {
+    c.strokeStyle = hexA(S.textCol, 0.12);
+    c.beginPath(); c.arc(cx, cy, r, 0, Math.PI * 2); c.stroke();
+  } else {
+    let a = -Math.PI / 2;
+    zones.forEach((min, i) => {
+      const sweep = (min / total) * Math.PI * 2;
+      if (sweep > 0.02) {
+        c.strokeStyle = S.whoopZones[i];
+        c.beginPath(); c.arc(cx, cy, r, a + 0.02, a + sweep - 0.02); c.stroke();
+      }
+      a += sweep;
+    });
+  }
   c.restore();
-  const ly = by + bh + 30, zw = w / 5;
+  return total;
+}
+
+/* ---- Detail theme: clean workout report ---- */
+function drawDetailZones(c, M, y, w, h, rowH) {
+  panelCard(c, M, y, w, h);
+  const pad = 30, x0 = M + pad, x1 = M + w - pad;
+  const zones = computeZoneMinutes();
+  const total = zones.reduce((a, b) => a + b, 0);
+  txt(c, up('Heart rate zones'), x0, y + pad + fs(18), fs(24), 700, S.muted, 'left', S.bodyFont);
+  txt(c, Math.round(total) + ' MIN', x1, y + pad + fs(18), fs(24), 800, S.textCol, 'right', S.numFont);
+  const b = zoneBounds();
+  let ry = y + pad + 40;
   zones.forEach((min, i) => {
-    const x = M + i * zw;
-    c.save();
-    c.beginPath(); c.arc(x + 7, ly - 8, 7, 0, Math.PI * 2);
-    c.fillStyle = S.whoopZones[i]; c.fill();
-    c.restore();
-    txt(c, 'Z' + (i + 1), x + 24, ly, fs(22), 700, S.muted, 'left', S.bodyFont);
-    txt(c, Math.round(min) + 'm', x + zw - 14, ly, fs(26), 800, S.textCol, 'right', S.numFont);
+    const ly = ry + rowH * 0.32;
+    txt(c, up('Zone ' + (i + 1)), x0, ly, fs(23), 800, S.textCol, 'left', S.bodyFont);
+    txt(c, zoneRangeLabel(i, b), x0 + fs(108), ly, fs(21), 600, S.muted, 'left', S.numFont);
+    const pct = total > 0 ? Math.round(min / total * 100) : 0;
+    const ck = fmtClock(min);
+    const sw = measW(c, ':' + ck[1], fs(20), 700, S.numFont);
+    const mw = measW(c, ck[0], fs(30), 800, S.numFont);
+    txt(c, ':' + ck[1], x1, ly, fs(20), 700, S.muted, 'right', S.numFont);
+    txt(c, ck[0], x1 - sw - 4, ly, fs(30), 800, S.textCol, 'right', S.numFont);
+    txt(c, pct + '%', x1 - sw - mw - fs(26), ly, fs(21), 700, S.muted, 'right', S.numFont);
+    hatchBar(c, x0, ry + rowH * 0.58, x1 - x0, 13, total > 0 ? min / total : 0, S.whoopZones[i]);
+    ry += rowH;
   });
 }
 
-function drawWhoopMuscles(c, M, y, w) {
-  const entries = Object.entries(S.muscleSets || {}).filter(([, v]) => +v > 0).sort((a, b) => b[1] - a[1]).slice(0, 8);
-  const maxSets = Math.max(1, ...entries.map(([, v]) => +v));
-  txt(c, up('Muscle groups'), M, y + fs(18), fs(24), 700, S.muted, 'left', S.bodyFont);
-  let cxp = M, cyp = y + 34;
-  entries.forEach(([k, v]) => {
-    const name = (MUSCLES.find(m => m.k === k) || { n: k }).n;
-    const t = Math.pow(Math.min(1, +v / maxSets), 0.85);
-    const col = heatColor(t);
-    const label = name + '  ' + Math.round(+v);
-    c.save();
-    c.font = `700 ${fs(23)}px ${S.bodyFont}`;
-    const tw = Math.min(w, c.measureText(label).width + 58);
-    c.restore();
-    if (cxp + tw > M + w) { cxp = M; cyp += 50; }
-    c.save();
-    c.fillStyle = hexA(col, 0.16);
-    rr(c, cxp, cyp, tw, 42, 21); c.fill();
-    c.strokeStyle = hexA(col, 0.55); c.lineWidth = 1.5;
-    rr(c, cxp, cyp, tw, 42, 21); c.stroke();
-    c.beginPath(); c.arc(cxp + 22, cyp + 21, 6, 0, Math.PI * 2);
-    c.fillStyle = col; c.fill();
-    c.restore();
-    txt(c, label, cxp + 38, cyp + 29, fs(23), 700, S.textCol, 'left', S.bodyFont, tw - 50);
-    cxp += tw + 12;
+function drawDetailStats(c, M, y, w, items, tileH) {
+  txt(c, up('Key statistics'), M, y + fs(26), fs(30), 800, S.textCol, 'left', S.bodyFont);
+  txt(c, 'session context', M + w, y + fs(26), fs(22), 600, S.muted, 'right', S.bodyFont);
+  const gap = 18, tw = (w - gap) / 2;
+  const big = tileH >= 132;
+  const vSize = big ? fs(48) : fs(42);
+  const pillH = big ? 32 : 30;
+  let ty = y + 44;
+  items.forEach((st, i) => {
+    const tx = M + (i % 2) * (tw + gap);
+    if (i && i % 2 === 0) ty += tileH + 16;
+    panelCard(c, tx, ty, tw, tileH);
+    const pad = 24;
+    statGlyph(c, st.id, tx + pad + 12, ty + 30, 26, S.muted);
+    txt(c, up(st.label), tx + pad + 34, ty + 38, fs(21), 700, S.muted, 'left', S.bodyFont, tw - pad * 2 - 40);
+    const vStr = String(st.val);
+    txt(c, vStr, tx + pad, ty + tileH * 0.60, vSize, S.weight, S.textCol, 'left', S.numFont, tw - pad * 2 - 70);
+    const vw = Math.min(measW(c, vStr, vSize, S.weight, S.numFont), tw - pad * 2 - 70);
+    if (st.unit) txt(c, st.unit, tx + pad + vw + 10, ty + tileH * 0.60, fs(22), 600, S.muted, 'left', S.bodyFont);
+    const ctx = statContext(st);
+    const cw = measW(c, ctx, fs(20), 700, S.bodyFont);
+    const pw = Math.min(tw - pad * 2, cw + 46);
+    const px = tx + pad, py = ty + tileH - pillH - (big ? 16 : 10);
+    c.save(); c.fillStyle = hexA(S.textCol, 0.08); rr(c, px, py, pw, pillH, pillH / 2); c.fill(); c.restore();
+    c.save(); c.beginPath(); c.arc(px + 17, py + pillH / 2, 4.5, 0, Math.PI * 2); c.fillStyle = S.muted; c.fill(); c.restore();
+    txt(c, ctx, px + 30, py + pillH / 2 + fs(7), fs(20), 700, S.muted, 'left', S.bodyFont, pw - 40);
   });
 }
 
-function drawWhoopTheme(c, TOP, contentBot, weekY, weekH) {
+function drawDetailEffect(c, M, y, w, h) {
+  panelCard(c, M, y, w, h);
+  const pad = 30, x0 = M + pad, x1 = M + w - pad;
+  const ef = effectInfo();
+  txt(c, up('Training effect'), x0, y + 44, fs(24), 700, S.muted, 'left', S.bodyFont);
+  c.save();
+  c.strokeStyle = hexA(S.muted, 0.8); c.lineWidth = 2;
+  c.beginPath(); c.arc(x1 - 12, y + 36, 12, 0, Math.PI * 2); c.stroke();
+  c.restore();
+  txt(c, 'i', x1 - 12, y + 43, fs(18), 700, S.muted, 'center', S.bodyFont);
+  const sc = ef.score.toFixed(1);
+  txt(c, sc, x0, y + 100, fs(62), S.weight, S.textCol, 'left', S.numFont);
+  const scw = measW(c, sc, fs(62), S.weight, S.numFont);
+  txt(c, 'of 5', x0 + scw + 12, y + 100, fs(24), 700, S.muted, 'left', S.bodyFont);
+  txt(c, up(ef.word), x0, y + 140, fs(24), 800, ef.col, 'left', S.bodyFont);
+  hatchBar(c, x0, y + 152, x1 - x0, 12, ef.score / 5, ef.col);
+  const by = y + 186;
+  txt(c, up('Main benefit'), x0, by, fs(22), 800, S.textCol, 'left', S.bodyFont);
+  txt(c, ef.benefit, x1, by, fs(28), 800, S.textCol, 'right', S.bodyFont);
+  txt(c, ef.desc, x0, by + 24, fs(21), 500, S.muted, 'left', S.bodyFont, x1 - x0);
+  c.save();
+  c.strokeStyle = hexA(S.textCol, 0.10); c.lineWidth = 1.5;
+  c.beginPath(); c.moveTo(x0, by + 40); c.lineTo(x1, by + 40); c.stroke();
+  c.restore();
+  const ry = by + 68;
+  statGlyph(c, 'time', x0 + 12, ry - fs(8), 26, S.muted);
+  txt(c, up('Adds recovery time'), x0 + 34, ry, fs(22), 800, S.textCol, 'left', S.bodyFont);
+  txt(c, fmtHours(ef.recH), x1, ry, fs(28), 800, S.textCol, 'right', S.numFont);
+}
+
+function drawDetailInsight(c, M, y, w, h) {
+  const zones = computeZoneMinutes();
+  let zi = 1, best = -1;
+  for (let i = 1; i < 5; i++) if (zones[i] > best) { best = zones[i]; zi = i; }
+  const phrases = [
+    'easy movement that keeps blood flowing.',
+    'steady aerobic work that builds your base.',
+    'tempo effort that lifts your threshold.',
+    'hard intervals that raise your ceiling.'
+  ];
+  const ef = effectInfo();
+  const sentence = best >= 1
+    ? 'You spent ' + Math.round(best) + ' minutes in zone ' + (zi + 1) + ', ' + phrases[zi - 1]
+    : 'Strain ' + ef.strain.toFixed(1) + ' — a ' + ef.word.toLowerCase() + ' session, logged and counted.';
+  c.save();
+  c.fillStyle = hexA(S.surface, 0.55);
+  rr(c, M, y, w, h, S.radius); c.fill();
+  const g = c.createLinearGradient(M, y, M + w, y + h);
+  g.addColorStop(0, S.accent); g.addColorStop(1, S.accent2);
+  c.strokeStyle = g; c.lineWidth = 2.5;
+  rr(c, M, y, w, h, S.radius); c.stroke();
+  c.restore();
+  const lines = wrapLines(c, sentence, w - 64, fs(24), 600, S.bodyFont, 2);
+  const lh = fs(30);
+  const y0 = y + h / 2 - ((lines.length - 1) * lh) / 2 + fs(8);
+  lines.forEach((ln, i) => txt(c, ln, M + 32, y0 + i * lh, fs(24), 600, S.textCol, 'left', S.bodyFont));
+}
+
+function drawDetailTheme(c, TOP, contentBot, weekY, weekH) {
   const M = 72, w = W - 2 * M;
   drawHeader(c, M, TOP);
-  const hasChart = (S.chartMode === 'hr' && S.hrSeries.length >= 6) || (S.chartMode === 'route' && S.route.length >= 3);
-  const isStrength = S.sport === 'gym' || S.sport === 'karate';
-  const hasMuscles = isStrength && Object.values(S.muscleSets || {}).some(v => +v > 0);
-  const nStats = S.showStats ? Math.min(6, S.stats.filter(x => x.on).length) : 0;
-  const useTiles = nStats > 0 && nStats <= 4;
-  const statRows = nStats ? Math.ceil(nStats / (useTiles ? 2 : 3)) : 0;
-  const statsH = nStats ? (useTiles ? statRows * 154 - 22 : 30 + statRows * 112) : 0;
-  const heroH = 270, chartH = 210, zonesH = 100, muscH = 128, gap = 20;
-  const avail = contentBot - TOP;
-  const baseUsed = fs(186) + heroH + zonesH + statsH + gap * 2;
-  let budget = avail - baseUsed;
-  const showChart = hasChart && budget >= chartH + gap;
-  if (showChart) budget -= chartH + gap;
-  const showMuscles = hasMuscles && budget >= muscH + gap;
-  if (showMuscles) budget -= muscH + gap;
-  const extra = Math.max(0, budget);
-  const g = gap + Math.min(26, extra / 4);
-  const heroH2 = heroH + Math.min(28, extra * 0.3);
-
   let y = TOP + fs(186);
-  drawWhoopHero(c, M, y, w, heroH2); y += heroH2 + g;
-  if (showChart) { drawWhoopChart(c, M, y, w, chartH); y += chartH + g; }
-  drawWhoopZones(c, M, y, w); y += zonesH + g;
-  if (showMuscles) { drawWhoopMuscles(c, M, y, w); y += muscH + g; }
-  if (nStats) {
-    const remH = Math.max(0, contentBot - y);
-    if (useTiles) {
-      const rowH = Math.max(112, Math.min(184, (remH - (statRows - 1) * 22) / statRows));
-      drawStatsRow(c, M, y, w, rowH, true);
-    } else {
-      const rowH = Math.max(96, Math.min(150, (remH - 30) / statRows));
-      drawStatsRow(c, M, y, w, rowH, false);
-    }
+  const avail = contentBot - y;
+  const items = S.showStats ? S.stats.filter(x => x.on).slice(0, 4) : [];
+  const statRows = Math.ceil(items.length / 2);
+  let g = 16, zoneRowH = 44, tileH = 140, effectH = 272, insightH = 80;
+  const zonesH = () => 84 + 5 * zoneRowH;
+  const statsH = () => items.length ? 44 + statRows * tileH + (statRows - 1) * 16 : 0;
+  const blocks = () => 2 + (items.length ? 1 : 0) + (insightH ? 1 : 0);
+  const used = () => zonesH() + statsH() + effectH + insightH + g * (blocks() - 1);
+  if (used() > avail) insightH = 0;
+  if (used() > avail) { zoneRowH = 40; tileH = 124; g = 12; }
+  if (used() > avail) { zoneRowH = 36; tileH = 112; g = 10; }
+  let slack = Math.max(0, avail - used());
+  tileH += Math.min(34, slack * 0.30);
+  zoneRowH += Math.min(12, slack * 0.12);
+  effectH += Math.min(44, slack * 0.25);
+  if (insightH) insightH += Math.min(18, slack * 0.10);
+  slack = Math.max(0, avail - used());
+  g += Math.min(26, slack / Math.max(1, blocks() - 1));
+  drawDetailZones(c, M, y, w, zonesH(), zoneRowH); y += zonesH() + g;
+  if (items.length) { drawDetailStats(c, M, y, w, items, tileH); y += statsH() + g; }
+  drawDetailEffect(c, M, y, w, effectH); y += effectH + g;
+  if (insightH) drawDetailInsight(c, M, y, w, insightH);
+}
+
+/* ---- Bento theme: dashboard grid ---- */
+function drawDashTheme(c, TOP, contentBot, weekY, weekH) {
+  const M = 72, w = W - 2 * M;
+  drawHeader(c, M, TOP);
+  const y = TOP + fs(186);
+  const avail = contentBot - y;
+  const gap = 18;
+  const colW = (w - 2 * gap) / 3;
+  const heroH = Math.max(300, avail * 0.40);
+  const midH = Math.max(210, avail * 0.27);
+  const lowH = Math.max(180, avail - heroH - midH - 2 * gap);
+  const items = S.showStats ? S.stats.filter(x => x.on) : [];
+  const strength = S.sport === 'gym' || S.sport === 'karate';
+  const ef = effectInfo();
+
+  const hw = colW * 2 + gap;
+  panelCard(c, M, y, hw, heroH);
+  const pad = 34;
+  statGlyph(c, strength ? 'pace' : 'tl', M + hw - pad - 22, y + pad + 22, 44, S.accent);
+  txt(c, up(S.mainLbl), M + pad, y + pad + fs(20), fs(24), 700, S.muted, 'left', S.bodyFont);
+  txt(c, String(S.dist), M + pad, y + pad + fs(128), fs(128), S.weight, S.textCol, 'left', S.numFont, hw - pad * 2 - 90);
+  const dw = measW(c, String(S.dist), fs(128), S.weight, S.numFont);
+  txt(c, up(strength ? (S.unitSets || 'sets') : 'km'), M + pad + Math.min(dw, hw - pad * 2 - 90) + 14, y + pad + fs(128), fs(30), 700, S.muted, 'left', S.bodyFont);
+  const spY = y + heroH - pad - heroH * 0.30;
+  const hasHr = S.chartMode === 'hr' && S.hrSeries.length >= 6;
+  const hasRoute = S.chartMode === 'route' && S.route.length >= 3;
+  if (hasRoute) drawMiniRoute(c, M + pad, spY, hw - pad * 2, heroH * 0.30, S.accent2);
+  else if (hasHr) sparkline(c, M + pad, spY, hw - pad * 2, heroH * 0.30, true);
+  else {
+    const zones = computeZoneMinutes();
+    const total = zones.reduce((a, b) => a + b, 0) || 1;
+    hatchBar(c, M + pad, spY + heroH * 0.15, hw - pad * 2, 16, zones[2] / total + zones[3] / total, S.accent);
+  }
+  txt(c, hasRoute ? up('route') : hasHr ? up('heart rate') : up('zone 3+ share'), M + pad, spY - fs(10), fs(20), 700, S.muted, 'left', S.bodyFont);
+
+  const bx = M + hw + gap;
+  panelCard(c, bx, y, colW, heroH);
+  const rcx = bx + colW / 2, rcy = y + heroH * 0.42;
+  const rr2 = Math.min(colW * 0.32, heroH * 0.26);
+  c.save();
+  c.lineCap = 'round'; c.lineWidth = 20;
+  c.strokeStyle = hexA(S.textCol, 0.10);
+  c.beginPath(); c.arc(rcx, rcy, rr2, Math.PI * 0.75, Math.PI * 2.25); c.stroke();
+  if (S.glow > 0) { c.shadowColor = hexA(ef.col, 0.55 * S.glow / 100); c.shadowBlur = 22 * S.glow / 100; }
+  c.strokeStyle = ef.col;
+  c.beginPath(); c.arc(rcx, rcy, rr2, Math.PI * 0.75, Math.PI * 0.75 + Math.PI * 1.5 * Math.max(0.01, ef.strain / 21)); c.stroke();
+  c.restore();
+  txt(c, ef.strain.toFixed(1), rcx, rcy + fs(24), fs(64), S.weight, S.textCol, 'center', S.numFont);
+  txt(c, up('strain'), rcx, rcy + fs(56), fs(20), 700, S.muted, 'center', S.bodyFont);
+  txt(c, up(ef.word), rcx, y + heroH - pad - fs(8), fs(24), 800, ef.col, 'center', S.bodyFont);
+
+  const my = y + heroH + gap;
+  const tile = (tx, st, withSpark) => {
+    panelCard(c, tx, my, colW, midH);
+    const p2 = 26;
+    statGlyph(c, st ? st.id : 'hr', tx + p2 + 12, my + p2 + 10, 26, S.muted);
+    txt(c, up(st ? st.label : 'Avg heart rate'), tx + p2 + 34, my + p2 + fs(17), fs(20), 700, S.muted, 'left', S.bodyFont, colW - p2 * 2 - 40);
+    const val = st ? String(st.val) : String(statNum('hr') || S.maxHrVal || 120);
+    txt(c, val, tx + p2, my + midH * 0.52, fs(56), S.weight, S.textCol, 'left', S.numFont, colW - p2 * 2 - 60);
+    const vw = Math.min(measW(c, val, fs(56), S.weight, S.numFont), colW - p2 * 2 - 60);
+    const un = st && st.unit ? st.unit : (st && st.id === 'hr' ? up(S.unitBpm || 'bpm') : '');
+    if (un) txt(c, un, tx + p2 + vw + 8, my + midH * 0.52, fs(20), 600, S.muted, 'left', S.bodyFont);
+    if (withSpark) sparkline(c, tx + p2, my + midH - p2 - midH * 0.26, colW - p2 * 2, midH * 0.26, true);
+    else txt(c, statContext(st || { id: 'hr' }), tx + p2, my + midH - p2 + fs(4), fs(20), 700, S.muted, 'left', S.bodyFont, colW - p2 * 2);
+  };
+  tile(M, items[0] || null, !!(items[0] && items[0].id === 'hr'));
+  const dx = M + colW + gap;
+  panelCard(c, dx, my, colW, midH);
+  const dcx = dx + colW / 2, dcy = my + midH * 0.52;
+  const dr = Math.min(colW * 0.30, midH * 0.30);
+  const ztot = zoneDonut(c, dcx, dcy, dr, 16);
+  txt(c, String(Math.round(ztot)), dcx, dcy + fs(14), fs(40), S.weight, S.textCol, 'center', S.numFont);
+  txt(c, up('min'), dcx, dcy + fs(40), fs(18), 700, S.muted, 'center', S.bodyFont);
+  txt(c, up('zones'), dx + 26, my + 26 + fs(17), fs(20), 700, S.muted, 'left', S.bodyFont);
+  tile(M + 2 * (colW + gap), items[1] || items[0] || null, false);
+
+  const ly = my + midH + gap;
+  panelCard(c, M, ly, w, lowH);
+  const p3 = 30;
+  if (hasHr) {
+    txt(c, up('Heart rate'), M + p3, ly + p3 + fs(16), fs(22), 700, S.muted, 'left', S.bodyFont);
+    txt(c, (S.minHrVal ? 'MIN ' + S.minHrVal + '  ·  ' : '') + (S.maxHrVal ? 'MAX ' + S.maxHrVal : ''), M + w - p3, ly + p3 + fs(16), fs(22), 700, S.muted, 'right', S.numFont);
+    sparkline(c, M + p3, ly + p3 + 34, w - p3 * 2, lowH - p3 * 2 - 40, true);
+  } else if (hasRoute) {
+    txt(c, up('Route'), M + p3, ly + p3 + fs(16), fs(22), 700, S.muted, 'left', S.bodyFont);
+    txt(c, S.dist + ' KM', M + w - p3, ly + p3 + fs(16), fs(22), 700, S.muted, 'right', S.numFont);
+    drawMiniRoute(c, M + p3, ly + p3 + 30, w - p3 * 2, lowH - p3 * 2 - 36, S.accent);
+  } else {
+    txt(c, up('Heart rate zones'), M + p3, ly + p3 + fs(16), fs(22), 700, S.muted, 'left', S.bodyFont);
+    const zones = computeZoneMinutes();
+    const total = zones.reduce((a, b) => a + b, 0) || 1;
+    const zw = (w - p3 * 2 - 4 * 22) / 5;
+    zones.forEach((min, i) => {
+      const zx = M + p3 + i * (zw + 22);
+      hatchBar(c, zx, ly + lowH * 0.46, zw, 14, min / total, S.whoopZones[i]);
+      txt(c, 'Z' + (i + 1), zx, ly + lowH * 0.46 + 44, fs(20), 700, S.muted, 'left', S.bodyFont);
+      txt(c, Math.round(min) + 'm', zx + zw, ly + lowH * 0.46 + 44, fs(22), 800, S.textCol, 'right', S.numFont);
+    });
   }
 }
 
-function drawStrainTheme(c, TOP, contentBot, weekY, weekH) {
-  const M = 72;
-  drawHeader(c, M, TOP);
-  const strain = computeStrain();
-  const cx = W / 2, cy = TOP + fs(400), r = 230;
-  const a0 = Math.PI * 0.75, a1 = Math.PI * 2.25;
-  c.save();
-  c.lineCap = 'round';
-  c.lineWidth = 30;
-  c.strokeStyle = hexA(S.surface, 1);
-  c.beginPath(); c.arc(cx, cy, r, a0, a1); c.stroke();
-  const frac = Math.max(0.001, strain / 21);
-  if (S.glow > 0) { c.shadowColor = hexA(S.whoopStrain, 0.55 * S.glow / 100); c.shadowBlur = 30 * S.glow / 100; }
-  c.strokeStyle = S.whoopStrain;
-  c.beginPath(); c.arc(cx, cy, r, a0, a0 + (a1 - a0) * frac); c.stroke();
-  c.restore();
-  txt(c, strain.toFixed(1), cx, cy + fs(40), fs(150), S.weight, S.textCol, 'center', S.numFont);
-  txt(c, up('strain'), cx, cy + fs(96), fs(30), 700, S.muted, 'center', S.bodyFont);
-  txt(c, '0', cx - r * 0.72, cy + r * 0.86, fs(24), 600, S.muted, 'center', S.numFont);
-  txt(c, '21', cx + r * 0.72, cy + r * 0.86, fs(24), 600, S.muted, 'center', S.numFont);
-
-  let y = cy + r + fs(110);
+/* ---- Receipt theme: thermal-paper session ticket ---- */
+function drawTicketTheme(c, TOP, contentBot, weekY, weekH) {
+  const px = 110, pw = W - 220;
+  const zig = 12, step = 26;
+  const pad = 56, x0 = px + pad, x1 = px + pw - pad, iw = x1 - x0;
+  const items = S.showStats ? S.stats.filter(x => x.on).slice(0, 6) : [];
   const zones = computeZoneMinutes();
-  const zGap = 30;
-  const zw = (W - 2 * M - 4 * zGap) / 5;
-  const nStats = S.showStats ? Math.min(6, S.stats.filter(x => x.on).length) : 0;
-  const statsH = nStats ? 30 + Math.ceil(nStats / 3) * 112 : 0;
-  const slack = Math.max(0, contentBot - (y + 118 + statsH));
-  y += Math.min(120, slack * 0.4);
-  txt(c, up('heart rate zones'), M, y, fs(24), 700, S.muted, 'left', S.bodyFont);
-  y += 26;
-  zones.forEach((min, i) => {
-    const x = M + i * (zw + zGap);
-    c.save();
-    c.fillStyle = S.whoopZones[i];
-    rr(c, x, y, zw, 12, 6); c.fill();
-    c.restore();
-    txt(c, 'Z' + (i + 1), x, y + 48, fs(24), 700, S.muted, 'left', S.bodyFont);
-    txt(c, Math.round(min) + 'm', x + zw, y + 48, fs(26), 800, S.textCol, 'right', S.numFont);
+  const ztotal = zones.reduce((a, b) => a + b, 0);
+  const ef = effectInfo();
+  const strength = S.sport === 'gym' || S.sport === 'karate';
+  const availPh = contentBot - (TOP - 40);
+  const sizes = cp => ({
+    topPad: cp ? 34 : 46, datePad: cp ? 26 : 34, dashGap: cp ? 26 : 34,
+    itemH: cp ? 40 : 46, midPad: cp ? 6 : 12, zHead: cp ? 26 : 32,
+    zoneH: cp ? 34 : 40, zPad: cp ? 4 : 10, dashGap2: cp ? 28 : 36,
+    recPad: cp ? 30 : 40, bcH: cp ? 46 : 62
   });
-  y += 92;
-  drawStatsRow(c, M, y, W - 2 * M);
-}
+  const needFor = cp => {
+    const z = sizes(cp);
+    return zig + z.topPad + fs(52) + fs(34) + z.datePad + z.dashGap +
+      z.itemH * (1 + items.length) + z.midPad + z.dashGap +
+      z.zHead + 5 * z.zoneH + z.zPad + z.dashGap2 +
+      z.itemH + z.recPad + z.dashGap +
+      z.bcH + fs(26) + fs(30) + 44;
+  };
+  let compact = availPh < 1150;
+  let need = needFor(compact);
+  if (need > availPh && !compact) { compact = true; need = needFor(true); }
+  const z = sizes(compact);
+  const itemH = z.itemH, zoneH = z.zoneH, bcH = z.bcH;
+  const ph = Math.min(availPh, need);
+  const py = TOP - 40 + Math.max(0, (availPh - ph) * 0.3);
+  c.save();
+  c.shadowColor = 'rgba(0,0,0,0.45)'; c.shadowBlur = 30; c.shadowOffsetY = 10;
+  c.beginPath();
+  c.moveTo(px, py + zig);
+  for (let x = px; x < px + pw; x += step) c.lineTo(Math.min(x + step / 2, px + pw), py), c.lineTo(Math.min(x + step, px + pw), py + zig);
+  c.lineTo(px + pw, py + ph - zig);
+  for (let x = px + pw; x > px; x -= step) c.lineTo(Math.max(x - step / 2, px), py + ph), c.lineTo(Math.max(x - step, px), py + ph - zig);
+  c.closePath();
+  c.fillStyle = S.surface; c.fill();
+  c.restore();
 
+  const dash = (yy) => {
+    c.save();
+    c.strokeStyle = hexA(S.textCol, 0.35); c.lineWidth = 2; c.setLineDash([9, 8]);
+    c.beginPath(); c.moveTo(x0, yy); c.lineTo(x1, yy); c.stroke();
+    c.restore();
+  };
+  let y = py + zig + (compact ? 34 : 46);
+  txt(c, up('TrainCard Studio'), px + pw / 2, y, fs(30), 800, S.textCol, 'center', S.numFont);
+  y += fs(52);
+  txt(c, up(S.title), px + pw / 2, y, fs(54), S.weight, S.textCol, 'center', S.titleFont, iw);
+  y += fs(34);
+  txt(c, fmtDate() + '  ·  ' + up(S.muscleTag), px + pw / 2, y, fs(21), 600, S.muted, 'center', S.bodyFont, iw);
+  y += compact ? 26 : 34;
+  dash(y); y += compact ? 26 : 34;
+
+  const line = (label, val, vSize) => {
+    txt(c, up(label), x0, y, fs(23), 600, S.textCol, 'left', S.bodyFont, iw * 0.55);
+    const lw = Math.min(measW(c, up(label), fs(23), 600, S.bodyFont), iw * 0.55);
+    const vs = vSize || fs(25);
+    const vw = measW(c, val, vs, 800, S.numFont);
+    txt(c, val, x1, y, vs, 800, S.textCol, 'right', S.numFont);
+    c.save();
+    c.strokeStyle = hexA(S.textCol, 0.4); c.lineWidth = 2.5; c.setLineDash([2, 8]); c.lineCap = 'round';
+    c.beginPath(); c.moveTo(x0 + lw + 16, y - fs(7)); c.lineTo(x1 - vw - 16, y - fs(7)); c.stroke();
+    c.restore();
+    y += itemH;
+  };
+  line(S.mainLbl, String(S.dist) + (strength ? '' : ' km'), fs(28));
+  items.forEach(st => line(st.label, String(st.val) + (st.unit ? ' ' + st.unit : '')));
+  y += compact ? 6 : 12;
+  dash(y); y += compact ? 26 : 34;
+
+  txt(c, up('Heart rate zones'), x0, y, fs(22), 700, S.muted, 'left', S.bodyFont);
+  txt(c, Math.round(ztotal) + ' MIN', x1, y, fs(22), 800, S.textCol, 'right', S.numFont);
+  y += compact ? 26 : 32;
+  const b = zoneBounds();
+  const cells = 22;
+  zones.forEach((min, i) => {
+    const frac = ztotal > 0 ? min / ztotal : 0;
+    txt(c, 'Z' + (i + 1), x0, y, fs(21), 800, S.textCol, 'left', S.numFont);
+    txt(c, zoneRangeLabel(i, b), x0 + fs(46), y, fs(19), 600, S.muted, 'left', S.numFont);
+    const bx = x0 + fs(210), bw = iw - fs(210) - fs(90);
+    const filled = Math.round(frac * cells);
+    const cw = bw / cells;
+    for (let k = 0; k < cells; k++) {
+      c.save();
+      c.fillStyle = k < filled ? S.whoopZones[i] : hexA(S.textCol, 0.14);
+      c.fillRect(bx + k * cw + 1, y - fs(16), cw - 3, fs(16));
+      c.restore();
+    }
+    txt(c, Math.round(min) + 'm', x1, y, fs(21), 800, S.textCol, 'right', S.numFont);
+    y += zoneH;
+  });
+  y += compact ? 4 : 10;
+  dash(y); y += compact ? 28 : 36;
+
+  txt(c, up('Strain total'), x0, y, fs(26), 800, S.textCol, 'left', S.bodyFont);
+  txt(c, ef.strain.toFixed(1) + ' / 21', x1, y, fs(30), 800, S.textCol, 'right', S.numFont);
+  y += itemH;
+  txt(c, up('Recovery cost'), x0, y, fs(23), 600, S.textCol, 'left', S.bodyFont);
+  txt(c, '+' + fmtHours(ef.recH), x1, y, fs(25), 800, S.textCol, 'right', S.numFont);
+  y += compact ? 30 : 40;
+  dash(y); y += compact ? 26 : 34;
+
+  let seed = 7;
+  const src = S.title + '|' + S.date + '|' + S.dist;
+  for (let i = 0; i < src.length; i++) seed = (seed * 31 + src.charCodeAt(i)) >>> 0;
+  const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
+  let bx = x0;
+  c.save();
+  c.fillStyle = S.textCol;
+  while (bx < x1 - 4) {
+    const bw2 = 2 + Math.floor(rnd() * 5);
+    if (rnd() > 0.32) c.fillRect(bx, y, Math.min(bw2, x1 - bx), bcH);
+    bx += bw2 + 2 + Math.floor(rnd() * 4);
+  }
+  c.restore();
+  y += bcH + fs(26);
+  txt(c, 'NO. ' + seed.toString(16).toUpperCase().padStart(8, '0'), px + pw / 2, y, fs(19), 600, S.muted, 'center', S.numFont);
+  y += fs(30);
+  txt(c, up('Thank you for training'), px + pw / 2, y, fs(22), 800, S.textCol, 'center', S.bodyFont);
+}
 function drawSafeOverlay(c) {
   if (!S.showSafeGuide) return;
   c.save();
@@ -2614,8 +2786,9 @@ function drawCard(c, w, st, isExport = false) {
   const weekY = BOT - 16 - weekH;
   const contentBot = weekH ? weekY - 26 : BOT;
   const kind = (THEMES[st] || THEMES[0]).kind;
-  if (kind === 'whoop') drawWhoopTheme(c, TOP, contentBot, weekY, weekH);
-  else if (kind === 'strain') drawStrainTheme(c, TOP, contentBot, weekY, weekH);
+  if (kind === 'detail') drawDetailTheme(c, TOP, contentBot, weekY, weekH);
+  else if (kind === 'dash') drawDashTheme(c, TOP, contentBot, weekY, weekH);
+  else if (kind === 'ticket') drawTicketTheme(c, TOP, contentBot, weekY, weekH);
   else drawStudioTheme(c, TOP, contentBot, weekY, weekH);
   if (weekH) drawWeek(c, 72, weekY, W - 144, weekH);
   if (!isExport) drawSafeOverlay(c);
@@ -2636,7 +2809,7 @@ function buildThemeTiles() {
       const d = document.createElement('i'); d.style.background = col; sw.appendChild(d);
     });
     const nm = document.createElement('div'); nm.className = 'tn'; nm.textContent = t.name;
-    const tt = document.createElement('div'); tt.className = 'tt'; tt.textContent = t.kind === 'studio' ? 'card' : t.kind === 'whoop' ? 'workout' : t.kind;
+    const tt = document.createElement('div'); tt.className = 'tt'; tt.textContent = t.kind === 'studio' ? 'card' : t.kind === 'detail' ? 'workout' : t.kind === 'dash' ? 'dashboard' : t.kind === 'ticket' ? 'receipt' : t.kind;
     b.append(sw, nm, tt);
     b.onclick = () => applyTheme(i);
     box.appendChild(b);
@@ -2692,33 +2865,23 @@ $('trackDrop').addEventListener('drop', ev => {
 $('pasteBtn').onclick = () => {
   const raw = $('pasteBox').value;
   if (!raw.trim()) { toast('Paste a workout list first', 'warn'); return; }
-  if (extractMusclesFromText(raw)) {
-    S.muscleSource = 'text';
-    renderMuscleEditor();
+  const totals = extractWorkoutFromText(raw);
+  if (totals) {
+    applyWorkoutTotals(totals);
     syncInputsFromState();
-    toast(muscleTotal() + ' muscle sets extracted', 'ok');
-    msg.textContent = 'Extracted muscles from pasted text.';
+    toast(totals.sets + ' sets · ' + totals.reps + ' reps extracted', 'ok');
+    msg.textContent = 'Extracted ' + totals.exercises + ' exercises from pasted text.';
   } else if (parseCorosTextOrHtml(raw)) {
-    renderMuscleEditor();
     syncInputsFromState();
     toast('Workout data extracted', 'ok');
   } else {
     toast('No exercises recognised — try "Bench Press 4 x 8 60kg"', 'warn');
   }
 };
-$('clearMuscles').onclick = () => {
-  S.muscleSets = {};
-  S.muscleUnassigned = 0;
-  S.muscleSource = 'manual';
-  renderMuscleEditor();
-  sched();
-  toast('Muscle sets cleared', 'warn');
-};
 $('fetchBtn').onclick = async () => {
   const val = $('corosUrl').value.trim();
   if (!val) { toast('Paste a workout link or workout text first', 'warn'); return; }
   if (!/^https?:\/\//i.test(val) && parseCorosTextOrHtml(val)) {
-    renderMuscleEditor();
     toast('Workout stats filled automatically', 'ok');
     return;
   }
@@ -2749,7 +2912,6 @@ $('fetchBtn').onclick = async () => {
   }
   $('fetchBtn').disabled = false;
   if (parseCorosTextOrHtml(fetchedText) || parseCorosTextOrHtml(val)) {
-    renderMuscleEditor();
     msg.textContent = 'Workout stats fetched and filled.';
     toast('Workout link imported', 'ok');
   } else {
@@ -2761,7 +2923,9 @@ $('fetchBtn').onclick = async () => {
 /* ===================== Zepp cloud connector (Amazfit) =====================
    Cloud history needs an account login (email + password) or an app token +
    user ID. The Bluetooth auth key pairs the watch over BLE and cannot read
-   cloud history on its own. Requests go direct first, then via a CORS proxy. */
+   cloud history on its own. Browsers block direct cloud sign-in (CORS), so
+   requests prefer the local zepp-bridge.py helper on 127.0.0.1:8787 —
+   credentials stay on this machine and go only to Zepp's own servers. */
 const ZEPP_TOKENS_URL = 'https://api-user-us2.zepp.com/v2/registrations/tokens';
 const ZEPP_LOGIN_URL = 'https://api-mifit-us2.zepp.com/v2/client/login';
 const ZEPP_DATA_HOST = 'https://api-mifit.zepp.com';
@@ -2791,27 +2955,93 @@ function zeppDataHeaders(appToken) {
     'apptoken': appToken, 'lang': 'en_US'
   };
 }
-const zeppProxify = url => 'https://corsproxy.io/?url=' + encodeURIComponent(url);
-let zeppProxyCoolUntil = 0;
+/* Local bridge: a tiny Python helper (zepp-bridge.py) that talks to Zepp from
+   this machine, so sign-in never passes through a third-party proxy. */
+const ZEPP_BRIDGE_LOCAL = 'http://127.0.0.1:8787';
+const BRIDGE_URL_KEY = 'tcstudio.bridgeUrl';
+let zeppBridgeBase = '', zeppBridgeKey = '', zeppBridgeMode = '';
+let zeppBridgeState = 0, zeppBridgeCheckedAt = 0;
+function bridgeCandidates() {
+  const manual = String(LS.get(BRIDGE_URL_KEY, '') || '').trim().replace(/\/+$/, '');
+  if (manual) return [{ base: manual, key: (manual === location.origin && window.__TC_BRIDGE_KEY__) || '' }];
+  const list = [];
+  if (window.__TC_BRIDGE_MODE__) list.push({ base: location.origin, key: window.__TC_BRIDGE_KEY__ || '' });
+  if (/^https?:$/.test(location.protocol)) list.push({ base: location.origin, key: '' });
+  list.push({ base: ZEPP_BRIDGE_LOCAL, key: '' });
+  const seen = {};
+  return list.filter(c => (seen[c.base] ? false : (seen[c.base] = true)));
+}
+function updateZeppBridgeUI() {
+  const dot = $('zeppBridgeDot'), label = $('zeppBridgeText');
+  if (!dot || !label) return;
+  if (zeppBridgeState === 1) {
+    dot.className = 'bdot on';
+    label.textContent = window.__TC_BRIDGE_MODE__ === 'lan'
+      ? 'Phone bridge connected — cloud sign-in ready'
+      : (zeppBridgeMode === 'lan' ? 'Bridge running (phone mode on) — cloud sign-in ready' : 'Local bridge running — cloud sign-in ready');
+  } else if (zeppBridgeState === -1) {
+    dot.className = 'bdot off';
+    const manual = String(LS.get(BRIDGE_URL_KEY, '') || '').trim();
+    label.textContent = manual
+      ? 'No bridge at ' + manual + ' — check the address, or reset it to auto below.'
+      : 'Local bridge off — get it below, then run: python zepp-bridge.py';
+  } else { dot.className = 'bdot'; label.textContent = 'Checking for local bridge…'; }
+}
+async function probeBridge(base, key) {
+  const ctl = new AbortController();
+  const to = setTimeout(() => ctl.abort(), 1500);
+  try {
+    const r = await fetch(base + '/ping', { headers: key ? { 'x-bridge-key': key } : {}, signal: ctl.signal });
+    const j = await r.json();
+    if (j && j.ok) return { base, key, mode: j.mode || 'local' };
+  } catch (e) {} finally { clearTimeout(to); }
+  return null;
+}
+async function zeppBridgeUp(force) {
+  if (!force && zeppBridgeState !== 0 && Date.now() - zeppBridgeCheckedAt < 20000) return zeppBridgeState === 1;
+  zeppBridgeCheckedAt = Date.now();
+  let hit = null;
+  for (const c of bridgeCandidates()) { hit = await probeBridge(c.base, c.key); if (hit) break; }
+  if (hit) { zeppBridgeBase = hit.base; zeppBridgeKey = hit.key; zeppBridgeMode = hit.mode; zeppBridgeState = 1; }
+  else { zeppBridgeState = -1; }
+  updateZeppBridgeUI();
+  updatePhonePanel();
+  return zeppBridgeState === 1;
+}
+function zeppBridgeHeaders(json) {
+  const h = json ? { 'content-type': 'application/json' } : {};
+  if (zeppBridgeKey) h['x-bridge-key'] = zeppBridgeKey;
+  return h;
+}
+async function zeppBridgePost(path, payload) {
+  const ctl = new AbortController();
+  const to = setTimeout(() => ctl.abort(), 45000);
+  let r;
+  try {
+    r = await fetch(zeppBridgeBase + path, {
+      method: 'POST', headers: zeppBridgeHeaders(true),
+      body: JSON.stringify(payload), signal: ctl.signal
+    });
+  } finally { clearTimeout(to); }
+  const j = await r.json();
+  if (j && j.error) throw new Error(j.error);
+  return j;
+}
+async function zeppBridgeInfo() {
+  try {
+    const r = await fetch(zeppBridgeBase + '/info', { headers: zeppBridgeHeaders(false) });
+    return await r.json();
+  } catch (e) { return null; }
+}
 async function zeppFetch(url, opts = {}) {
-  const candidates = Date.now() < zeppProxyCoolUntil ? [url] : [url, zeppProxify(url)];
-  let lastErr = null;
-  for (const u of candidates) {
-    try {
-      const ctl = new AbortController();
-      const to = setTimeout(() => ctl.abort(), 12000);
-      const r = await fetch(u, {
-        method: opts.method || 'GET', headers: opts.headers || {},
-        body: opts.body, redirect: opts.redirect || 'follow', signal: ctl.signal
-      });
-      clearTimeout(to);
-      return r;
-    } catch (e) {
-      lastErr = e;
-      if (u !== url) zeppProxyCoolUntil = Date.now() + 60000;
-    }
-  }
-  throw lastErr || new Error('Network request failed');
+  const ctl = new AbortController();
+  const to = setTimeout(() => ctl.abort(), 12000);
+  try {
+    return await fetch(url, {
+      method: opts.method || 'GET', headers: opts.headers || {},
+      body: opts.body, redirect: opts.redirect || 'follow', signal: ctl.signal
+    });
+  } finally { clearTimeout(to); }
 }
 async function zeppEncrypt(payloadStr) {
   const enc = new TextEncoder();
@@ -2856,6 +3086,11 @@ async function zeppGetTokens(email, pass) {
   throw new Error('TOKENS');
 }
 async function zeppLogin(email, pass) {
+  if (await zeppBridgeUp()) {
+    const j = await zeppBridgePost('/zepp/login', { email, password: pass });
+    if (!j.app_token || !j.user_id) throw new Error('LOGIN_NO_TOKEN');
+    return { app_token: j.app_token, user_id: String(j.user_id) };
+  }
   const { access } = await zeppGetTokens(email, pass);
   const payload = 'code=' + encodeURIComponent(access) + '&device_id=' + zeppUuid() +
     '&device_model=android_phone&app_version=9.12.5' +
@@ -2882,14 +3117,22 @@ function zeppExtractList(j) {
   return [];
 }
 async function zeppHistory(appToken, uid, limit) {
-  const url = ZEPP_DATA_HOST + '/v1/sport/run/history.json?source=run.mi.com&userid=' + encodeURIComponent(uid) + '&limit=' + limit;
-  const j = await zeppGetJson(url, zeppDataHeaders(appToken));
+  let j;
+  if (await zeppBridgeUp()) j = (await zeppBridgePost('/zepp/history', { app_token: appToken, uid, limit })).payload;
+  else {
+    const url = ZEPP_DATA_HOST + '/v1/sport/run/history.json?source=run.mi.com&userid=' + encodeURIComponent(uid) + '&limit=' + limit;
+    j = await zeppGetJson(url, zeppDataHeaders(appToken));
+  }
   return zeppExtractList(j).filter(x => x && typeof x === 'object' && x.trackid);
 }
 async function zeppDetail(appToken, uid, trackid, source) {
-  const url = ZEPP_DATA_HOST + '/v1/sport/run/detail.json?trackid=' + encodeURIComponent(trackid) +
-    '&source=' + encodeURIComponent(source || 'run.mi.com') + '&userid=' + encodeURIComponent(uid);
-  const j = await zeppGetJson(url, zeppDataHeaders(appToken));
+  let j;
+  if (await zeppBridgeUp()) j = (await zeppBridgePost('/zepp/detail', { app_token: appToken, uid, trackid, source })).payload;
+  else {
+    const url = ZEPP_DATA_HOST + '/v1/sport/run/detail.json?trackid=' + encodeURIComponent(trackid) +
+      '&source=' + encodeURIComponent(source || 'run.mi.com') + '&userid=' + encodeURIComponent(uid);
+    j = await zeppGetJson(url, zeppDataHeaders(appToken));
+  }
   return j && j.data && typeof j.data === 'object' ? j.data : j;
 }
 
@@ -2988,10 +3231,13 @@ function zeppErrText(e) {
   if (m === 'AUTHKEY') return 'That looks like a Bluetooth auth key. Cloud history needs your Zepp email + password, or an app token + user ID.';
   if (m === 'NEEDUID') return 'App token detected — add your User ID too, or sign in with email + password instead.';
   if (m === 'NOCRED') return 'Enter your Zepp email + password, or paste an app token + user ID.';
-  if (m === 'TOKENS' || m === 'LOGIN_NO_TOKEN' || m.indexOf('LOGIN_HTTP') === 0) return 'Zepp sign-in was blocked (browser CORS). Use an app token + user ID, or export a .FIT file and drop it below.';
+  if (m === 'TOKENS') return zeppBridgeState === 1
+    ? 'Zepp rejected that email + password. Check the credentials — the account must exist in the Zepp app.'
+    : 'Zepp sign-in was blocked (browser CORS). Get the local bridge below, run "python zepp-bridge.py", then connect again.';
+  if (m === 'LOGIN_NO_TOKEN' || m.indexOf('LOGIN_HTTP') === 0) return 'Zepp sign-in succeeded but the session token was refused. Try again, or use an app token + user ID.';
   if (m === 'INVALID_TOKEN') return 'The token was rejected. Connect again or paste a fresh app token.';
   if (m === 'BAD_JSON') return 'Zepp returned an unexpected response. Try again, or drop a .FIT file below.';
-  if (/Failed to fetch|NetworkError|abort|HTTP_/i.test(m)) return 'Network / CORS blocked the request. Try again, use an app token + user ID, or drop a .FIT file below.';
+  if (/Failed to fetch|NetworkError|abort|HTTP_|NETWORK/i.test(m)) return 'Could not reach Zepp (network or browser CORS). Run the local bridge below, use an app token + user ID, or drop a .FIT file.';
   return m;
 }
 function renderZeppList(list) {
@@ -3038,6 +3284,7 @@ $('zeppConnect').onclick = async () => {
   const btn = $('zeppConnect'); btn.disabled = true;
   $('zeppList').innerHTML = '';
   setZeppMsg('Connecting to Zepp…');
+  await zeppBridgeUp(true);
   try {
     let appToken, userId;
     if (email && pass) {
@@ -3058,6 +3305,175 @@ $('zeppConnect').onclick = async () => {
   } finally { btn.disabled = false; }
 };
 
+/* ---- local bridge helper: embedded source download + live status ---- */
+const ZEPP_BRIDGE_SRC = "#!/usr/bin/env python3\n\"\"\"TrainCard Studio - local Zepp bridge.\n\nBrowsers cannot sign in to the Zepp cloud directly (CORS). This tiny helper\nruns on your own machine and forwards the sign-in for TrainCard Studio.\nYour credentials go only to Zepp's own servers - never to a third party.\n\nUsage:  python zepp-bridge.py    (keep the window open, then press Connect)\nNeeds:  Python 3.6+ - standard library only, nothing to install.\n\"\"\"\nimport json\nimport os\nimport secrets\nimport socket\nimport sys\nimport uuid\nfrom http.server import BaseHTTPRequestHandler, HTTPServer\nfrom socketserver import ThreadingMixIn\nfrom urllib.parse import quote, urlparse, parse_qs\nfrom urllib.request import Request, build_opener, HTTPRedirectHandler\nfrom urllib.error import HTTPError, URLError\n\nHOST, PORT = '127.0.0.1', 8787\nLAN = False\nKEY = ''\nHTML_PATH = ''\nTOKENS_URL = 'https://api-user-us2.zepp.com/v2/registrations/tokens'\nLOGIN_URL = 'https://api-mifit-us2.zepp.com/v2/client/login'\nDATA_HOST = 'https://api-mifit.zepp.com'\nREDIRECT_URI = 'https://s3-us-west-2.amazonaws.com/hm-registration/successsignin.html'\nAES_KEY = b'xeNtBVqzDc6tuNTh'\nAES_IV = b'MAAAYAAAAAAAAABg'\n\n\n# ---------- pure-Python AES-128-CBC (the stdlib has no AES) ----------\ndef _rotl8(x, n):\n    return ((x << n) | (x >> (8 - n))) & 0xFF\n\n\ndef _make_sbox():\n    sbox = [0] * 256\n    p = q = 1\n    while True:\n        p = (p ^ (p << 1) ^ (0x1B if p & 0x80 else 0)) & 0xFF\n        q ^= (q << 1) & 0xFF\n        q ^= (q << 2) & 0xFF\n        q ^= (q << 4) & 0xFF\n        if q & 0x80:\n            q ^= 0x09\n        x = q ^ _rotl8(q, 1) ^ _rotl8(q, 2) ^ _rotl8(q, 3) ^ _rotl8(q, 4)\n        sbox[p] = x ^ 0x63\n        if p == 1:\n            break\n    sbox[0] = 0x63\n    return sbox\n\n\nSBOX = _make_sbox()\n\n\ndef _xtime(a):\n    return ((a << 1) ^ (0x1B if a & 0x80 else 0)) & 0xFF\n\n\ndef _expand_key(key):\n    w = [list(key[i * 4:i * 4 + 4]) for i in range(4)]\n    rcon = 1\n    for i in range(4, 44):\n        t = list(w[i - 1])\n        if i % 4 == 0:\n            t = t[1:] + t[:1]\n            t = [SBOX[b] for b in t]\n            t[0] ^= rcon\n            rcon = _xtime(rcon)\n        w.append([w[i - 4][j] ^ t[j] for j in range(4)])\n    return w\n\n\ndef _encrypt_block(block, w):\n    s = list(block)\n\n    def add_round_key(rnd):\n        for c in range(4):\n            for r in range(4):\n                s[r + 4 * c] ^= w[rnd * 4 + c][r]\n\n    def sub_bytes():\n        for i in range(16):\n            s[i] = SBOX[s[i]]\n\n    def shift_rows():\n        for r in range(1, 4):\n            row = [s[r + 4 * c] for c in range(4)]\n            row = row[r:] + row[:r]\n            for c in range(4):\n                s[r + 4 * c] = row[c]\n\n    def mix_columns():\n        for c in range(4):\n            a = s[4 * c:4 * c + 4]\n            t = a[0] ^ a[1] ^ a[2] ^ a[3]\n            s[4 * c + 0] = a[0] ^ t ^ _xtime(a[0] ^ a[1])\n            s[4 * c + 1] = a[1] ^ t ^ _xtime(a[1] ^ a[2])\n            s[4 * c + 2] = a[2] ^ t ^ _xtime(a[2] ^ a[3])\n            s[4 * c + 3] = a[3] ^ t ^ _xtime(a[3] ^ a[0])\n\n    add_round_key(0)\n    for rnd in range(1, 10):\n        sub_bytes(); shift_rows(); mix_columns(); add_round_key(rnd)\n    sub_bytes(); shift_rows(); add_round_key(10)\n    return bytes(s)\n\n\ndef aes_cbc_encrypt(key, iv, data):\n    pad = 16 - (len(data) % 16)\n    data = data + bytes([pad]) * pad\n    w = _expand_key(key)\n    out = bytearray()\n    prev = iv\n    for i in range(0, len(data), 16):\n        blk = bytes(data[i + j] ^ prev[j] for j in range(16))\n        prev = _encrypt_block(blk, w)\n        out.extend(prev)\n    return bytes(out)\n\n\n# FIPS-197 known-answer test: a broken cipher must never ship silently.\nassert _encrypt_block(\n    bytes.fromhex('00112233445566778899aabbccddeeff'),\n    _expand_key(bytes.fromhex('000102030405060708090a0b0c0d0e0f'))\n).hex() == '69c4e0d86a7b0430d8cdb78070b4c55a', 'AES self-test failed'\n\n\n# ---------- Zepp protocol ----------\nTOKEN_HEADERS = {\n    'app_name': 'com.huami.midong', 'appname': 'com.huami.midong',\n    'cv': '151689_9.12.5', 'v': '2.0', 'appplatform': 'android_phone',\n    'vb': '202509151347', 'vn': '9.12.5', 'x-hm-ekv': '1',\n    'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',\n    'User-Agent': 'okhttp/4.12.0'\n}\nLOGIN_HEADERS = {\n    'app_name': 'com.huami.webapp', 'appname': 'com.huami.webapp',\n    'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',\n    'accept': 'application/json, text/plain, */*',\n    'User-Agent': 'Mozilla/5.0 (TrainCard Studio local bridge)'\n}\n\n\ndef data_headers(app_token):\n    return {\n        'hm-privacy-diagnostics': 'false', 'country': 'US', 'appplatform': 'android_phone',\n        'hm-privacy-ceip': 'true', 'x-request-id': str(uuid.uuid4()), 'timezone': 'Europe/London',\n        'channel': 'a100900101016', 'vb': '202509151347', 'cv': '151689_9.12.5',\n        'appname': 'com.huami.midong', 'v': '2.0', 'vn': '9.12.5',\n        'apptoken': app_token, 'lang': 'en_US', 'User-Agent': 'okhttp/4.12.0'\n    }\n\n\nclass BridgeError(Exception):\n    pass\n\n\nclass _NoRedirect(HTTPRedirectHandler):\n    def redirect_request(self, req, fp, code, msg, headers, newurl):\n        return None\n\n\n_opener_plain = build_opener()\n_opener_noredir = build_opener(_NoRedirect())\n\n\ndef _http(req, follow=True, timeout=20):\n    opener = _opener_plain if follow else _opener_noredir\n    last = None\n    for _attempt in range(2):\n        try:\n            r = opener.open(req, timeout=timeout)\n            headers = {str(k).lower(): v for k, v in r.headers.items()}\n            return r.getcode(), headers, r.read(), r.geturl()\n        except HTTPError as e:\n            headers = {str(k).lower(): v for k, v in (e.headers or {}).items()}\n            try:\n                body = e.read()\n            except Exception:\n                body = b''\n            return e.code, headers, body, getattr(e, 'url', '')\n        except (URLError, OSError) as e:\n            last = e\n    raise last\n\n\ndef zepp_get_tokens(email, password):\n    payload = ('emailOrPhone=' + quote(email, safe='') +\n               '&state=REDIRECTION&client_id=HuaMi&password=' + quote(password, safe='') +\n               '&redirect_uri=' + quote(REDIRECT_URI, safe='') +\n               '&region=us-west-2&token=access&token=refresh&country_code=US')\n    body = aes_cbc_encrypt(AES_KEY, AES_IV, payload.encode('utf-8'))\n    req = Request(TOKENS_URL, data=body, headers=TOKEN_HEADERS, method='POST')\n    status, headers, raw, final_url = _http(req, follow=False)\n    loc = headers.get('location', '')\n    if not loc:\n        raise BridgeError('TOKENS')\n    q = parse_qs(urlparse(loc).query)\n    access = (q.get('access') or [None])[0]\n    if not access:\n        raise BridgeError('TOKENS')\n    return access\n\n\ndef zepp_login(email, password):\n    access = zepp_get_tokens(email, password)\n    payload = ('code=' + quote(access, safe='') + '&device_id=' + str(uuid.uuid4()) +\n               '&device_model=android_phone&app_version=9.12.5' +\n               '&dn=' + quote('api-mifit.zepp.com,api-user.zepp.com,api-mifit.zepp.com,api-watch.zepp.com,'\n                              'app-analytics.zepp.com,auth.zepp.com,api-analytics.zepp.com', safe='') +\n               '&third_name=huami&source=' + quote('com.huami.watch.hmwatchmanager:9.12.5:151689', safe='') +\n               '&app_name=com.huami.midong&country_code=US&grant_type=access_token'\n               '&allow_registration=false&lang=en&countryState=US-NY')\n    req = Request(LOGIN_URL, data=payload.encode('utf-8'), headers=LOGIN_HEADERS, method='POST')\n    status, headers, raw, final_url = _http(req)\n    if status != 200:\n        raise BridgeError('LOGIN_HTTP_' + str(status))\n    try:\n        j = json.loads(raw.decode('utf-8'))\n    except Exception:\n        raise BridgeError('BAD_JSON')\n    ti = j.get('token_info') or {}\n    if not ti.get('app_token') or not ti.get('user_id'):\n        raise BridgeError('LOGIN_NO_TOKEN')\n    return {'app_token': ti['app_token'], 'user_id': str(ti['user_id'])}\n\n\ndef _invalid_token(j):\n    if not isinstance(j, dict):\n        return False\n    m = str(j.get('message', '')).lower()\n    data = j.get('data')\n    dc = str(data.get('code', '')) if isinstance(data, dict) else ''\n    return 'invalid token' in m or dc == '0102'\n\n\ndef zepp_data(path, app_token):\n    req = Request(DATA_HOST + path, headers=data_headers(app_token), method='GET')\n    status, headers, raw, final_url = _http(req)\n    if status != 200:\n        raise BridgeError('HTTP_' + str(status))\n    try:\n        j = json.loads(raw.decode('utf-8'))\n    except Exception:\n        raise BridgeError('BAD_JSON')\n    if _invalid_token(j):\n        raise BridgeError('INVALID_TOKEN')\n    return j\n\n\ndef zepp_history(app_token, uid, limit):\n    path = ('/v1/sport/run/history.json?source=run.mi.com&userid=' + quote(str(uid), safe='') +\n            '&limit=' + str(int(limit)))\n    return zepp_data(path, app_token)\n\n\ndef zepp_detail(app_token, uid, trackid, source):\n    path = ('/v1/sport/run/detail.json?trackid=' + quote(str(trackid), safe='') +\n            '&source=' + quote(str(source or 'run.mi.com'), safe='') +\n            '&userid=' + quote(str(uid), safe=''))\n    return zepp_data(path, app_token)\n\n\n# ---------- local HTTP server ----------\ndef lan_urls(port):\n    urls = []\n    try:\n        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)\n        s.connect(('8.8.8.8', 80))\n        ip = s.getsockname()[0]\n        s.close()\n        urls.append('http://%s:%d/' % (ip, port))\n    except OSError:\n        pass\n    try:\n        for ip in socket.gethostbyname_ex(socket.gethostname())[2]:\n            u = 'http://%s:%d/' % (ip, port)\n            if u not in urls and not ip.startswith('127.'):\n                urls.append(u)\n    except OSError:\n        pass\n    return urls\n\n\ndef find_html():\n    here = os.path.dirname(os.path.abspath(__file__))\n    for name in ('index (1).html', 'index.html', 'traincard.html', 'TrainCard.html'):\n        p = os.path.join(here, name)\n        if os.path.isfile(p):\n            return p\n    return ''\n\n\ndef served_html():\n    if not HTML_PATH:\n        return ('<!DOCTYPE html><meta charset=\"utf-8\"><title>Zepp bridge<\/title>'\n                '<body style=\"font:16px system-ui;background:#0d1015;color:#e9eef4;padding:40px\">'\n                '<h2>Zepp bridge is running<\/h2><p>Place the TrainCard <b>index (1).html<\/b> next to '\n                'zepp-bridge.py and reload, or open the app file directly.<\/p><\/body>').encode('utf-8')\n    with open(HTML_PATH, 'rb') as f:\n        raw = f.read()\n    inject = ('<script>window.__TC_BRIDGE_KEY__=' + json.dumps(KEY) +\n              ';window.__TC_BRIDGE_MODE__=' + json.dumps('lan' if LAN else 'local') + ';<\/script>')\n    if b'<\/head>' in raw:\n        raw = raw.replace(b'<\/head>', inject.encode('utf-8') + b'<\/head>', 1)\n    return raw\n\n\nclass Handler(BaseHTTPRequestHandler):\n    server_version = 'ZeppBridge/1.0'\n\n    def log_message(self, fmt, *args):\n        sys.stdout.write('[zepp-bridge] %s\\n' % (fmt % args))\n        sys.stdout.flush()\n\n    def _cors(self):\n        self.send_header('Access-Control-Allow-Origin', '*')\n        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')\n        self.send_header('Access-Control-Allow-Headers', 'content-type, x-bridge-key')\n        self.send_header('Cache-Control', 'no-store')\n\n    def _send(self, obj, status=200):\n        raw = json.dumps(obj).encode('utf-8')\n        self.send_response(status)\n        self.send_header('Content-Type', 'application/json; charset=utf-8')\n        self.send_header('Content-Length', str(len(raw)))\n        self._cors()\n        self.end_headers()\n        try:\n            self.wfile.write(raw)\n        except (BrokenPipeError, ConnectionResetError):\n            pass\n\n    def do_OPTIONS(self):\n        self.send_response(204)\n        self._cors()\n        self.end_headers()\n\n    def _send_html(self, raw):\n        self.send_response(200)\n        self.send_header('Content-Type', 'text/html; charset=utf-8')\n        self.send_header('Content-Length', str(len(raw)))\n        self.send_header('Cache-Control', 'no-store')\n        self.end_headers()\n        try:\n            self.wfile.write(raw)\n        except (BrokenPipeError, ConnectionResetError):\n            pass\n\n    def do_GET(self):\n        path = urlparse(self.path).path\n        if path == '/ping':\n            self._send({'ok': True, 'bridge': 'zepp-bridge', 'version': 1,\n                        'mode': 'lan' if LAN else 'local'})\n        elif path == '/info':\n            self._send({'ok': True, 'mode': 'lan' if LAN else 'local', 'port': PORT,\n                        'urls': lan_urls(PORT) if LAN else ['http://127.0.0.1:%d/' % PORT],\n                        'hasApp': bool(HTML_PATH)})\n        elif path in ('/', '/index.html', '/app'):\n            self._send_html(served_html())\n        else:\n            self._send({'error': 'NOT_FOUND'}, 404)\n\n    def _key_ok(self):\n        if not LAN:\n            return True\n        if self.client_address[0] in ('127.0.0.1', '::1'):\n            return True\n        return self.headers.get('x-bridge-key', '') == KEY\n\n    def do_POST(self):\n        path = urlparse(self.path).path\n        if not self._key_ok():\n            self._send({'error': 'FORBIDDEN'}, 403)\n            return\n        try:\n            n = int(self.headers.get('Content-Length') or 0)\n            body = json.loads(self.rfile.read(n).decode('utf-8')) if n else {}\n            if not isinstance(body, dict):\n                raise ValueError('body must be an object')\n        except Exception:\n            self._send({'error': 'BAD_REQUEST'})\n            return\n        try:\n            if path == '/zepp/login':\n                email = str(body.get('email') or '').strip()\n                password = str(body.get('password') or '')\n                if not email or not password:\n                    raise BridgeError('NOCRED')\n                self._send(zepp_login(email, password))\n            elif path == '/zepp/history':\n                tok = str(body.get('app_token') or '')\n                uid = str(body.get('uid') or '')\n                if not tok or not uid:\n                    raise BridgeError('NOCRED')\n                try:\n                    limit = max(1, min(200, int(body.get('limit') or 50)))\n                except (TypeError, ValueError):\n                    limit = 50\n                self._send({'ok': True, 'payload': zepp_history(tok, uid, limit)})\n            elif path == '/zepp/detail':\n                tok = str(body.get('app_token') or '')\n                uid = str(body.get('uid') or '')\n                trackid = str(body.get('trackid') or '')\n                if not tok or not uid or not trackid:\n                    raise BridgeError('NOCRED')\n                self._send({'ok': True, 'payload': zepp_detail(tok, uid, trackid, body.get('source'))})\n            else:\n                self._send({'error': 'NOT_FOUND'}, 404)\n        except BridgeError as e:\n            self._send({'error': str(e)})\n        except (HTTPError, URLError, OSError) as e:\n            sys.stdout.write('[zepp-bridge] network error: %r\\n' % e)\n            sys.stdout.flush()\n            self._send({'error': 'NETWORK'})\n        except Exception as e:\n            sys.stdout.write('[zepp-bridge] internal error: %r\\n' % e)\n            sys.stdout.flush()\n            self._send({'error': 'NETWORK'})\n\n\nclass ThreadingHTTPServer(ThreadingMixIn, HTTPServer):\n    daemon_threads = True\n    allow_reuse_address = True\n\n\ndef main():\n    global LAN, KEY, HTML_PATH, HOST, PORT\n    import argparse\n    ap = argparse.ArgumentParser(description='TrainCard Studio local Zepp bridge.')\n    ap.add_argument('--lan', action='store_true', help='serve the app + bridge to phones on the same Wi-Fi')\n    ap.add_argument('--port', type=int, default=8787, help='port (default 8787)')\n    ap.add_argument('--html', default='', help='path to the TrainCard index html to serve in --lan mode')\n    args = ap.parse_args()\n    LAN = args.lan\n    PORT = args.port\n    HOST = '0.0.0.0' if LAN else '127.0.0.1'\n    KEY = secrets.token_hex(8) if LAN else ''\n    HTML_PATH = args.html or find_html()\n\n    print('TrainCard Studio - Zepp local bridge')\n    if LAN:\n        print('PHONE MODE: serving the app + bridge on your local network.')\n        for u in lan_urls(PORT):\n            print('  Open on phone (same Wi-Fi): %s' % u)\n        if not HTML_PATH:\n            print('  NOTE: no index html found next to the bridge; phones will see a placeholder.')\n        print('  A per-run access key is required and is injected into the served app automatically.')\n    else:\n        print('Listening on http://%s:%d  (keep this window open while you connect)' % (HOST, PORT))\n        print('Tip: run with --lan to also use it from your phone on the same Wi-Fi.')\n    print('Credentials are sent only to Zepp servers, never to a third party.')\n    print('Press Ctrl+C to stop.')\n    try:\n        ThreadingHTTPServer((HOST, PORT), Handler).serve_forever()\n    except KeyboardInterrupt:\n        print('\\nBridge stopped.')\n    except OSError as e:\n        print('Could not start: %s' % e)\n        print('If a bridge is already running in another window, just use that one.')\n        sys.exit(1)\n\n\nif __name__ == '__main__':\n    main()";
+$('zeppBridgeGet').onclick = () => {
+  const blob = new Blob([ZEPP_BRIDGE_SRC], { type: 'text/x-python' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'zepp-bridge.py';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  toast('Bridge saved — run: python zepp-bridge.py', 'ok');
+};
+const zeppBridgeRecheck = () => { zeppBridgeState = 0; updateZeppBridgeUI(); zeppBridgeUp(true); };
+$('zeppBridgeStatus').onclick = zeppBridgeRecheck;
+$('zeppBridgeStatus').onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); zeppBridgeRecheck(); } };
+zeppBridgeUp();
+
+/* ---- build tag ---- */
+const TC_BUILD = '2026-11-14 · phone';
+if ($('buildChip')) $('buildChip').textContent = 'build ' + TC_BUILD;
+
+/* ---- minimal QR (byte mode, ECC L, v1-5, mask 0) with RS self-test ---- */
+const QR_EXP = new Uint8Array(512), QR_LOG = new Uint8Array(256);
+(function () { let x = 1; for (let i = 0; i < 255; i++) { QR_EXP[i] = x; QR_LOG[x] = i; x <<= 1; if (x & 0x100) x ^= 0x11d; } for (let i = 255; i < 512; i++) QR_EXP[i] = QR_EXP[i - 255]; })();
+function qrMul(a, b) { return a && b ? QR_EXP[QR_LOG[a] + QR_LOG[b]] : 0; }
+function rsGen(n) { let p = [1]; for (let i = 0; i < n; i++) { const q = new Array(p.length + 1).fill(0); for (let j = 0; j < p.length; j++) { q[j] ^= p[j]; q[j + 1] ^= qrMul(p[j], QR_EXP[i]); } p = q; } return p; }
+function rsEncode(data, n) { const gen = rsGen(n); const res = new Array(n).fill(0); for (const d of data) { const f = d ^ res.shift(); res.push(0); for (let j = 0; j < n; j++) res[j] ^= qrMul(gen[j + 1], f); } return res; }
+function qrSelfTest() {
+  const d = [32, 91, 11, 120, 209, 114, 220, 77, 67, 64, 236, 17, 236, 17, 236, 17];
+  const e = rsEncode(d, 10);
+  const want = [196, 35, 39, 119, 235, 215, 231, 226, 93, 23];
+  return e.length === want.length && e.every((v, i) => v === want[i]);
+}
+const QR_CAP = { 1: [19, 7], 2: [34, 10], 3: [55, 15], 4: [80, 20], 5: [108, 26] };
+function qrMatrix(text) {
+  const bytes = unescape(encodeURIComponent(text));
+  let ver = 0;
+  for (let v = 1; v <= 5; v++) if (bytes.length <= QR_CAP[v][0] - 2) { ver = v; break; }
+  if (!ver) return null;
+  const [dc, ec] = QR_CAP[ver];
+  const bits = [];
+  const push = (val, n) => { for (let i = n - 1; i >= 0; i--) bits.push((val >> i) & 1); };
+  push(4, 4); push(bytes.length, 8);
+  for (let i = 0; i < bytes.length; i++) push(bytes.charCodeAt(i), 8);
+  const cap = dc * 8;
+  for (let i = 0; i < 4 && bits.length < cap; i++) bits.push(0);
+  while (bits.length % 8) bits.push(0);
+  const data = [];
+  for (let i = 0; i < bits.length; i += 8) { let b = 0; for (let j = 0; j < 8; j++) b = (b << 1) | bits[i + j]; data.push(b); }
+  for (let i = 0; data.length < dc; i++) data.push(i % 2 ? 0x11 : 0xec);
+  const all = data.concat(rsEncode(data, ec));
+  const size = 17 + ver * 4;
+  const m = Array.from({ length: size }, () => new Array(size).fill(null));
+  const set = (r, c, v) => { m[r][c] = v; };
+  function finder(r, c) {
+    for (let i = -1; i <= 7; i++) for (let j = -1; j <= 7; j++) {
+      const rr = r + i, cc = c + j;
+      if (rr < 0 || cc < 0 || rr >= size || cc >= size) continue;
+      const on = i >= 0 && i <= 6 && j >= 0 && j <= 6 && (i === 0 || i === 6 || j === 0 || j === 6 || (i >= 2 && i <= 4 && j >= 2 && j <= 4));
+      set(rr, cc, on ? 1 : 0);
+    }
+  }
+  finder(0, 0); finder(0, size - 7); finder(size - 7, 0);
+  for (let i = 8; i < size - 8; i++) { set(6, i, i % 2 === 0 ? 1 : 0); set(i, 6, i % 2 === 0 ? 1 : 0); }
+  if (ver >= 2) { const p = size - 7; for (let i = -2; i <= 2; i++) for (let j = -2; j <= 2; j++) set(p + i, p + j, Math.max(Math.abs(i), Math.abs(j)) !== 1 ? 1 : 0); }
+  set(size - 8, 8, 1);
+  const fmt = (function () { const d5 = (1 << 3) | 0; let v = d5 << 10; for (let i = 14; i >= 10; i--) if (v >> i & 1) v ^= 0x537 << (i - 10); return ((d5 << 10) | v) ^ 0x5412; })();
+  const fbit = i => (fmt >> i) & 1;
+  for (let i = 0; i <= 5; i++) set(i, 8, fbit(i));
+  set(7, 8, fbit(6)); set(8, 8, fbit(7)); set(8, 7, fbit(8));
+  for (let i = 9; i < 15; i++) set(8, 14 - i, fbit(i));
+  for (let i = 0; i < 8; i++) set(8, size - 1 - i, fbit(i));
+  for (let i = 8; i < 15; i++) set(size - 15 + i, 8, fbit(i));
+  let bi = 0, up = true;
+  for (let col = size - 1; col > 0; col -= 2) {
+    if (col === 6) col = 5;
+    for (let k = 0; k < size; k++) {
+      const r = up ? size - 1 - k : k;
+      for (let c = 0; c < 2; c++) {
+        const cc = col - c;
+        if (m[r][cc] !== null) continue;
+        let bit = bi < all.length * 8 ? (all[bi >> 3] >> (7 - (bi & 7))) & 1 : 0;
+        bi++;
+        if ((r + cc) % 2 === 0) bit ^= 1;
+        m[r][cc] = bit;
+      }
+    }
+    up = !up;
+  }
+  return m;
+}
+function drawPhoneQr(url) {
+  const cvQ = $('phoneQr');
+  if (!cvQ) return;
+  const hide = () => { cvQ.style.display = 'none'; };
+  if (!url || !qrSelfTest()) { hide(); return; }
+  let m = null;
+  try { m = qrMatrix(url); } catch (e) { m = null; }
+  if (!m) { hide(); return; }
+  cvQ.style.display = '';
+  const n = m.length, quiet = 4, total = n + quiet * 2;
+  const px = Math.max(2, Math.floor(132 / total));
+  cvQ.width = cvQ.height = total * px;
+  const g = cvQ.getContext('2d');
+  g.fillStyle = '#ffffff'; g.fillRect(0, 0, cvQ.width, cvQ.height);
+  g.fillStyle = '#101418';
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (m[r][c]) g.fillRect((c + quiet) * px, (r + quiet) * px, px, px);
+}
+
+/* ---- phone panel ---- */
+let phoneUrlCache = '';
+async function updatePhonePanel() {
+  const status = $('phoneStatus'), urlEl = $('phoneUrl'), note = $('phoneQrNote');
+  if (!status) return;
+  const servedByBridge = !!window.__TC_BRIDGE_MODE__;
+  if (zeppBridgeState !== 1) {
+    const manual = String(LS.get(BRIDGE_URL_KEY, '') || '').trim();
+    status.textContent = manual
+      ? 'Can’t reach the custom bridge address. Fix it or reset to auto in Advanced below.'
+      : 'Bridge not detected. Start it on your computer (python zepp-bridge.py --lan) to use Zepp from a phone.';
+    urlEl.textContent = '—'; phoneUrlCache = '';
+    drawPhoneQr('');
+    return;
+  }
+  if (servedByBridge) {
+    const here = location.origin + '/';
+    status.textContent = 'This copy is served by the bridge — Zepp cloud works right here on this device.';
+    urlEl.textContent = here; phoneUrlCache = here;
+    if (note) note.textContent = 'You are already on the bridge. Bookmark this page or add it to your home screen; sign in below in Session data.';
+    drawPhoneQr(here);
+    return;
+  }
+  const info = await zeppBridgeInfo();
+  const url = info && info.urls && info.urls.length ? info.urls[0] : 'http://127.0.0.1:8787/';
+  phoneUrlCache = url;
+  urlEl.textContent = url;
+  status.textContent = info && info.mode === 'lan'
+    ? 'Phone mode is on. Scan or open the address on a phone sharing this Wi-Fi.'
+    : 'Bridge is in local mode. Restart it with --lan to open it from a phone, or use the address below on this computer.';
+  if (note) note.textContent = 'Run the bridge on your computer in phone mode (--lan), then scan this code with your phone camera. Both devices must be on the same Wi-Fi network.';
+  drawPhoneQr(url);
+}
+$('phoneCopy').onclick = () => {
+  if (!phoneUrlCache) { toast('Start the bridge first', 'warn'); return; }
+  const done = () => toast('Address copied — open it on your phone', 'ok');
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(phoneUrlCache).then(done, () => fallbackCopy(phoneUrlCache, done));
+  else fallbackCopy(phoneUrlCache, done);
+};
+function fallbackCopy(text, done) {
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); done(); } catch (e) { toast('Copy failed — select the address manually', 'warn'); }
+  ta.remove();
+}
+$('bridgeUrlApply').onclick = () => {
+  const v = $('bridgeUrl').value.trim();
+  if (!v) { toast('Enter a bridge address first', 'warn'); return; }
+  LS.set(BRIDGE_URL_KEY, v);
+  zeppBridgeState = 0; zeppBridgeUp(true);
+  toast('Bridge address saved', 'ok');
+};
+$('bridgeUrlReset').onclick = () => {
+  LS.set(BRIDGE_URL_KEY, '');
+  $('bridgeUrl').value = '';
+  zeppBridgeState = 0; zeppBridgeUp(true);
+  toast('Bridge address set to auto', 'ok');
+};
+if ($('bridgeUrl')) $('bridgeUrl').value = String(LS.get(BRIDGE_URL_KEY, '') || '');
+
 $('addStat').onclick = () => {
   S.stats.push({ id: 'x' + Date.now(), label: 'New stat', val: '0', unit: '', on: true });
   renderStatsManager();
@@ -3072,9 +3488,6 @@ $('demoBtn').onclick = () => {
   S.dist = '17';
   S.date = new Date().toISOString().slice(0, 10);
   S.weekCount = [1, 0, 1, 1, 2, 0, 1];
-  S.muscleSets = { chest: 4, lats: 3, shoulders: 3, biceps: 2, triceps: 2, core: 2, forearms: 1 };
-  S.muscleUnassigned = 0;
-  S.muscleSource = 'demo';
   S.hrSeries = [96, 104, 112, 108, 122, 134, 128, 142, 138, 152, 146, 158, 149, 162, 155, 166];
   S.maxHrVal = 166; S.minHrVal = 96;
   S.route = [];
@@ -3086,7 +3499,6 @@ $('demoBtn').onclick = () => {
     { id: 'tl', label: 'Training Load', val: '82', unit: '', on: true }
   ];
   renderStatsManager();
-  renderMuscleEditor();
   syncUI();
   sched();
   toast('Demo session loaded', 'ok');
@@ -3095,7 +3507,6 @@ $('demoBtn').onclick = () => {
 function syncInputsFromState() {
   syncUI();
   renderStatsManager();
-  renderMuscleEditor();
   render();
 }
 
@@ -3221,7 +3632,6 @@ buildFontSelects();
 buildThemeTiles();
 buildBeltRow();
 renderStatsManager();
-renderMuscleEditor();
 renderPresets();
 const session = LS.get(SESSION_KEY, null);
 if (session && typeof session === 'object') {
