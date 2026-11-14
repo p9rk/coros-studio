@@ -38,7 +38,8 @@ input,select,textarea{font:inherit; color:var(--text)}
   border-bottom:1px solid var(--line);
 }
 .mark{width:34px; height:34px; flex:none; display:grid; place-items:center; border-radius:10px;
-  background:linear-gradient(135deg,var(--acc),#ff8a3d); box-shadow:0 4px 18px rgba(255,92,57,.35)}
+  background:linear-gradient(150deg,#253b30,#101915); border:1px solid rgba(200,245,116,.22);
+  box-shadow:0 4px 18px rgba(0,0,0,.28)}
 .mark svg{display:block}
 .brand{font:700 17px/1.1 var(--disp); letter-spacing:.06em}
 .brand small{display:block; font:600 10px/1.4 var(--ui); letter-spacing:.22em; color:var(--muted)}
@@ -263,7 +264,7 @@ input[type=color].swatch::-moz-color-swatch{border:none; border-radius:6px}
 <body>
 <header class="top">
   <div class="mark" aria-hidden="true">
-    <svg width="20" height="20" viewBox="0 0 20 20"><g fill="#fff"><circle cx="5" cy="5" r="2.1"/><circle cx="10" cy="5" r="2.1"/><circle cx="15" cy="5" r="2.1"/><circle cx="5" cy="10" r="2.1"/><circle cx="10" cy="10" r="2.6"/><circle cx="15" cy="10" r="2.1"/><circle cx="5" cy="15" r="2.1"/><circle cx="10" cy="15" r="2.1"/><circle cx="15" cy="15" r="2.1"/></g></svg>
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><defs><linearGradient id="brand-ink" x1="4" y1="8" x2="20" y2="16" gradientUnits="userSpaceOnUse"><stop stop-color="#d9fa93"/><stop offset="1" stop-color="#95e8bc"/></linearGradient></defs><path d="M4.2 12.7h3.2l2.1-4.6 2.5 7.9 2.5-5.6 1.5 2.3h3.8" stroke="url(#brand-ink)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
   </div>
   <div class="brand">TRAINCARD<small>STUDIO · STORY CARDS</small></div>
   <div class="sp"></div>
@@ -374,7 +375,7 @@ input[type=color].swatch::-moz-color-swatch{border:none; border-radius:6px}
       <div class="panel-b">
         <div class="grid3">
           <label class="field"><span class="lbl">Sport</span><select class="sel" data-k="sport"><option value="gym">Gym / strength</option><option value="run">Running</option><option value="bike">Cycling</option><option value="rope">Jump rope</option><option value="karate">Karate</option></select></label>
-          <label class="field"><span class="lbl">Badge icon</span><select class="sel" data-k="icon"><option value="auto">Auto</option><option value="dumbbell">Dumbbell</option><option value="run">Runner</option><option value="bike">Bike</option><option value="rope">Rope</option><option value="karate">Karate</option><option value="flame">Flame</option><option value="clock">Clock</option><option value="bars">Bars</option><option value="trend">Trend</option></select></label>
+          <label class="field"><span class="lbl">Badge icon</span><select class="sel" data-k="icon"><option value="auto">Auto</option><option value="none">Hide</option><option value="dumbbell">Dumbbell</option><option value="run">Runner</option><option value="bike">Bike</option><option value="rope">Rope</option><option value="karate">Karate</option><option value="flame">Flame</option><option value="clock">Clock</option><option value="bars">Bars</option><option value="trend">Trend</option></select></label>
           <label class="field"><span class="lbl">Date</span><input class="inp" type="date" data-k="date"></label>
         </div>
         <div class="field" id="beltGroup" hidden><span class="lbl">Belt</span><div class="weekrow" id="beltRow" style="grid-template-columns:repeat(9,1fr)"></div></div>
@@ -766,6 +767,9 @@ function drawMiniRoute(c, boxX, boxY, boxW, boxH, color = '#ffffff') {
 }
 
 
+// Runner silhouette adapted from Font Awesome Free's person-running icon, CC BY 4.0.
+// https://fontawesome.com/license/free — drawn locally so it also works offline.
+const RUNNER_GLYPH = new Path2D('M320 48a48 48 0 1 0-96 0a48 48 0 1 0 96 0M125.7 175.5c9.9-9.9 23.4-15.5 37.5-15.5c1.9 0 3.8.1 5.6.3L137.6 254c-9.3 28 1.7 58.8 26.8 74.5l86.2 53.9l-25.4 88.8c-4.9 17 5 34.7 22 39.6s34.7-5 39.6-22l28.7-100.4c5.9-20.6-2.6-42.6-20.7-53.9L238 299l30.9-82.4l5.1 12.3c15 35.8 49.9 59.1 88.7 59.1H384c17.7 0 32-14.3 32-32s-14.3-32-32-32h-21.3c-12.9 0-24.6-7.8-29.5-19.7l-6.3-15c-14.6-35.1-44.1-61.9-80.5-73.1l-48.7-15C186.6 97.8 175 96 163.3 96c-31 0-60.8 12.3-82.7 34.3l-23.2 23.1c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l23.1-23.1zM91.2 352H32c-17.7 0-32 14.3-32 32s14.3 32 32 32h69.6c19 0 36.2-11.2 43.9-28.5l11.5-25.9l-9.5-6a95.4 95.4 0 0 1-37.9-44.9z');
 function drawMiniVectorIcon(c, type, cx, cy, r = 16, col = '#ffffff') {
   c.save();
   c.translate(cx, cy);
@@ -792,22 +796,12 @@ function drawMiniVectorIcon(c, type, cx, cy, r = 16, col = '#ffffff') {
     c.lineTo(r * 0.55, 0);
     c.stroke();
   } else if (type === 'run') {
-    c.lineWidth = Math.max(2, r * 0.17);
-    c.beginPath(); c.arc(-r * 0.08, -r * 0.58, r * 0.16, 0, Math.PI * 2); c.fill();
-    c.beginPath();
-    c.moveTo(-r * 0.06, -r * 0.38);
-    c.lineTo(-r * 0.22, r * 0.02);
-    c.lineTo(r * 0.12, r * 0.22);
-    c.moveTo(-r * 0.22, r * 0.02);
-    c.lineTo(-r * 0.52, r * 0.5);
-    c.moveTo(r * 0.12, r * 0.22);
-    c.lineTo(r * 0.42, r * 0.16);
-    c.lineTo(r * 0.58, r * 0.52);
-    c.moveTo(-r * 0.04, -r * 0.3);
-    c.lineTo(-r * 0.5, -r * 0.5);
-    c.moveTo(-r * 0.04, -r * 0.26);
-    c.lineTo(r * 0.46, -r * 0.08);
-    c.stroke();
+    // A compact, filled running silhouette stays crisp at small story-card sizes.
+    c.save();
+    c.scale(r * 2 / 512, r * 2 / 512);
+    c.translate(-224, -256);
+    c.fill(RUNNER_GLYPH);
+    c.restore();
   } else if (type === 'bike') {
     c.lineWidth = Math.max(1.8, r * 0.13);
     c.beginPath(); c.arc(-r * 0.55, r * 0.3, r * 0.3, 0, Math.PI * 2); c.stroke();
@@ -941,45 +935,8 @@ function drawMiniVectorIcon(c, type, cx, cy, r = 16, col = '#ffffff') {
 }
 
 function drawSportBadge(c, cx, cy, r, o = {}) {
-  const glyphInk = sportGlyph() === 'karate' ? (S.belt || '#f4f1ea') : (o.ink || '#ffffff');
-  const lightGlyph = readableOn(glyphInk) === '#08111a';
-
-  if (o.glass) {
-    // The disc follows the icon color: dark bg for light icons, glass bg for dark icons
-    if (lightGlyph) {
-      c.save();
-      c.shadowColor = 'rgba(0, 8, 20, 0.34)';
-      c.shadowBlur = r * 0.9;
-      c.shadowOffsetY = r * 0.26;
-      c.beginPath();
-      c.arc(cx, cy, r, 0, Math.PI * 2);
-      c.fillStyle = o.fill || 'rgba(9, 13, 19, 0.62)';
-      c.fill();
-      c.restore();
-      c.beginPath();
-      c.arc(cx, cy, r - 0.6, 0, Math.PI * 2);
-      c.strokeStyle = o.stroke || 'rgba(255, 255, 255, 0.30)';
-      c.lineWidth = 1.5;
-      c.stroke();
-    } else {
-      drawFrostedGlassWidget(c, cx - r, cy - r, r * 2, r * 2, r, o.alpha === undefined ? 0.06 : o.alpha);
-      c.beginPath();
-      c.arc(cx, cy, r - 0.6, 0, Math.PI * 2);
-      c.strokeStyle = o.stroke || 'rgba(10, 14, 20, 0.16)';
-      c.lineWidth = 1.2;
-      c.stroke();
-    }
-  } else if (o.fill || o.stroke) {
-    const fill = lightGlyph && o.fillDark ? o.fillDark : o.fill;
-    const stroke = lightGlyph && o.strokeDark ? o.strokeDark : o.stroke;
-    c.save();
-    c.beginPath();
-    c.arc(cx, cy, r, 0, Math.PI * 2);
-    if (fill) { c.fillStyle = fill; c.fill(); }
-    if (stroke) { c.strokeStyle = stroke; c.lineWidth = o.lineWidth || 1.6; c.stroke(); }
-    c.restore();
-  }
-  drawMiniVectorIcon(c, sportGlyph(), cx, cy, r * (o.iconScale || 0.52), o.ink || '#ffffff');
+  if (S.icon === 'none' || sportGlyph() === 'none') return;
+  drawMiniVectorIcon(c, sportGlyph(), cx, cy, r * (o.iconScale || 0.58), o.ink || '#ffffff');
 }
 
 /* Prepare current values while respecting manual clearing of the unit or main number (never re-impose deleted text!) */
@@ -1539,7 +1496,7 @@ const FONT_OPTIONS = [
   ['oswald', 'Oswald'], ['mono', 'JetBrains Mono'], ['fraunces', 'Fraunces'], ['georgia', 'Georgia']
 ];
 
-/* 18 clean themes. kind: studio | anatomy | strain | rings */
+/* 18 clean themes: studio cards and dedicated widget layouts. */
 const THEMES = [
   { name: 'Carbon',    kind: 'studio',  pal: { bg: '#0b0d10', surface: '#151a20', text: '#f2f5f8', muted: '#8b949e', accent: '#ff5c39', accent2: '#ffd166' }, fonts: { d: 'black', n: 'inter', b: 'inter' }, texture: 'grid', radius: 28, week: 'strip', glow: 30 },
   { name: 'Paper',     kind: 'studio',  pal: { bg: '#f5f0e6', surface: '#fffdf7', text: '#191713', muted: '#7d766b', accent: '#c2452d', accent2: '#1f6f5c' }, fonts: { d: 'fraunces', n: 'fraunces', b: 'inter' }, texture: 'grain', radius: 10, week: 'dots', glow: 0 },
@@ -1558,9 +1515,9 @@ const THEMES = [
   { name: 'Blueprint', kind: 'studio',  pal: { bg: '#0d2137', surface: '#123049', text: '#eaf2ff', muted: '#8fa8c4', accent: '#ffd166', accent2: '#7fb4ff' }, fonts: { d: 'mono', n: 'mono', b: 'mono' }, texture: 'grid', radius: 6, week: 'bars', glow: 15 },
   { name: 'Detail',    kind: 'detail',  pal: { bg: '#0b0e11', surface: '#161b20', text: '#f9fafb', muted: '#8b949e', accent: '#38a8d8', accent2: '#4ec98e' }, fonts: { d: 'grotesk', n: 'inter', b: 'inter' }, texture: 'none', radius: 24, week: 'strip', glow: 20 },
   { name: 'Bento',     kind: 'dash',    pal: { bg: '#101418', surface: '#1a2026', text: '#f2f5f8', muted: '#8b949e', accent: '#ffb35c', accent2: '#35d0ff' }, fonts: { d: 'grotesk', n: 'inter', b: 'inter' }, texture: 'grid', radius: 26, week: 'dots', glow: 30 },
-  { name: 'Receipt',   kind: 'ticket',  pal: { bg: '#101010', surface: '#f4efe4', text: '#1b1813', muted: '#8a8378', accent: '#e05537', accent2: '#f4efe4' }, fonts: { d: 'mono', n: 'mono', b: 'mono' }, texture: 'grain', radius: 6, week: 'none', glow: 0 }
+  { name: 'Pulse',     kind: 'pulse',   pal: { bg: '#101511', surface: '#1b231d', text: '#f4f8ee', muted: '#9dab9c', accent: '#c8f574', accent2: '#9ac4ff' }, fonts: { d: 'grotesk', n: 'grotesk', b: 'inter' }, texture: 'none', radius: 30, week: 'strip', glow: 20 }
 ];
-const TH_DETAIL = 15, TH_DASH = 16, TH_TICKET = 17;
+const TH_DETAIL = 15, TH_DASH = 16, TH_PULSE = 17;
 
 const S = {
   sport: 'gym', icon: 'auto', belt: '#f4f1ea',
@@ -2175,7 +2132,7 @@ function drawStudioTheme(c, TOP, contentBot, weekY, weekH) {
   drawStatsRow(c, M, y, W - 2 * M, rowH, tiles);
 }
 
-/* ---- workout-detail widgets (Detail / Bento / Receipt themes) ---- */
+/* ---- workout-detail widgets (Detail / Bento / Pulse themes) ---- */
 function panelCard(c, x, y, w, h, fillA) {
   c.save();
   c.fillStyle = hexA(S.surface, fillA === undefined ? 0.92 : fillA);
@@ -2255,9 +2212,10 @@ function zoneBounds() {
 }
 function zoneRangeLabel(i, b) {
   const u = ' ' + up(S.unitBpm || 'bpm');
-  if (i === 0) return '<' + b[0] + u;
+  // The zone calculation groups all readings below 60% into zone 1.
+  if (i === 0) return '<' + b[1] + u;
   if (i === 4) return b[4] + '+' + u;
-  return b[i - 1] + '–' + (b[i] - 1) + u;
+  return b[i] + '–' + (b[i + 1] - 1) + u;
 }
 function fmtClock(min) {
   let m = Math.floor(min), s = Math.round((min - m) * 60);
@@ -2387,30 +2345,57 @@ function zoneDonut(c, cx, cy, r, th) {
   return total;
 }
 
-/* ---- Detail theme: clean workout report ---- */
+/* ---- Detail theme: a spacious, WHOOP-inspired workout report ---- */
+function detailZoneData() {
+  const samples = pulseHeartSamples();
+  const available = samples.length >= 4;
+  const bounds = zoneBounds();
+  const counts = [0, 0, 0, 0, 0];
+  if (available) samples.forEach(hr => {
+    let zone = 0;
+    for (let i = 1; i < 5; i++) if (hr >= bounds[i]) zone = i;
+    counts[zone]++;
+  });
+  const shares = counts.map(n => available ? n / samples.length : 0);
+  const duration = timeStatSec() / 60;
+  return {
+    available, sampleCount: samples.length, shares,
+    duration: available && duration > 0 ? duration : null,
+    minutes: available && duration > 0 ? shares.map(share => share * duration) : null
+  };
+}
+
 function drawDetailZones(c, M, y, w, h, rowH) {
   panelCard(c, M, y, w, h);
   const pad = 30, x0 = M + pad, x1 = M + w - pad;
-  const zones = computeZoneMinutes();
-  const total = zones.reduce((a, b) => a + b, 0);
-  txt(c, up('Heart rate zones'), x0, y + pad + fs(18), fs(24), 700, S.muted, 'left', S.bodyFont);
-  txt(c, Math.round(total) + ' MIN', x1, y + pad + fs(18), fs(24), 800, S.textCol, 'right', S.numFont);
-  const b = zoneBounds();
+  const data = detailZoneData(), bounds = zoneBounds();
+  txt(c, up('Heart rate zones'), x0, y + pad + fs(18), fs(24), 700, S.muted, 'left', S.bodyFont, (x1 - x0) * 0.58);
+  const totalText = !data.available ? up('No HR data') : data.duration === null
+    ? data.sampleCount + ' ' + up('samples') : Math.round(data.duration) + ' ' + up('min');
+  txt(c, totalText, x1, y + pad + fs(18), fs(23), 800, S.textCol, 'right', S.numFont, (x1 - x0) * 0.38);
   let ry = y + pad + 40;
-  zones.forEach((min, i) => {
-    const ly = ry + rowH * 0.32;
+  for (let i = 0; i < 5; i++) {
+    const ly = ry + rowH * 0.30;
     txt(c, up('Zone ' + (i + 1)), x0, ly, fs(23), 800, S.textCol, 'left', S.bodyFont);
-    txt(c, zoneRangeLabel(i, b), x0 + fs(108), ly, fs(21), 600, S.muted, 'left', S.numFont);
-    const pct = total > 0 ? Math.round(min / total * 100) : 0;
-    const ck = fmtClock(min);
-    const sw = measW(c, ':' + ck[1], fs(20), 700, S.numFont);
-    const mw = measW(c, ck[0], fs(30), 800, S.numFont);
-    txt(c, ':' + ck[1], x1, ly, fs(20), 700, S.muted, 'right', S.numFont);
-    txt(c, ck[0], x1 - sw - 4, ly, fs(30), 800, S.textCol, 'right', S.numFont);
-    txt(c, pct + '%', x1 - sw - mw - fs(26), ly, fs(21), 700, S.muted, 'right', S.numFont);
-    hatchBar(c, x0, ry + rowH * 0.58, x1 - x0, 13, total > 0 ? min / total : 0, S.whoopZones[i]);
+    txt(c, zoneRangeLabel(i, bounds), x0 + fs(108), ly, fs(21), 600, S.muted, 'left', S.numFont, (x1 - x0) * 0.40);
+    const pct = data.available ? Math.round(data.shares[i] * 100) + '%' : '—';
+    let timeWidth;
+    if (data.minutes) {
+      const ck = fmtClock(data.minutes[i]);
+      const seconds = ':' + ck[1];
+      const sw = measW(c, seconds, fs(20), 700, S.numFont);
+      const mw = measW(c, ck[0], fs(30), 800, S.numFont);
+      txt(c, seconds, x1, ly, fs(20), 700, S.muted, 'right', S.numFont);
+      txt(c, ck[0], x1 - sw - 4, ly, fs(30), 800, S.textCol, 'right', S.numFont);
+      timeWidth = sw + mw + 4;
+    } else {
+      txt(c, '—', x1, ly, fs(24), 700, S.textCol, 'right', S.numFont);
+      timeWidth = fs(24);
+    }
+    txt(c, pct, x1 - timeWidth - fs(24), ly, fs(21), 700, S.muted, 'right', S.numFont);
+    hatchBar(c, x0, ry + rowH * 0.56, x1 - x0, 13, data.shares[i], S.whoopZones[i]);
     ry += rowH;
-  });
+  }
 }
 
 function drawDetailStats(c, M, y, w, items, tileH) {
@@ -2442,50 +2427,74 @@ function drawDetailStats(c, M, y, w, items, tileH) {
   });
 }
 
-function drawDetailEffect(c, M, y, w, h) {
+// A strain scale replaces the old training-effect / recovery widget. Values use
+// the editor's existing estimate or manual override, not an official WHOOP score.
+function drawDetailStrain(c, M, y, w, h) {
   panelCard(c, M, y, w, h);
   const pad = 30, x0 = M + pad, x1 = M + w - pad;
-  const ef = effectInfo();
-  txt(c, up('Training effect'), x0, y + 44, fs(24), 700, S.muted, 'left', S.bodyFont);
+  const info = pulseStrain();
+  const status = info.value === null ? 'No data' : info.estimated ? 'Estimated' : 'Manual';
+  txt(c, up('Session strain'), x0, y + 44, fs(24), 700, S.muted, 'left', S.bodyFont);
+
+  const badgeText = up(status), badgeSize = fs(17);
+  const badgeW = Math.max(105, measW(c, badgeText, badgeSize, 700, S.bodyFont) + 32);
+  const badgeH = 34;
   c.save();
-  c.strokeStyle = hexA(S.muted, 0.8); c.lineWidth = 2;
-  c.beginPath(); c.arc(x1 - 12, y + 36, 12, 0, Math.PI * 2); c.stroke();
+  c.fillStyle = hexA(info.value === null ? S.muted : S.whoopStrain, 0.16);
+  rr(c, x1 - badgeW, y + 19, badgeW, badgeH, badgeH / 2); c.fill();
   c.restore();
-  txt(c, 'i', x1 - 12, y + 43, fs(18), 700, S.muted, 'center', S.bodyFont);
-  const sc = ef.score.toFixed(1);
-  txt(c, sc, x0, y + 100, fs(62), S.weight, S.textCol, 'left', S.numFont);
-  const scw = measW(c, sc, fs(62), S.weight, S.numFont);
-  txt(c, 'of 5', x0 + scw + 12, y + 100, fs(24), 700, S.muted, 'left', S.bodyFont);
-  txt(c, up(ef.word), x0, y + 140, fs(24), 800, ef.col, 'left', S.bodyFont);
-  hatchBar(c, x0, y + 152, x1 - x0, 12, ef.score / 5, ef.col);
-  const by = y + 186;
-  txt(c, up('Main benefit'), x0, by, fs(22), 800, S.textCol, 'left', S.bodyFont);
-  txt(c, ef.benefit, x1, by, fs(28), 800, S.textCol, 'right', S.bodyFont);
-  txt(c, ef.desc, x0, by + 24, fs(21), 500, S.muted, 'left', S.bodyFont, x1 - x0);
+  txt(c, badgeText, x1 - badgeW / 2, y + 42, badgeSize, 700,
+      info.value === null ? S.muted : S.whoopStrain, 'center', S.bodyFont, badgeW - 24);
+
+  const value = info.value === null ? '—' : info.value.toFixed(1);
+  const rawSize = fs(73), maxValueW = 190;
+  const measured = measW(c, value, rawSize, S.weight, S.numFont);
+  const valueSize = measured > maxValueW ? rawSize * maxValueW / measured : rawSize;
+  txt(c, value, x0, y + 132, valueSize, S.weight, S.textCol, 'left', S.numFont, maxValueW);
+  const valueW = Math.min(maxValueW, measW(c, value, valueSize, S.weight, S.numFont));
+  txt(c, '/ 21', x0 + valueW + 12, y + 132, fs(24), 700, S.muted, 'left', S.numFont);
+
+  const gx = x0 + 265, gw = x1 - gx;
+  txt(c, up('Effort scale'), gx, y + 86, fs(18), 700, S.muted, 'left', S.bodyFont);
+  const count = 21, gap = 5, bw = (gw - gap * (count - 1)) / count;
+  const barY = y + 100, bh = 16;
+  const gradient = c.createLinearGradient(gx, barY, gx + gw, barY);
+  gradient.addColorStop(0, S.whoopStrain);
+  gradient.addColorStop(1, S.accent2);
+  const fillCount = info.value === null ? 0 : Math.max(0, Math.min(21, info.value));
+  for (let i = 0; i < count; i++) {
+    const bx = gx + i * (bw + gap);
+    c.save();
+    c.fillStyle = hexA(S.textCol, 0.10);
+    rr(c, bx, barY, bw, bh, Math.min(5, bw / 2)); c.fill();
+    const part = Math.max(0, Math.min(1, fillCount - i));
+    if (part > 0) {
+      rr(c, bx, barY, bw, bh, Math.min(5, bw / 2)); c.clip();
+      c.fillStyle = gradient; c.fillRect(bx, barY, bw * part, bh);
+    }
+    c.restore();
+  }
+  txt(c, '0', gx, y + 145, fs(17), 700, S.muted, 'left', S.numFont);
+  txt(c, '10.5', gx + gw / 2, y + 145, fs(17), 700, S.muted, 'center', S.numFont);
+  txt(c, '21', gx + gw, y + 145, fs(17), 700, S.muted, 'right', S.numFont);
+
   c.save();
   c.strokeStyle = hexA(S.textCol, 0.10); c.lineWidth = 1.5;
-  c.beginPath(); c.moveTo(x0, by + 40); c.lineTo(x1, by + 40); c.stroke();
+  c.beginPath(); c.moveTo(x0, y + h - 53); c.lineTo(x1, y + h - 53); c.stroke();
   c.restore();
-  const ry = by + 68;
-  statGlyph(c, 'time', x0 + 12, ry - fs(8), 26, S.muted);
-  txt(c, up('Adds recovery time'), x0 + 34, ry, fs(22), 800, S.textCol, 'left', S.bodyFont);
-  txt(c, fmtHours(ef.recH), x1, ry, fs(28), 800, S.textCol, 'right', S.numFont);
+  const note = info.value === null ? 'Add duration and average heart rate for an estimate'
+    : info.estimated ? 'Estimated from average heart rate and duration'
+    : 'Value from your strain override';
+  txt(c, note, x0, y + h - 21, fs(20), 600, S.muted, 'left', S.bodyFont, x1 - x0);
 }
 
 function drawDetailInsight(c, M, y, w, h) {
-  const zones = computeZoneMinutes();
-  let zi = 1, best = -1;
-  for (let i = 1; i < 5; i++) if (zones[i] > best) { best = zones[i]; zi = i; }
-  const phrases = [
-    'easy movement that keeps blood flowing.',
-    'steady aerobic work that builds your base.',
-    'tempo effort that lifts your threshold.',
-    'hard intervals that raise your ceiling.'
-  ];
-  const ef = effectInfo();
-  const sentence = best >= 1
-    ? 'You spent ' + Math.round(best) + ' minutes in zone ' + (zi + 1) + ', ' + phrases[zi - 1]
-    : 'Strain ' + ef.strain.toFixed(1) + ' — a ' + ef.word.toLowerCase() + ' session, logged and counted.';
+  const data = detailZoneData();
+  let sentence = 'Import heart-rate readings to see a zone insight.';
+  if (data.available) {
+    const zi = data.shares.indexOf(Math.max(...data.shares));
+    sentence = 'Zone ' + (zi + 1) + ' captured ' + Math.round(data.shares[zi] * 100) + '% of your heart-rate readings.';
+  }
   c.save();
   c.fillStyle = hexA(S.surface, 0.55);
   rr(c, M, y, w, h, S.radius); c.fill();
@@ -2494,10 +2503,10 @@ function drawDetailInsight(c, M, y, w, h) {
   c.strokeStyle = g; c.lineWidth = 2.5;
   rr(c, M, y, w, h, S.radius); c.stroke();
   c.restore();
-  const lines = wrapLines(c, sentence, w - 64, fs(24), 600, S.bodyFont, 2);
-  const lh = fs(30);
+  const lines = wrapLines(c, sentence, w - 64, fs(23), 600, S.bodyFont, 2);
+  const lh = fs(28);
   const y0 = y + h / 2 - ((lines.length - 1) * lh) / 2 + fs(8);
-  lines.forEach((ln, i) => txt(c, ln, M + 32, y0 + i * lh, fs(24), 600, S.textCol, 'left', S.bodyFont));
+  lines.forEach((ln, i) => txt(c, ln, M + 32, y0 + i * lh, fs(23), 600, S.textCol, 'left', S.bodyFont));
 }
 
 function drawDetailTheme(c, TOP, contentBot, weekY, weekH) {
@@ -2507,24 +2516,34 @@ function drawDetailTheme(c, TOP, contentBot, weekY, weekH) {
   const avail = contentBot - y;
   const items = S.showStats ? S.stats.filter(x => x.on).slice(0, 4) : [];
   const statRows = Math.ceil(items.length / 2);
-  let g = 16, zoneRowH = 44, tileH = 140, effectH = 272, insightH = 80;
+  let g = 12, zoneRowH = 68, tileH = 128, strainH = 208, insightH = 64;
   const zonesH = () => 84 + 5 * zoneRowH;
   const statsH = () => items.length ? 44 + statRows * tileH + (statRows - 1) * 16 : 0;
   const blocks = () => 2 + (items.length ? 1 : 0) + (insightH ? 1 : 0);
-  const used = () => zonesH() + statsH() + effectH + insightH + g * (blocks() - 1);
+  const used = () => zonesH() + statsH() + strainH + insightH + g * (blocks() - 1);
   if (used() > avail) insightH = 0;
-  if (used() > avail) { zoneRowH = 40; tileH = 124; g = 12; }
-  if (used() > avail) { zoneRowH = 36; tileH = 112; g = 10; }
+  if (used() > avail) { tileH = 108; g = 10; }
+  if (used() > avail) strainH = 194;
+  if (used() > avail) zoneRowH = Math.max(60, zoneRowH - (used() - avail) / 5);
+
+  // Give the extra room to zone rows first, then expand the other widgets.
   let slack = Math.max(0, avail - used());
-  tileH += Math.min(34, slack * 0.30);
-  zoneRowH += Math.min(12, slack * 0.12);
-  effectH += Math.min(44, slack * 0.25);
-  if (insightH) insightH += Math.min(18, slack * 0.10);
+  const maxZoneRow = statRows >= 2 ? 72 : statRows ? 80 : 100;
+  const addZone = Math.min(maxZoneRow - zoneRowH, slack / 5);
+  zoneRowH += addZone; slack = Math.max(0, avail - used());
+  if (items.length) {
+    tileH += Math.min(8, slack / statRows);
+    slack = Math.max(0, avail - used());
+  }
+  strainH += Math.min(statRows >= 2 ? 12 : 48, slack);
   slack = Math.max(0, avail - used());
-  g += Math.min(26, slack / Math.max(1, blocks() - 1));
+  if (insightH && !items.length) insightH += Math.min(26, slack);
+  slack = Math.max(0, avail - used());
+  g += Math.min(statRows >= 2 ? 10 : 28, slack / Math.max(1, blocks() - 1));
+
   drawDetailZones(c, M, y, w, zonesH(), zoneRowH); y += zonesH() + g;
   if (items.length) { drawDetailStats(c, M, y, w, items, tileH); y += statsH() + g; }
-  drawDetailEffect(c, M, y, w, effectH); y += effectH + g;
+  drawDetailStrain(c, M, y, w, strainH); y += strainH + g;
   if (insightH) drawDetailInsight(c, M, y, w, insightH);
 }
 
@@ -2546,7 +2565,8 @@ function drawDashTheme(c, TOP, contentBot, weekY, weekH) {
   const hw = colW * 2 + gap;
   panelCard(c, M, y, hw, heroH);
   const pad = 34;
-  statGlyph(c, strength ? 'pace' : 'tl', M + hw - pad - 22, y + pad + 22, 44, S.accent);
+  // Keep the sport icon in the header; don't repeat a dumbbell in this card.
+  if (!strength) statGlyph(c, 'tl', M + hw - pad - 22, y + pad + 22, 44, S.accent);
   txt(c, up(S.mainLbl), M + pad, y + pad + fs(20), fs(24), 700, S.muted, 'left', S.bodyFont);
   txt(c, String(S.dist), M + pad, y + pad + fs(128), fs(128), S.weight, S.textCol, 'left', S.numFont, hw - pad * 2 - 90);
   const dw = measW(c, String(S.dist), fs(128), S.weight, S.numFont);
@@ -2583,8 +2603,10 @@ function drawDashTheme(c, TOP, contentBot, weekY, weekH) {
   const tile = (tx, st, withSpark) => {
     panelCard(c, tx, my, colW, midH);
     const p2 = 26;
-    statGlyph(c, st ? st.id : 'hr', tx + p2 + 12, my + p2 + 10, 26, S.muted);
-    txt(c, up(st ? st.label : 'Avg heart rate'), tx + p2 + 34, my + p2 + fs(17), fs(20), 700, S.muted, 'left', S.bodyFont, colW - p2 * 2 - 40);
+    const noExtraDumbbell = strength && st && st.id === 'pace';
+    if (!noExtraDumbbell) statGlyph(c, st ? st.id : 'hr', tx + p2 + 12, my + p2 + 10, 26, S.muted);
+    const labelIndent = noExtraDumbbell ? 0 : 34;
+    txt(c, up(st ? st.label : 'Avg heart rate'), tx + p2 + labelIndent, my + p2 + fs(17), fs(20), 700, S.muted, 'left', S.bodyFont, colW - p2 * 2 - labelIndent);
     const val = st ? String(st.val) : String(statNum('hr') || S.maxHrVal || 120);
     txt(c, val, tx + p2, my + midH * 0.52, fs(56), S.weight, S.textCol, 'left', S.numFont, colW - p2 * 2 - 60);
     const vw = Math.min(measW(c, val, fs(56), S.weight, S.numFont), colW - p2 * 2 - 60);
@@ -2629,131 +2651,247 @@ function drawDashTheme(c, TOP, contentBot, weekY, weekH) {
   }
 }
 
-/* ---- Receipt theme: thermal-paper session ticket ---- */
-function drawTicketTheme(c, TOP, contentBot, weekY, weekH) {
-  const px = 110, pw = W - 220;
-  const zig = 12, step = 26;
-  const pad = 56, x0 = px + pad, x1 = px + pw - pad, iw = x1 - x0;
-  const items = S.showStats ? S.stats.filter(x => x.on).slice(0, 6) : [];
-  const zones = computeZoneMinutes();
-  const ztotal = zones.reduce((a, b) => a + b, 0);
-  const ef = effectInfo();
-  const strength = S.sport === 'gym' || S.sport === 'karate';
-  const availPh = contentBot - (TOP - 40);
-  const sizes = cp => ({
-    topPad: cp ? 34 : 46, datePad: cp ? 26 : 34, dashGap: cp ? 26 : 34,
-    itemH: cp ? 40 : 46, midPad: cp ? 6 : 12, zHead: cp ? 26 : 32,
-    zoneH: cp ? 34 : 40, zPad: cp ? 4 : 10, dashGap2: cp ? 28 : 36,
-    recPad: cp ? 30 : 40, bcH: cp ? 46 : 62
-  });
-  const needFor = cp => {
-    const z = sizes(cp);
-    return zig + z.topPad + fs(52) + fs(34) + z.datePad + z.dashGap +
-      z.itemH * (1 + items.length) + z.midPad + z.dashGap +
-      z.zHead + 5 * z.zoneH + z.zPad + z.dashGap2 +
-      z.itemH + z.recPad + z.dashGap +
-      z.bcH + fs(26) + fs(30) + 44;
-  };
-  let compact = availPh < 1150;
-  let need = needFor(compact);
-  if (need > availPh && !compact) { compact = true; need = needFor(true); }
-  const z = sizes(compact);
-  const itemH = z.itemH, zoneH = z.zoneH, bcH = z.bcH;
-  const ph = Math.min(availPh, need);
-  const py = TOP - 40 + Math.max(0, (availPh - ph) * 0.3);
+/* ---- Pulse: a modular, data-driven workout dashboard ---- */
+function pulseSurface(c, x, y, w, h, highlighted = false) {
+  panelCard(c, x, y, w, h);
+  if (!highlighted) return;
   c.save();
-  c.shadowColor = 'rgba(0,0,0,0.45)'; c.shadowBlur = 30; c.shadowOffsetY = 10;
-  c.beginPath();
-  c.moveTo(px, py + zig);
-  for (let x = px; x < px + pw; x += step) c.lineTo(Math.min(x + step / 2, px + pw), py), c.lineTo(Math.min(x + step, px + pw), py + zig);
-  c.lineTo(px + pw, py + ph - zig);
-  for (let x = px + pw; x > px; x -= step) c.lineTo(Math.max(x - step / 2, px), py + ph), c.lineTo(Math.max(x - step, px), py + ph - zig);
-  c.closePath();
-  c.fillStyle = S.surface; c.fill();
+  rr(c, x + 1, y + 1, w - 2, h - 2, Math.max(0, S.radius - 1));
+  c.clip();
+  const glow = c.createLinearGradient(x, y, x + w, y + h);
+  glow.addColorStop(0, hexA(S.accent, 0.10));
+  glow.addColorStop(0.58, hexA(S.accent, 0.015));
+  glow.addColorStop(1, hexA(S.accent2, 0.065));
+  c.fillStyle = glow;
+  c.fillRect(x, y, w, h);
   c.restore();
+}
 
-  const dash = (yy) => {
-    c.save();
-    c.strokeStyle = hexA(S.textCol, 0.35); c.lineWidth = 2; c.setLineDash([9, 8]);
-    c.beginPath(); c.moveTo(x0, yy); c.lineTo(x1, yy); c.stroke();
-    c.restore();
-  };
-  let y = py + zig + (compact ? 34 : 46);
-  txt(c, up('TrainCard Studio'), px + pw / 2, y, fs(30), 800, S.textCol, 'center', S.numFont);
-  y += fs(52);
-  txt(c, up(S.title), px + pw / 2, y, fs(54), S.weight, S.textCol, 'center', S.titleFont, iw);
-  y += fs(34);
-  txt(c, fmtDate() + '  ·  ' + up(S.muscleTag), px + pw / 2, y, fs(21), 600, S.muted, 'center', S.bodyFont, iw);
-  y += compact ? 26 : 34;
-  dash(y); y += compact ? 26 : 34;
+function pulseHeartSamples() {
+  return Array.isArray(S.hrSeries)
+    ? S.hrSeries.map(Number).filter(n => Number.isFinite(n) && n > 0)
+    : [];
+}
 
-  const line = (label, val, vSize) => {
-    txt(c, up(label), x0, y, fs(23), 600, S.textCol, 'left', S.bodyFont, iw * 0.55);
-    const lw = Math.min(measW(c, up(label), fs(23), 600, S.bodyFont), iw * 0.55);
-    const vs = vSize || fs(25);
-    const vw = measW(c, val, vs, 800, S.numFont);
-    txt(c, val, x1, y, vs, 800, S.textCol, 'right', S.numFont);
-    c.save();
-    c.strokeStyle = hexA(S.textCol, 0.4); c.lineWidth = 2.5; c.setLineDash([2, 8]); c.lineCap = 'round';
-    c.beginPath(); c.moveTo(x0 + lw + 16, y - fs(7)); c.lineTo(x1 - vw - 16, y - fs(7)); c.stroke();
-    c.restore();
-    y += itemH;
-  };
-  line(S.mainLbl, String(S.dist) + (strength ? '' : ' km'), fs(28));
-  items.forEach(st => line(st.label, String(st.val) + (st.unit ? ' ' + st.unit : '')));
-  y += compact ? 6 : 12;
-  dash(y); y += compact ? 26 : 34;
+// Use the same strain model as the existing editor, but never invent a reading
+// when there is neither an override nor enough session data to estimate it.
+function pulseStrain() {
+  const raw = S.whoopStrainOverride;
+  const hasOverride = raw !== '' && raw !== null && raw !== undefined && Number.isFinite(Number(raw));
+  if (hasOverride) return { value: Math.max(0, Math.min(21, Number(raw))), estimated: false };
+  if (timeStatSec() > 0 && statNum('hr') > 0) return { value: computeStrain(), estimated: true };
+  return { value: null, estimated: false };
+}
 
-  txt(c, up('Heart rate zones'), x0, y, fs(22), 700, S.muted, 'left', S.bodyFont);
-  txt(c, Math.round(ztotal) + ' MIN', x1, y, fs(22), 800, S.textCol, 'right', S.numFont);
-  y += compact ? 26 : 32;
-  const b = zoneBounds();
-  const cells = 22;
-  zones.forEach((min, i) => {
-    const frac = ztotal > 0 ? min / ztotal : 0;
-    txt(c, 'Z' + (i + 1), x0, y, fs(21), 800, S.textCol, 'left', S.numFont);
-    txt(c, zoneRangeLabel(i, b), x0 + fs(46), y, fs(19), 600, S.muted, 'left', S.numFont);
-    const bx = x0 + fs(210), bw = iw - fs(210) - fs(90);
-    const filled = Math.round(frac * cells);
-    const cw = bw / cells;
-    for (let k = 0; k < cells; k++) {
-      c.save();
-      c.fillStyle = k < filled ? S.whoopZones[i] : hexA(S.textCol, 0.14);
-      c.fillRect(bx + k * cw + 1, y - fs(16), cw - 3, fs(16));
-      c.restore();
-    }
-    txt(c, Math.round(min) + 'm', x1, y, fs(21), 800, S.textCol, 'right', S.numFont);
-    y += zoneH;
-  });
-  y += compact ? 4 : 10;
-  dash(y); y += compact ? 28 : 36;
-
-  txt(c, up('Strain total'), x0, y, fs(26), 800, S.textCol, 'left', S.bodyFont);
-  txt(c, ef.strain.toFixed(1) + ' / 21', x1, y, fs(30), 800, S.textCol, 'right', S.numFont);
-  y += itemH;
-  txt(c, up('Recovery cost'), x0, y, fs(23), 600, S.textCol, 'left', S.bodyFont);
-  txt(c, '+' + fmtHours(ef.recH), x1, y, fs(25), 800, S.textCol, 'right', S.numFont);
-  y += compact ? 30 : 40;
-  dash(y); y += compact ? 26 : 34;
-
-  let seed = 7;
-  const src = S.title + '|' + S.date + '|' + S.dist;
-  for (let i = 0; i < src.length; i++) seed = (seed * 31 + src.charCodeAt(i)) >>> 0;
-  const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
-  let bx = x0;
+function pulseBar(c, x, y, w, h, fraction, color) {
   c.save();
-  c.fillStyle = S.textCol;
-  while (bx < x1 - 4) {
-    const bw2 = 2 + Math.floor(rnd() * 5);
-    if (rnd() > 0.32) c.fillRect(bx, y, Math.min(bw2, x1 - bx), bcH);
-    bx += bw2 + 2 + Math.floor(rnd() * 4);
+  c.fillStyle = hexA(S.textCol, 0.10);
+  rr(c, x, y, w, h, h / 2); c.fill();
+  const f = Math.max(0, Math.min(1, fraction));
+  if (f > 0) {
+    c.fillStyle = color;
+    rr(c, x, y, Math.min(w, Math.max(h, w * f)), h, h / 2); c.fill();
   }
   c.restore();
-  y += bcH + fs(26);
-  txt(c, 'NO. ' + seed.toString(16).toUpperCase().padStart(8, '0'), px + pw / 2, y, fs(19), 600, S.muted, 'center', S.numFont);
-  y += fs(30);
-  txt(c, up('Thank you for training'), px + pw / 2, y, fs(22), 800, S.textCol, 'center', S.bodyFont);
 }
+
+function drawPulseHero(c, x, y, w, h) {
+  pulseSurface(c, x, y, w, h, true);
+  const pad = 38;
+  txt(c, up('Session highlight'), x + pad, y + 52, fs(21), 700, S.muted, 'left', S.bodyFont, w - 350);
+  // S.dist is intentionally left exactly as entered, including an empty value.
+  txt(c, String(S.dist == null ? '' : S.dist), x + pad, y + h * 0.64, fs(150), S.weight, S.textCol, 'left', S.numFont, w - 350);
+  c.save();
+  c.fillStyle = S.accent;
+  rr(c, x + pad, y + h - 53, 25, 6, 3); c.fill();
+  c.restore();
+  txt(c, up(S.mainLbl || ''), x + pad + 39, y + h - 43, fs(23), 700, S.textCol, 'left', S.bodyFont, w - 390);
+
+  // The ring is an effort widget, not a border around the sport icon.
+  const info = pulseStrain();
+  const rcx = x + w - 151, rcy = y + h / 2 + 1, r = Math.min(79, h * 0.285);
+  c.save();
+  c.lineWidth = 11;
+  c.lineCap = 'round';
+  c.strokeStyle = hexA(S.textCol, 0.11);
+  c.beginPath(); c.arc(rcx, rcy, r, 0, Math.PI * 2); c.stroke();
+  if (info.value !== null && info.value > 0) {
+    const g = c.createLinearGradient(rcx - r, rcy - r, rcx + r, rcy + r);
+    g.addColorStop(0, S.whoopStrain); g.addColorStop(1, S.accent2);
+    c.strokeStyle = g;
+    if (S.glow > 0) { c.shadowColor = hexA(S.whoopStrain, 0.45); c.shadowBlur = S.glow * 0.18; }
+    c.beginPath();
+    c.arc(rcx, rcy, r, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * Math.min(1, info.value / 21));
+    c.stroke();
+  }
+  c.restore();
+  txt(c, info.value === null ? '—' : info.value.toFixed(1), rcx, rcy + 8, fs(43), 700, S.textCol, 'center', S.numFont, r * 1.6);
+  txt(c, up(info.estimated ? 'Est. strain' : 'Strain'), rcx, rcy + 38, fs(17), 700, S.muted, 'center', S.bodyFont, r * 1.7);
+  txt(c, info.value === null ? up('No data') : '/ 21', rcx, y + h - 28, fs(17), 700, S.muted, 'center', S.bodyFont);
+}
+
+function drawPulseGraph(c, x, y, w, h, allSamples) {
+  // Downsample for large imported workouts without replacing the user's data.
+  const stride = Math.max(1, Math.ceil(allSamples.length / 200));
+  const values = allSamples.filter((_, i) => i % stride === 0 || i === allSamples.length - 1);
+  let lo = Infinity, hi = -Infinity;
+  values.forEach(v => { lo = Math.min(lo, v); hi = Math.max(hi, v); });
+  lo -= 6; hi += 6;
+  const range = Math.max(12, hi - lo);
+  const pts = values.map((v, i) => [x + w * i / (values.length - 1), y + h - (v - lo) / range * h]);
+  const trace = () => {
+    c.moveTo(pts[0][0], pts[0][1]);
+    for (let i = 0; i < pts.length - 1; i++) {
+      c.quadraticCurveTo(pts[i][0], pts[i][1], (pts[i][0] + pts[i + 1][0]) / 2, (pts[i][1] + pts[i + 1][1]) / 2);
+    }
+    c.lineTo(pts[pts.length - 1][0], pts[pts.length - 1][1]);
+  };
+  c.save();
+  c.setLineDash([4, 9]);
+  c.strokeStyle = hexA(S.textCol, 0.09); c.lineWidth = 1.2;
+  [0.25, 0.6, 0.95].forEach(frac => {
+    c.beginPath(); c.moveTo(x, y + h * frac); c.lineTo(x + w, y + h * frac); c.stroke();
+  });
+  c.setLineDash([]);
+  c.beginPath(); trace();
+  c.lineTo(x + w, y + h); c.lineTo(x, y + h); c.closePath();
+  const fill = c.createLinearGradient(0, y, 0, y + h);
+  fill.addColorStop(0, hexA(S.accent, 0.25));
+  fill.addColorStop(1, hexA(S.accent, 0.01));
+  c.fillStyle = fill; c.fill();
+  const stroke = c.createLinearGradient(x, y, x + w, y);
+  stroke.addColorStop(0, S.accent); stroke.addColorStop(1, S.accent2);
+  c.strokeStyle = stroke; c.lineWidth = 4; c.lineCap = 'round'; c.lineJoin = 'round';
+  if (S.glow > 0) { c.shadowColor = hexA(S.accent, 0.5); c.shadowBlur = S.glow * 0.15; }
+  c.beginPath(); trace(); c.stroke();
+  c.restore();
+}
+
+function drawPulseChart(c, x, y, w, h, samples) {
+  pulseSurface(c, x, y, w, h);
+  const isRoute = S.chartMode === 'route';
+  const hasRoute = Array.isArray(S.route) && S.route.length >= 3;
+  const hasHeart = samples.length >= 6;
+  statGlyph(c, isRoute ? 'tl' : 'hr', x + 38, y + 38, 26, S.accent);
+  txt(c, up(isRoute ? 'Your route' : 'Heart rate'), x + 60, y + 46, fs(22), 700, S.textCol, 'left', S.bodyFont, w * 0.57 - 60);
+  if (isRoute && hasRoute) {
+    txt(c, 'GPS', x + w - 30, y + 46, fs(19), 700, S.muted, 'right', S.bodyFont);
+    drawMiniRoute(c, x + 34, y + 65, w - 68, h - 104, S.accent);
+    txt(c, up('Route from workout'), x + 32, y + h - 24, fs(17), 700, S.muted, 'left', S.bodyFont);
+  } else if (!isRoute && hasHeart) {
+    const maxHR = samples.reduce((a, v) => Math.max(a, v), 0);
+    txt(c, up('Max') + ' ' + Math.round(maxHR), x + w - 30, y + 46, fs(19), 700, S.muted, 'right', S.numFont);
+    drawPulseGraph(c, x + 32, y + 76, w - 64, h - 120, samples);
+    txt(c, up('Start'), x + 32, y + h - 22, fs(17), 700, S.muted, 'left', S.bodyFont);
+    txt(c, up('Finish'), x + w - 32, y + h - 22, fs(17), 700, S.muted, 'right', S.bodyFont);
+  } else {
+    txt(c, up(isRoute ? 'No route yet' : 'No heart-rate data'), x + w / 2, y + h * 0.51, fs(23), 700, S.textCol, 'center', S.bodyFont, w - 54);
+    txt(c, 'Import a workout to see it here', x + w / 2, y + h * 0.51 + 34, fs(19), 500, S.muted, 'center', S.bodyFont, w - 54);
+  }
+}
+
+function drawPulseZones(c, x, y, w, h, samples) {
+  pulseSurface(c, x, y, w, h);
+  c.save();
+  c.fillStyle = S.accent2;
+  rr(c, x + 30, y + 35, 21, 6, 3); c.fill();
+  c.restore();
+  txt(c, up('HR zones'), x + 64, y + 46, fs(22), 700, S.textCol, 'left', S.bodyFont, w - 100);
+  const counts = [0, 0, 0, 0, 0];
+  const enough = samples.length >= 4;
+  const bounds = zoneBounds();
+  if (enough) samples.forEach(hr => {
+    let zone = 0;
+    for (let i = 1; i < 5; i++) if (hr >= bounds[i]) zone = i;
+    counts[zone]++;
+  });
+  const trackX = x + 74, trackW = w - 74 - 74;
+  const rowStep = (h - 108) / 5;
+  counts.forEach((count, i) => {
+    const rowY = y + 76 + i * rowStep;
+    const part = enough ? count / samples.length : 0;
+    txt(c, 'Z' + (i + 1), x + 30, rowY + 13, fs(19), 700, S.muted, 'left', S.numFont);
+    pulseBar(c, trackX, rowY + 3, trackW, 10, part, (S.whoopZones || [])[i] || S.accent);
+    txt(c, enough ? Math.round(part * 100) + '%' : '—', x + w - 30, rowY + 14, fs(18), 700, S.textCol, 'right', S.numFont);
+  });
+  txt(c, up(enough ? 'Of heart-rate samples' : 'No HR samples'), x + 30, y + h - 24, fs(16), 700, S.muted, 'left', S.bodyFont, w - 60);
+}
+
+function drawPulseStatValue(c, st, x, y, maxW) {
+  const value = String(st.val == null ? '' : st.val);
+  const unit = String(st.unit || '').trim();
+  const base = fs(47), unitSize = fs(20), weight = Math.min(800, S.weight);
+  const reserve = unit ? Math.min(maxW * 0.34, measW(c, unit, unitSize, 700, S.bodyFont) + 12) : 0;
+  const available = Math.max(20, maxW - reserve);
+  const measured = measW(c, value, base, weight, S.numFont);
+  const size = measured > available ? Math.max(12, base * available / measured) : base;
+  txt(c, value, x, y, size, weight, S.textCol, 'left', S.numFont, available);
+  if (unit) {
+    const valueWidth = Math.min(available, measW(c, value, size, weight, S.numFont));
+    txt(c, unit, x + valueWidth + 10, y, unitSize, 700, S.muted, 'left', S.bodyFont, Math.max(10, maxW - valueWidth - 10));
+  }
+}
+
+function drawPulseStats(c, x, y, w, h, items) {
+  pulseSurface(c, x, y, w, h);
+  const pad = 32;
+  txt(c, up('Session snapshot'), x + pad, y + 46, fs(22), 700, S.textCol, 'left', S.bodyFont);
+  txt(c, String(items.length).padStart(2, '0') + ' ' + up('stats'), x + w - pad, y + 46, fs(18), 700, S.muted, 'right', S.numFont);
+  c.save();
+  c.strokeStyle = hexA(S.textCol, 0.10); c.lineWidth = 1.2;
+  c.beginPath(); c.moveTo(x + pad, y + 65); c.lineTo(x + w - pad, y + 65); c.stroke();
+  c.restore();
+  const rows = Math.ceil(items.length / 3), contentY = y + 77, rowH = (h - 91) / rows;
+  const contentW = w - pad * 2;
+  for (let row = 0; row < rows; row++) {
+    const subset = items.slice(row * 3, row * 3 + 3);
+    const cellW = contentW / subset.length;
+    const ry = contentY + row * rowH;
+    subset.forEach((st, i) => {
+      const sx = x + pad + i * cellW;
+      if (i > 0) {
+        c.save(); c.strokeStyle = hexA(S.textCol, 0.09); c.lineWidth = 1.2;
+        c.beginPath(); c.moveTo(sx - 14, ry + 8); c.lineTo(sx - 14, ry + rowH - 18); c.stroke(); c.restore();
+      }
+      statGlyph(c, st.id, sx + 12, ry + 18, 23, S.accent);
+      txt(c, up(st.label || ''), sx + 32, ry + 25, fs(19), 700, S.muted, 'left', S.bodyFont, cellW - 45);
+      drawPulseStatValue(c, st, sx, ry + Math.min(rowH - 20, 91), cellW - 30);
+    });
+    if (row < rows - 1) {
+      c.save(); c.strokeStyle = hexA(S.textCol, 0.09); c.lineWidth = 1.2;
+      c.beginPath(); c.moveTo(x + pad, ry + rowH - 7); c.lineTo(x + w - pad, ry + rowH - 7); c.stroke(); c.restore();
+    }
+  }
+}
+
+function drawPulseTheme(c, TOP, contentBot, weekY, weekH) {
+  const M = 72, w = W - 2 * M, gap = 18;
+  drawHeader(c, M, TOP);
+  const y = TOP + fs(182) + 10;
+  const available = Math.max(1, contentBot - y);
+  const items = S.showStats && Array.isArray(S.stats) ? S.stats.filter(s => s.on).slice(0, 6) : [];
+  const rows = Math.ceil(items.length / 3);
+  const heroH = Math.min(350, Math.max(265, available * 0.295));
+  let statsH = items.length ? 92 + rows * 135 : 0;
+  let visualH = available - heroH - (items.length ? statsH + 2 * gap : gap);
+  if (items.length && visualH < 250) {
+    statsH = Math.max(170, statsH - (250 - visualH));
+    visualH = available - heroH - statsH - 2 * gap;
+  }
+  if (!items.length) visualH = Math.min(520, visualH);
+  drawPulseHero(c, M, y, w, heroH);
+  const my = y + heroH + gap;
+  const samples = pulseHeartSamples();
+  if (S.chartMode === 'hr' || S.chartMode === 'route') {
+    const chartW = Math.round(w * 0.60);
+    drawPulseChart(c, M, my, chartW, visualH, samples);
+    drawPulseZones(c, M + chartW + gap, my, w - chartW - gap, visualH, samples);
+  } else {
+    drawPulseZones(c, M, my, w, visualH, samples);
+  }
+  if (items.length) drawPulseStats(c, M, my + visualH + gap, w, statsH, items);
+}
+
 function drawSafeOverlay(c) {
   if (!S.showSafeGuide) return;
   c.save();
@@ -2788,7 +2926,7 @@ function drawCard(c, w, st, isExport = false) {
   const kind = (THEMES[st] || THEMES[0]).kind;
   if (kind === 'detail') drawDetailTheme(c, TOP, contentBot, weekY, weekH);
   else if (kind === 'dash') drawDashTheme(c, TOP, contentBot, weekY, weekH);
-  else if (kind === 'ticket') drawTicketTheme(c, TOP, contentBot, weekY, weekH);
+  else if (kind === 'pulse') drawPulseTheme(c, TOP, contentBot, weekY, weekH);
   else drawStudioTheme(c, TOP, contentBot, weekY, weekH);
   if (weekH) drawWeek(c, 72, weekY, W - 144, weekH);
   if (!isExport) drawSafeOverlay(c);
@@ -2809,7 +2947,7 @@ function buildThemeTiles() {
       const d = document.createElement('i'); d.style.background = col; sw.appendChild(d);
     });
     const nm = document.createElement('div'); nm.className = 'tn'; nm.textContent = t.name;
-    const tt = document.createElement('div'); tt.className = 'tt'; tt.textContent = t.kind === 'studio' ? 'card' : t.kind === 'detail' ? 'workout' : t.kind === 'dash' ? 'dashboard' : t.kind === 'ticket' ? 'receipt' : t.kind;
+    const tt = document.createElement('div'); tt.className = 'tt'; tt.textContent = t.kind === 'studio' ? 'card' : t.kind === 'detail' ? 'workout' : t.kind === 'dash' ? 'dashboard' : t.kind === 'pulse' ? 'widgets' : t.kind;
     b.append(sw, nm, tt);
     b.onclick = () => applyTheme(i);
     box.appendChild(b);
@@ -3572,18 +3710,28 @@ function buildIconDataURL(size) {
   const ic = document.createElement('canvas');
   ic.width = ic.height = size;
   const k = ic.getContext('2d');
-  k.fillStyle = '#0d1015';
+  // Full-bleed background is safe for iOS and Android's maskable icon shapes.
+  const bg = k.createLinearGradient(0, 0, size, size);
+  bg.addColorStop(0, '#253b30');
+  bg.addColorStop(1, '#101915');
+  k.fillStyle = bg;
   k.fillRect(0, 0, size, size);
-  const u = size / 6, r = size * 0.052;
-  for (let row = 0; row < 3; row++) {
-    for (let col = 0; col < 3; col++) {
-      const center = row === 1 && col === 1;
-      k.fillStyle = center ? S.accent : 'rgba(255,255,255,0.9)';
-      k.beginPath();
-      k.arc(u * (1.6 + col * 1.4), u * (1.6 + row * 1.4), center ? r * 1.25 : r, 0, Math.PI * 2);
-      k.fill();
-    }
-  }
+  const ink = k.createLinearGradient(size * .18, size * .34, size * .82, size * .66);
+  ink.addColorStop(0, '#d9fa93');
+  ink.addColorStop(1, '#95e8bc');
+  k.strokeStyle = ink;
+  k.lineWidth = size * (2.2 / 24);
+  k.lineCap = 'round';
+  k.lineJoin = 'round';
+  k.beginPath();
+  k.moveTo(size * 4.2 / 24, size * 12.7 / 24);
+  k.lineTo(size * 7.4 / 24, size * 12.7 / 24);
+  k.lineTo(size * 9.5 / 24, size * 8.1 / 24);
+  k.lineTo(size * 12 / 24, size * 16 / 24);
+  k.lineTo(size * 14.5 / 24, size * 10.4 / 24);
+  k.lineTo(size * 16 / 24, size * 12.7 / 24);
+  k.lineTo(size * 19.8 / 24, size * 12.7 / 24);
+  k.stroke();
   return ic.toDataURL('image/png');
 }
 let installPrompt = null;
@@ -3616,6 +3764,11 @@ window.addEventListener('appinstalled', () => {
   aLink.rel = 'apple-touch-icon';
   aLink.href = icon;
   document.head.appendChild(aLink);
+  const favicon = document.createElement('link');
+  favicon.rel = 'icon';
+  favicon.type = 'image/png';
+  favicon.href = icon;
+  document.head.appendChild(favicon);
   $('installBtn').onclick = async () => {
     if (installPrompt) {
       installPrompt.prompt();
@@ -3639,7 +3792,7 @@ if (session && typeof session === 'object') {
   if (!THEMES[S.style]) S.style = 0;
   syncUI();
 } else {
-  applyTheme(0, true);
+  applyTheme(TH_PULSE, true);
 }
 render();
 [
@@ -3648,5 +3801,5 @@ render();
 ].forEach(f => document.fonts.load(f).then(sched).catch(() => {}));
 window.__tcReady = true;
 </script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5a3c1bbda77e28c',t:'MTc5NDYzNTYxNg=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5a3c1bbda77e28c',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
