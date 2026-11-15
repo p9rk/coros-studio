@@ -363,6 +363,7 @@ input[type=color].swatch::-moz-color-swatch{border:none; border-radius:6px}
           <label class="tgl"><input type="checkbox" data-k="showStats"><span class="tr"></span><span class="tl">Stats row</span></label>
           <label class="tgl"><input type="checkbox" data-k="transparent"><span class="tr"></span><span class="tl">Transparent PNG</span></label>
           <label class="tgl"><input type="checkbox" data-k="showSafeGuide"><span class="tr"></span><span class="tl">Story safe guides</span></label>
+          <label class="tgl"><input type="checkbox" data-k="showSessionTimes"><span class="tr"></span><span class="tl">Start &amp; end times</span></label>
         </div>
         <div class="divider"></div>
         <span class="sub">Week days · tap to cycle 0 → 1 → 2</span>
@@ -378,6 +379,12 @@ input[type=color].swatch::-moz-color-swatch{border:none; border-radius:6px}
           <label class="field"><span class="lbl">Badge icon</span><select class="sel" data-k="icon"><option value="auto">Auto</option><option value="none">Hide</option><option value="dumbbell">Dumbbell</option><option value="run">Runner</option><option value="bike">Bike</option><option value="rope">Rope</option><option value="karate">Karate</option><option value="flame">Flame</option><option value="clock">Clock</option><option value="bars">Bars</option><option value="trend">Trend</option></select></label>
           <label class="field"><span class="lbl">Date</span><input class="inp" type="date" data-k="date"></label>
         </div>
+        <div class="grid3">
+          <label class="field"><span class="lbl">Workout started</span><input class="inp" type="time" step="60" data-k="startTime" aria-describedby="timeHelp"></label>
+          <label class="field"><span class="lbl">Workout ended</span><input class="inp" type="time" step="60" data-k="endTime" aria-describedby="timeHelp"></label>
+          <label class="field"><span class="lbl">Clock format</span><select class="sel" data-k="timeFormat"><option value="24">24-hour · 18:30</option><option value="12">12-hour · 6:30 PM</option></select></label>
+        </div>
+        <p class="zhint" id="timeHelp">Imports replace these fields and use your device’s local time zone; GPX/TCX may use first and last recorded points. Times display to the minute; missing values stay blank. For manual entries, an earlier end time means the next day.</p>
         <div class="field" id="beltGroup" hidden><span class="lbl">Belt</span><div class="weekrow" id="beltRow" style="grid-template-columns:repeat(9,1fr)"></div></div>
         <div class="divider"></div>
         <span class="sub">Zepp cloud · Amazfit</span>
@@ -993,6 +1000,104 @@ function haversineKm(lat1, lon1, lat2, lon2) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+/* Session clock helpers: imported timestamps are shown in the device's local time. */
+function localDateInput(value) {
+  const d = value instanceof Date ? value : new Date(value);
+  if (!Number.isFinite(d.getTime())) return '';
+  return [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-');
+}
+function localTimeInput(value) {
+  const d = value instanceof Date ? value : new Date(value);
+  if (!Number.isFinite(d.getTime())) return '';
+  return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+}
+function normalizeEpochMs(value) {
+  if (value === null || value === undefined || value === '') return null;
+  const text = String(value).trim();
+  if (/^-?\d+(?:\.\d+)?$/.test(text)) {
+    const n = Number(text);
+    if (!Number.isFinite(n) || n <= 0) return null;
+    const ms = n < 1e11 ? n * 1000 : n;
+    return Number.isFinite(new Date(ms).getTime()) ? ms : null;
+  }
+  const parsed = Date.parse(text);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+function setImportedSessionTimes(startMs, endMs) {
+  const validDate = n => n === null || n === undefined || !Number.isFinite(n) || !Number.isFinite(new Date(n).getTime()) ? null : new Date(n);
+  const start = validDate(startMs);
+  let end = validDate(endMs);
+  if (start && end && end.getTime() < start.getTime()) end = null;
+  S.startTime = start ? localTimeInput(start) : '';
+  S.endTime = end ? localTimeInput(end) : '';
+  S.endDayOffset = null;
+  if (start && end) {
+    const day = d => Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
+    S.endDayOffset = Math.max(0, Math.round((day(end) - day(start)) / 86400000));
+  }
+  if (start || end) S.date = localDateInput(start || end);
+}
+function clockParts(value) {
+  const m = /^(\d{1,2}):([0-5]\d)(?::[0-5]\d)?$/.exec(String(value || '').trim());
+  if (!m || +m[1] > 23) return null;
+  return { hour: +m[1], minute: +m[2] };
+}
+function formatSessionClock(value) {
+  const time = clockParts(value);
+  if (!time) return '';
+  const mm = String(time.minute).padStart(2, '0');
+  if (S.timeFormat === '12') return (time.hour % 12 || 12) + ':' + mm + (time.hour < 12 ? ' AM' : ' PM');
+  return String(time.hour).padStart(2, '0') + ':' + mm;
+}
+function sessionTimeText() {
+  if (!S.showSessionTimes) return '';
+  const start = formatSessionClock(S.startTime), end = formatSessionClock(S.endTime);
+  const parts = [];
+  if (start) parts.push(up('Start') + ' ' + start);
+  if (end) {
+    let days = 0;
+    if (start) {
+      if (Number.isInteger(S.endDayOffset)) days = Math.max(0, S.endDayOffset);
+      else {
+        const a = clockParts(S.startTime), b = clockParts(S.endTime);
+        if (a && b && b.hour * 60 + b.minute < a.hour * 60 + a.minute) days = 1;
+      }
+    }
+    parts.push(up('End') + ' ' + end + (days ? ' +' + days + 'd' : ''));
+  }
+  return parts.join('  ' + (S.sep || '·') + '  ');
+}
+
+// Recognize explicitly labelled clock times in pasted workout text without
+// mistaking them for the workout duration or pace.
+function parseLabeledClock(value) {
+  const m = /^(\d{1,2}):([0-5]\d)(?::[0-5]\d)?\s*(a\.?m\.?|p\.?m\.?)?$/i.exec(String(value || '').trim());
+  if (!m) return '';
+  let h = +m[1];
+  if (m[3]) {
+    if (h < 1 || h > 12) return '';
+    const pm = m[3].toLowerCase().startsWith('p');
+    h = h % 12 + (pm ? 12 : 0);
+  } else if (h > 23) return '';
+  return String(h).padStart(2, '0') + ':' + m[2];
+}
+function importLabeledSessionTimes(raw) {
+  let rest = String(raw || '');
+  const clock = '(\\d{1,2}:[0-5]\\d(?::[0-5]\\d)?\\s*(?:a\\.?m\\.?|p\\.?m\\.?)?)';
+  const startRe = new RegExp('\\b(?:start(?:ed)?(?:[\\s_-]+time)?|time[\\s_-]+started)(?:\\s+at)?\\s*[:=\\-]?\\s*' + clock, 'i');
+  const endRe = new RegExp('\\b(?:end(?:ed)?(?:[\\s_-]+time)?|finish(?:ed)?(?:[\\s_-]+time)?|time[\\s_-]+ended)(?:\\s+at)?\\s*[:=\\-]?\\s*' + clock, 'i');
+  const sm = rest.match(startRe), em = rest.match(endRe);
+  const start = sm ? parseLabeledClock(sm[1]) : '';
+  const end = em ? parseLabeledClock(em[1]) : '';
+  if (start || end) {
+    S.startTime = start; S.endTime = end; S.endDayOffset = null;
+    if (start) rest = rest.replace(sm[0], ' ');
+    if (end) rest = rest.replace(em[0], ' ');
+    return { found: true, rest };
+  }
+  return { found: false, rest };
+}
+
 /* =========================================================================
    Precise .FIT reader (extracts the real HR curve + moving time + active sessions)
    ========================================================================= */
@@ -1015,6 +1120,7 @@ function parseFitBuffer(buf) {
   let lastAlt = null, elevGain = 0, maxDist = 0;
 
   let fitSport = null, fitSubSport = null;
+  let sessionStartTs = null, sessionEndTs = null;
   let sessionTimerSec = 0;
   let sessionDistKm = 0;
   let sessionCalories = 0;
@@ -1068,6 +1174,7 @@ function parseFitBuffer(buf) {
       let lat = null, lon = null;
       let setType = null, setReps = null, setWeight = 0;
       let lapIntensity = null;
+      let messageStartTs = null, messageEndTs = null, messageElapsedSec = null;
 
       for (const f of def.fields) {
         // In a compressed header the timestamp field is omitted from the data
@@ -1075,7 +1182,17 @@ function parseFitBuffer(buf) {
         if (pos + f.size > end) { pos = end; break; }
 
         if (def.gMsg === 18) {
-          if (f.num === 5 && f.size === 1) fitSport = view.getUint8(pos);
+          // FIT session fields 2 and 253 are the actual start and end timestamps.
+          if (f.num === 2 && f.size === 4) {
+            const ts = view.getUint32(pos, def.le);
+            if (ts !== 0xFFFFFFFF && ts > 0) messageStartTs = ts;
+          } else if (f.num === 253 && f.size === 4) {
+            const ts = view.getUint32(pos, def.le);
+            if (ts !== 0xFFFFFFFF && ts > 0) messageEndTs = ts;
+          } else if (f.num === 7 && f.size === 4) {
+            const elapsed = view.getUint32(pos, def.le);
+            if (elapsed !== 0xFFFFFFFF && elapsed > 0) messageElapsedSec = elapsed / 1000;
+          } else if (f.num === 5 && f.size === 1) fitSport = view.getUint8(pos);
           else if (f.num === 6 && f.size === 1) fitSubSport = view.getUint8(pos);
           else if (f.num === 8 && f.size === 4) {
             const t = view.getUint32(pos, def.le);
@@ -1117,8 +1234,8 @@ function parseFitBuffer(buf) {
             const ts = view.getUint32(pos, def.le);
             if (ts !== 0xFFFFFFFF) {
               lastFullTs = ts;
-              if (!minTs) minTs = ts;
-              maxTs = ts;
+              minTs = minTs === null ? ts : Math.min(minTs, ts);
+              maxTs = maxTs === null ? ts : Math.max(maxTs, ts);
               if (prevRecTs !== null) {
                 const delta = ts - prevRecTs;
                 if (delta > 0 && delta <= 15) movingRecSec += delta;
@@ -1159,6 +1276,16 @@ function parseFitBuffer(buf) {
         pos += f.size;
       }
 
+      if (def.gMsg === 18) {
+        // FIT elapsed time includes pauses; timer/moving time cannot locate a clock endpoint.
+        const startTs = messageStartTs !== null ? messageStartTs
+          : messageEndTs !== null && messageElapsedSec !== null ? messageEndTs - messageElapsedSec : null;
+        const endTs = messageEndTs !== null ? messageEndTs
+          : messageStartTs !== null && messageElapsedSec !== null ? messageStartTs + messageElapsedSec : null;
+        if (startTs !== null && startTs > 0) sessionStartTs = sessionStartTs === null ? startTs : Math.min(sessionStartTs, startTs);
+        if (endTs !== null) sessionEndTs = sessionEndTs === null ? endTs : Math.max(sessionEndTs, endTs);
+      }
+
       if (def.gMsg === 225) {
         const isActiveSet = (setType === 1) || (setType === null && setReps !== null && setReps > 0);
         if (isActiveSet) {
@@ -1178,8 +1305,8 @@ function parseFitBuffer(buf) {
         let ts = (lastFullTs & ~0x1f) | timeOffset;
         if (ts < lastFullTs) ts += 0x20;
         lastFullTs = ts;
-        if (minTs === null) minTs = ts;
-        maxTs = ts;
+        minTs = minTs === null ? ts : Math.min(minTs, ts);
+        maxTs = maxTs === null ? ts : Math.max(maxTs, ts);
         if (prevRecTs !== null) {
           const delta = ts - prevRecTs;
           if (delta > 0 && delta <= 15) movingRecSec += delta;
@@ -1218,8 +1345,11 @@ function parseFitBuffer(buf) {
     finalDistKm = km;
   }
 
-  // A file with no readable data = explicit failure, never silent success
-  if (!pts.length && !rawHrList.length && !finalDurationSec && !finalDistKm && !finalSets && !sessionCalories) return null;
+  const fitStart = sessionStartTs !== null ? sessionStartTs : minTs;
+  const fitEnd = sessionEndTs !== null ? sessionEndTs
+    : maxTs !== null && (fitStart === null || maxTs > fitStart) ? maxTs : null;
+  // A file with no readable data = explicit failure, never silent success.
+  if (!pts.length && !rawHrList.length && !finalDurationSec && !finalDistKm && !finalSets && !sessionCalories && fitStart === null && fitEnd === null) return null;
 
   return {
     isStrength,
@@ -1234,7 +1364,8 @@ function parseFitBuffer(buf) {
     minHr: rawHrList.length ? Math.min(...rawHrList) : 0,
     distKm: finalDistKm,
     durationSec: Math.round(finalDurationSec),
-    startEpochMs: minTs ? (minTs + 631065600) * 1000 : null,
+    startEpochMs: fitStart === null ? null : (fitStart + 631065600) * 1000,
+    endEpochMs: fitEnd === null ? null : (fitEnd + 631065600) * 1000,
     avgHr: sessionAvgHr > 0 ? sessionAvgHr : (hrCnt ? Math.round(hrSum / hrCnt) : 0),
     avgCad: cadCnt ? Math.round(cadSum / cadCnt) : 0,
     avgPwr: pwrCnt ? Math.round(pwrSum / pwrCnt) : 0,
@@ -1295,10 +1426,12 @@ async function handleTrackFile(f) {
         }
         if (res.avgHr > 0) setStatValue('hr', res.avgHr);
         if (res.sessionCalories > 0) setStatValue('cal', res.sessionCalories);
-        if (res.startEpochMs) S.date = new Date(res.startEpochMs).toISOString().slice(0, 10);
+        setImportedSessionTimes(res.startEpochMs, res.endEpochMs);
 
-        setTrackLabel('✓ Heart rate & data extracted');
-        msg.textContent = `Parsed ${f.name} · ${formatDuration(res.durationSec)}${res.distKm > 0 ? ' · ' + res.distKm.toFixed(2) + ' km' : ''}${res.avgHr > 0 ? ' · avg HR ' + res.avgHr : ''}${res.isStrength && res.activeSets ? ' · ' + res.activeSets + ' sets' : ''}`;
+        setTrackLabel('✓ Workout data extracted');
+        msg.textContent = [`Parsed ${f.name}`, res.durationSec > 0 ? formatDuration(res.durationSec) : '',
+          res.distKm > 0 ? res.distKm.toFixed(2) + ' km' : '', res.avgHr > 0 ? 'avg HR ' + res.avgHr : '',
+          res.isStrength && res.activeSets ? res.activeSets + ' sets' : ''].filter(Boolean).join(' · ');
         syncInputsFromState();
         return;
       }
@@ -1314,18 +1447,32 @@ async function handleTrackFile(f) {
       msg.textContent = 'Could not read the file content. Make sure it is a valid GPX or TCX.';
       return;
     }
-    let trkpts = [...doc.querySelectorAll('trkpt')];
-    if (!trkpts.length) trkpts = [...doc.querySelectorAll('Trackpoint')];
-    if (!trkpts.length) trkpts = [...doc.querySelectorAll('rtept, wpt')];
-    if (!trkpts.length) {
+    const isTcx = f.name.toLowerCase().endsWith('.tcx') || !!doc.querySelector('TrainingCenterDatabase');
+    const actEl = isTcx ? doc.querySelector('Activity') : null;
+    // A TCX can hold several activities; do not combine one workout's start with another's end.
+    const pointRoot = actEl || doc;
+    let trkpts = [...pointRoot.querySelectorAll('trkpt')];
+    if (!trkpts.length) trkpts = [...pointRoot.querySelectorAll('Trackpoint')];
+    if (!trkpts.length) trkpts = [...pointRoot.querySelectorAll('rtept, wpt')];
+    // TCX can explicitly record a start before its first sample, or have no samples at all.
+    let tcxStart = null;
+    if (actEl) {
+      const candidates = [...actEl.querySelectorAll('Lap[StartTime]')].map(el => el.getAttribute('StartTime'));
+      const idEl = [...actEl.children].find(el => el.localName === 'Id');
+      if (idEl) candidates.push(idEl.textContent.trim());
+      candidates.forEach(value => {
+        if (!/^\d{4}-\d{2}-\d{2}T/.test(value || '')) return;
+        const ms = Date.parse(value);
+        if (Number.isFinite(ms)) tcxStart = tcxStart === null ? ms : Math.min(tcxStart, ms);
+      });
+    }
+    if (!trkpts.length && tcxStart === null) {
       setTrackLabel('⚠️ No track points in file');
-      msg.textContent = 'The file has no readable track points or heart rate.';
+      msg.textContent = 'The file has no readable track points, heart rate, or workout start time.';
       return;
     }
 
     // Sport type from TCX; assume running for GPS files when the chosen type is not distance-based
-    const isTcx = f.name.toLowerCase().endsWith('.tcx');
-    const actEl = isTcx ? doc.querySelector('Activity') : null;
     const actSport = actEl ? (actEl.getAttribute('Sport') || '') : '';
     if (/bik|cycl/i.test(actSport)) applySportMode('bike');
     else if (/run|jog/i.test(actSport)) applySportMode('run');
@@ -1334,8 +1481,7 @@ async function handleTrackFile(f) {
     const pts = [], rawHr = [];
     let elevGain = 0, lastEle = null;
     let hrSum = 0, hrCount = 0;
-    let firstTime = null, prevTime = null, movingSec = 0;
-
+    let firstTime = null, lastTime = null, timedPoints = 0, prevTime = null, movingSec = 0;
     if (trkpts.length) {
       trkpts.forEach(pt => {
         let lat = parseFloat(pt.getAttribute('lat'));
@@ -1360,7 +1506,9 @@ async function handleTrackFile(f) {
         if (tEl) {
           const ts = Date.parse(tEl.textContent);
           if (!isNaN(ts)) {
-            if (!firstTime) firstTime = ts;
+            timedPoints++;
+            firstTime = firstTime === null ? ts : Math.min(firstTime, ts);
+            lastTime = lastTime === null ? ts : Math.max(lastTime, ts);
             if (prevTime !== null) {
               const dt = (ts - prevTime) / 1000;
               if (dt > 0 && dt <= 15) movingSec += dt;
@@ -1397,13 +1545,15 @@ async function handleTrackFile(f) {
       setStatValue('time', formatDuration(movingSec));
       if (totalKm > 0) setStatValue('pace', S.sport === 'bike' ? (totalKm / (movingSec / 3600)).toFixed(1) : formatPace(movingSec / totalKm));
     }
-    if (firstTime) S.date = new Date(firstTime).toISOString().slice(0, 10);
     if (elevGain > 0) setStatValue('elev', Math.round(elevGain));
     if (hrCount > 0) setStatValue('hr', Math.round(hrSum / hrCount));
 
-    if (pts.length > 1 || rawHr.length >= 8 || movingSec > 0 || hrCount > 0) {
+    if (pts.length > 1 || rawHr.length >= 8 || movingSec > 0 || hrCount > 0 || firstTime !== null || tcxStart !== null) {
+      const start = tcxStart !== null ? tcxStart : firstTime;
+      const end = lastTime !== null && (timedPoints > 1 || (start !== null && lastTime > start)) ? lastTime : null;
+      setImportedSessionTimes(start, end);
       setTrackLabel('✓ Data extracted');
-      msg.textContent = `Extracted from ${f.name}${totalKm > 0 ? ' · ' + totalKm.toFixed(2) + ' km' : ''}${movingSec > 0 ? ' · ' + formatDuration(movingSec) : ''}${hrCount > 0 ? ' · avg HR ' + Math.round(hrSum / hrCount) : ''}`;
+      msg.textContent = `Extracted from ${f.name}${!trkpts.length ? ' · start time only' : ''}${totalKm > 0 ? ' · ' + totalKm.toFixed(2) + ' km' : ''}${movingSec > 0 ? ' · ' + formatDuration(movingSec) : ''}${hrCount > 0 ? ' · avg HR ' + Math.round(hrSum / hrCount) : ''}`;
       syncInputsFromState();
     } else {
       setTrackLabel('⚠️ No usable data');
@@ -1417,7 +1567,9 @@ async function handleTrackFile(f) {
 
 function parseCorosTextOrHtml(raw) {
   if (!raw) return false;
-  let found = false;
+  const labelledTimes = importLabeledSessionTimes(raw);
+  raw = labelledTimes.rest;
+  let found = labelledTimes.found;
 
   const setsMatch = raw.match(/(\d{1,3})\s*(?:sets|set)/i);
   const repsMatch = raw.match(/(\d{1,4})\s*(?:reps|rep)/i);
@@ -1452,7 +1604,11 @@ function parseCorosTextOrHtml(raw) {
   const tlMatch = raw.match(/(?:load|tl)[^\d]{0,10}(\d{1,3})/i);
   if (tlMatch) { setStatValue('tl', tlMatch[1]); found = true; }
 
-  if (found) syncInputsFromState();
+  if (found) {
+    // A new workout without labelled clock times must not inherit old ones.
+    if (!labelledTimes.found) { S.startTime = ''; S.endTime = ''; S.endDayOffset = null; }
+    syncInputsFromState();
+  }
   return found;
 }
 
@@ -1523,7 +1679,7 @@ const S = {
   sport: 'gym', icon: 'auto', belt: '#f4f1ea',
   title: 'UPPER 1', tag: 'TRAINING SESSION', device: '', muscleTag: 'Strength Training',
   chartMode: 'hr', dist: '17', mainLbl: 'Total Sets',
-  date: new Date().toISOString().slice(0, 10),
+  date: localDateInput(new Date()), startTime: '', endTime: '', endDayOffset: null,
   weekCount: [1, 0, 1, 1, 2, 0, 1],
   whoopStrain: '#0093e7', whoopZones: ['#a8c4d4', '#38a8d8', '#4ec98e', '#f2a03d', '#ff5a36'],
   whoopMaxHr: 190, whoopStrainOverride: '',
@@ -1544,16 +1700,16 @@ const S = {
   radius: 28, texture: 'grid', glow: 30, weekStyle: 'strip',
   sep: '·', doneSym: '✓', done2Sym: '✓✓', dateFormat: 'mdy',
   unitSets: 'SETS', unitBpm: 'BPM', weekHdr: 'WEEKLY ACTIVITY',
-  showStats: true, transparent: false, showSafeGuide: false, safeShift: 0
+  showStats: true, showSessionTimes: true, timeFormat: '24', transparent: false, showSafeGuide: false, safeShift: 0
 };
 
 const DESIGN_KEYS = ['style', 'mesh', 'accent', 'accent2', 'cardBg', 'surface', 'textCol', 'muted',
   'titleFont', 'numFont', 'bodyFont', 'fontScale', 'weight', 'tracking', 'upper', 'radius', 'texture',
   'glow', 'weekStyle', 'sep', 'doneSym', 'done2Sym', 'dateFormat', 'unitSets', 'unitBpm', 'weekHdr',
-  'showStats', 'transparent', 'showSafeGuide',
+  'showStats', 'showSessionTimes', 'timeFormat', 'transparent', 'showSafeGuide',
   'whoopStrain', 'whoopZones', 'chartMode'];
 const SESSION_KEYS = DESIGN_KEYS.concat(['sport', 'icon', 'belt', 'title', 'tag', 'device', 'muscleTag',
-  'dist', 'mainLbl', 'date', 'weekCount',
+  'dist', 'mainLbl', 'date', 'startTime', 'endTime', 'endDayOffset', 'weekCount',
   'whoopMaxHr', 'whoopStrainOverride', 'stats', 'hrSeries', 'route', 'maxHrVal', 'minHrVal']);
 
 /* ===================== UI glue ===================== */
@@ -1580,11 +1736,15 @@ function txt(c, s, x, y, size, wt, col, al = 'left', fam, mw = null) {
   let sz = size;
   c.save();
   c.font = `${wt} ${sz}px ${fam}`;
+  if ('letterSpacing' in c) c.letterSpacing = (S.tracking * sz / 44).toFixed(2) + 'px';
   if (mw) {
     const w0 = c.measureText(s).width;
-    if (w0 > mw) { sz = Math.max(10, sz * mw / w0); c.font = `${wt} ${sz}px ${fam}`; }
+    if (w0 > mw) {
+      sz = Math.max(10, sz * mw / w0);
+      c.font = `${wt} ${sz}px ${fam}`;
+      if ('letterSpacing' in c) c.letterSpacing = (S.tracking * sz / 44).toFixed(2) + 'px';
+    }
   }
-  if ('letterSpacing' in c) c.letterSpacing = (S.tracking * sz / 44).toFixed(2) + 'px';
   c.fillStyle = col;
   c.textAlign = al;
   c.textBaseline = 'alphabetic';
@@ -1873,13 +2033,51 @@ function paintBackground(c) {
   }
 }
 
+function ellipsizeCanvasText(c, value, maxWidth, size, weight, family) {
+  const chars = Array.from(String(value || '').trim());
+  const full = chars.join('');
+  if (measW(c, full, size, weight, family) <= maxWidth) return full;
+  let lo = 0, hi = chars.length;
+  while (lo < hi) {
+    const mid = Math.ceil((lo + hi) / 2);
+    if (measW(c, chars.slice(0, mid).join('').trimEnd() + '…', size, weight, family) <= maxWidth) lo = mid;
+    else hi = mid - 1;
+  }
+  return chars.slice(0, lo).join('').trimEnd() + '…';
+}
+
 function drawHeader(c, M, TOP) {
   txt(c, up(S.tag), M, TOP, fs(30), 700, S.accent, 'left', S.bodyFont);
   txt(c, fmtDate(), W - M, TOP, fs(26), 600, S.muted, 'right', S.numFont);
   const tSize = fs(104);
   txt(c, S.title, M, TOP + fs(98), tSize, S.weight, S.textCol, 'left', S.titleFont, W - 2 * M - 150);
-  txt(c, S.muscleTag, M, TOP + fs(152), fs(34), 500, S.muted, 'left', S.bodyFont, W - 2 * M - 260);
-  if (S.device) txt(c, S.device, W - M, TOP + fs(152), fs(26), 500, S.muted, 'right', S.bodyFont, 300);
+  const when = sessionTimeText();
+  if (when) {
+    const width = W - 2 * M, cap = width * 0.57;
+    const baseSize = fs(23);
+    const estimate = measW(c, when, baseSize, 700, S.bodyFont);
+    const timeSize = baseSize * Math.min(1, cap / Math.max(1, estimate));
+    const timeWidth = Math.min(cap, measW(c, when, timeSize, 700, S.bodyFont) + 6);
+    const leftWidth = Math.max(40, width - timeWidth - 26);
+    const subSize = fs(34) * Math.min(1, leftWidth / Math.max(1, measW(c, S.muscleTag, fs(34), 500, S.bodyFont)));
+    const fitSize = Math.max(fs(22), subSize);
+    const subtitle = ellipsizeCanvasText(c, S.muscleTag, leftWidth, fitSize, 500, S.bodyFont);
+    // Reserve separate spaces so the subtitle and the clock stay readable.
+    c.save(); c.beginPath(); c.rect(M, TOP + fs(108), leftWidth, fs(64)); c.clip();
+    txt(c, subtitle, M, TOP + fs(152), fitSize, 500, S.muted, 'left', S.bodyFont, leftWidth);
+    c.restore();
+    c.save(); c.beginPath(); c.rect(W - M - timeWidth - 2, TOP + fs(108), timeWidth + 2, fs(64)); c.clip();
+    txt(c, when, W - M, TOP + fs(152), timeSize, 700, S.textCol, 'right', S.bodyFont, timeWidth);
+    c.restore();
+    const device = String(S.device || '').trim();
+    if (device) {
+      const label = ellipsizeCanvasText(c, device, width, fs(16), 500, S.bodyFont);
+      txt(c, label, M, TOP + fs(178), fs(16), 500, S.muted, 'left', S.bodyFont, width);
+    }
+  } else {
+    txt(c, S.muscleTag, M, TOP + fs(152), fs(34), 500, S.muted, 'left', S.bodyFont, W - 2 * M - 260);
+    if (S.device) txt(c, S.device, W - M, TOP + fs(152), fs(26), 500, S.muted, 'right', S.bodyFont, 300);
+  }
   drawSportBadge(c, W - M - 50, TOP + fs(72), 50, {
     fill: hexA(S.accent, 0.14), stroke: hexA(S.accent, 0.65), ink: S.accent, lineWidth: 2.4
   });
@@ -2224,6 +2422,7 @@ function fmtClock(min) {
 }
 function measW(c, s, size, wt, fam) {
   c.save(); c.font = wt + ' ' + size + 'px ' + fam;
+  if ('letterSpacing' in c) c.letterSpacing = (S.tracking * size / 44).toFixed(2) + 'px';
   const w = c.measureText(s).width; c.restore(); return w;
 }
 function wrapLines(c, text, maxW, size, wt, fam, maxLines) {
@@ -2376,8 +2575,11 @@ function drawDetailZones(c, M, y, w, h, rowH) {
   let ry = y + pad + 40;
   for (let i = 0; i < 5; i++) {
     const ly = ry + rowH * 0.30;
-    txt(c, up('Zone ' + (i + 1)), x0, ly, fs(23), 800, S.textCol, 'left', S.bodyFont);
-    txt(c, zoneRangeLabel(i, bounds), x0 + fs(108), ly, fs(21), 600, S.muted, 'left', S.numFont, (x1 - x0) * 0.40);
+    const zoneText = up('Zone ' + (i + 1));
+    txt(c, zoneText, x0, ly, fs(23), 800, S.textCol, 'left', S.bodyFont);
+    const rangeOffset = Math.max(fs(108), measW(c, zoneText, fs(23), 800, S.bodyFont) + fs(12));
+    const rangeWidth = Math.min((x1 - x0) * 0.40, Math.max(60, x1 - x0 - rangeOffset - fs(220)));
+    txt(c, zoneRangeLabel(i, bounds), x0 + rangeOffset, ly, fs(21), 600, S.muted, 'left', S.numFont, rangeWidth);
     const pct = data.available ? Math.round(data.shares[i] * 100) + '%' : '—';
     let timeWidth;
     if (data.minutes) {
@@ -2452,9 +2654,11 @@ function drawDetailStrain(c, M, y, w, h) {
   const valueSize = measured > maxValueW ? rawSize * maxValueW / measured : rawSize;
   txt(c, value, x0, y + 132, valueSize, S.weight, S.textCol, 'left', S.numFont, maxValueW);
   const valueW = Math.min(maxValueW, measW(c, value, valueSize, S.weight, S.numFont));
-  txt(c, '/ 21', x0 + valueW + 12, y + 132, fs(24), 700, S.muted, 'left', S.numFont);
+  const suffix = '/ 21', suffixSize = fs(24);
+  txt(c, suffix, x0 + valueW + 12, y + 132, suffixSize, 700, S.muted, 'left', S.numFont);
 
-  const gx = x0 + 265, gw = x1 - gx;
+  const gx = Math.max(x0 + 265, x0 + valueW + 12 + measW(c, suffix, suffixSize, 700, S.numFont) + fs(16));
+  const gw = x1 - gx;
   txt(c, up('Effort scale'), gx, y + 86, fs(18), 700, S.muted, 'left', S.bodyFont);
   const count = 21, gap = 5, bw = (gw - gap * (count - 1)) / count;
   const barY = y + 100, bh = 16;
@@ -2975,6 +3179,7 @@ document.querySelectorAll('[data-k]').forEach(el => {
     if (k === 'sport') { applySportMode(v); return; }
     if (k === 'icon') { applyIconMode(v); return; }
     S[k] = v;
+    if (k === 'startTime' || k === 'endTime') S.endDayOffset = null;
     if (k === 'whoopMaxHr') S.whoopMaxHr = Math.max(120, Math.min(230, +v || 190));
     sched();
   });
@@ -3006,6 +3211,8 @@ $('pasteBtn').onclick = () => {
   const totals = extractWorkoutFromText(raw);
   if (totals) {
     applyWorkoutTotals(totals);
+    const labelledTimes = importLabeledSessionTimes(raw);
+    if (!labelledTimes.found) { S.startTime = ''; S.endTime = ''; S.endDayOffset = null; }
     syncInputsFromState();
     toast(totals.sets + ' sets · ' + totals.reps + ' reps extracted', 'ok');
     msg.textContent = 'Extracted ' + totals.exercises + ' exercises from pasted text.';
@@ -3330,8 +3537,9 @@ function applyZeppWorkout(item, data) {
   S.title = prettifySport(name) || sp.defTitle;
   S.tag = 'TRAINING SESSION';
   S.muscleTag = sp.badge;
-  const epoch = +(item.start_time || item.end_time) || 0;
-  if (epoch) S.date = new Date(epoch * 1000).toISOString().slice(0, 10);
+  const start = normalizeEpochMs(item.start_time) ?? normalizeEpochMs(data.start_time);
+  const end = normalizeEpochMs(item.end_time) ?? normalizeEpochMs(data.end_time);
+  setImportedSessionTimes(start, end);
 
   const hr = zDecodeHr(data.heart_rate);
   const hrVals = hr.map(h => h.bpm).filter(v => v >= 20 && v <= 240);
@@ -3388,7 +3596,8 @@ function renderZeppList(list) {
     const tw = document.createElement('div'); tw.className = 'zt';
     const b = document.createElement('b'); b.textContent = prettifySport(name) || 'Workout';
     const meta = document.createElement('span');
-    const d = item.end_time ? new Date(+item.end_time * 1000) : null;
+    const stamp = normalizeEpochMs(item.start_time) ?? normalizeEpochMs(item.end_time);
+    const d = stamp === null ? null : new Date(stamp);
     const dateStr = d && !isNaN(d) ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
     const dur = +(item.run_time || item.duration) || 0;
     const dist = +item.dis > 0 ? (+item.dis / 1000).toFixed(2) + ' km' : '';
@@ -3624,7 +3833,8 @@ $('demoBtn').onclick = () => {
   S.muscleTag = 'Strength Training';
   S.mainLbl = 'Total Sets';
   S.dist = '17';
-  S.date = new Date().toISOString().slice(0, 10);
+  S.date = localDateInput(new Date());
+  S.startTime = '07:00'; S.endTime = '08:30'; S.endDayOffset = null;
   S.weekCount = [1, 0, 1, 1, 2, 0, 1];
   S.hrSeries = [96, 104, 112, 108, 122, 134, 128, 142, 138, 152, 146, 158, 149, 162, 155, 166];
   S.maxHrVal = 166; S.minHrVal = 96;
@@ -3646,6 +3856,7 @@ function syncInputsFromState() {
   syncUI();
   renderStatsManager();
   render();
+  saveSession();
 }
 
 /* ---- presets ---- */
@@ -3788,6 +3999,10 @@ renderStatsManager();
 renderPresets();
 const session = LS.get(SESSION_KEY, null);
 if (session && typeof session === 'object') {
+  // Older saved sessions predate clock times; don't attach demo times to them.
+  if (session.startTime === undefined) S.startTime = '';
+  if (session.endTime === undefined) S.endTime = '';
+  if (session.endDayOffset === undefined) S.endDayOffset = null;
   SESSION_KEYS.forEach(k => { if (session[k] !== undefined) S[k] = session[k]; });
   if (!THEMES[S.style]) S.style = 0;
   syncUI();
@@ -3801,5 +4016,5 @@ render();
 ].forEach(f => document.fonts.load(f).then(sched).catch(() => {}));
 window.__tcReady = true;
 </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5a3c1bbda77e28c',t:'MTc5NDYzNTYxNg=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5a3c1bbda77e28c',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>
