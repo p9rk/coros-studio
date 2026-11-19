@@ -1,14 +1,17 @@
 /* ============================================================
    قارئ PDF — المنطق الرئيسي
    يعتمد على PDF.js (مُضمّن محليًا)
+   سكربت عادي (غير مُعتمد على ES Modules) ليعمل داخل الإطارات المضمّنة المحجوبة
    ============================================================ */
+(function () {
+'use strict';
 
-import {
+const {
   putDoc, getDoc, getAllDocs, deleteDoc,
   putMark, deleteMark, getMarksForDoc,
-} from './db.js';
+} = window.PDFDB;
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = './vendor/pdf.worker.min.js';
+pdfjsLib.GlobalWorkerOptions.workerSrc = './vendor/pdf.worker.min.js?v=5';
 
 /* ---------- أدوات مساعدة ---------- */
 const $ = (id) => document.getElementById(id);
@@ -952,6 +955,7 @@ async function init() {
 
   applyDisplayMode();
   bind(); // اربط الواجهة أولًا حتى تبقى قابلة للاستخدام مهما حدث للتخزين
+  window.__PDFREADER_READY__ = true; // أخبر شبكة الأمان أن التطبيق بدأ فعليًا
 
   try {
     await refreshLibrary();
@@ -966,3 +970,4 @@ async function init() {
 }
 
 init();
+})();

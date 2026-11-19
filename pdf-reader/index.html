@@ -8,7 +8,33 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="./styles.css" />
+<link rel="stylesheet" href="./styles.css?v=5" />
+<script>
+/* شبكة أمان: تكشف إن لم يبدأ تشغيل التطبيق (منع التحميل/خطأ في السكربت) وتعرض رسالة واضحة */
+(function () {
+  window.__PDFREADER_READY__ = false;
+  window.__PDFREADER_ERR__ = '';
+  window.addEventListener('error', function (e) {
+    var t = e.target;
+    if (t && t.tagName === 'SCRIPT') window.__PDFREADER_ERR__ = 'تعذّر تحميل: ' + (t.getAttribute('src') || 'script');
+    else window.__PDFREADER_ERR__ = String((e && e.message) || (e && e.error && e.error.message) || 'خطأ غير معروف');
+  }, true);
+  window.addEventListener('unhandledrejection', function (e) {
+    window.__PDFREADER_ERR__ = String((e.reason && (e.reason.message || e.reason)) || 'خطأ غير معروف');
+  });
+  window.addEventListener('DOMContentLoaded', function () {
+    setTimeout(function () {
+      if (window.__PDFREADER_READY__) return;
+      var d = document.createElement('div');
+      d.setAttribute('dir', 'rtl');
+      d.style.cssText = 'position:fixed;z-index:99999;inset:auto 12px 12px 12px;background:#3a0d12;color:#ffd7dc;border:1px solid rgba(255,55,95,.35);border-radius:16px;padding:14px 16px;font:14px/1.7 "IBM Plex Sans Arabic",system-ui,sans-serif;box-shadow:0 24px 60px -12px rgba(0,0,0,.7)';
+      d.innerHTML = '<b>لم يبدأ تشغيل التطبيق.</b><br>حدّث الصفحة بقوة (Ctrl+Shift+R)، ولا تفتحها كملف محلي — استخدم رابط المعاينة.'
+        + (window.__PDFREADER_ERR__ ? '<br><span style="opacity:.75;font-size:12.5px">التفاصيل: ' + window.__PDFREADER_ERR__ + '</span>' : '');
+      document.body.appendChild(d);
+    }, 2500);
+  });
+})();
+</script>
 </head>
 <body>
 
@@ -204,7 +230,8 @@
   <span id="loaderText">جارٍ فتح الملف…</span>
 </div>
 
-<script src="./vendor/pdf.min.js"></script>
-<script type="module" src="./js/app.js"></script>
+<script src="./vendor/pdf.min.js?v=5"></script>
+<script src="./js/db.js?v=5"></script>
+<script src="./js/app.js?v=5"></script>
 </body>
 </html>
