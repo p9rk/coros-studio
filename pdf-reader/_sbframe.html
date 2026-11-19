@@ -1,0 +1,9 @@
+<!doctype html><html><head><meta charset="utf-8"><title>boot</title></head>
+<body style="margin:0">
+<script>
+window.addEventListener('message', function (e) {
+  try { document.title = (document.title === 'boot' ? '' : document.title) + '|' + e.data; } catch (x) {}
+});
+</script>
+<iframe id="f" sandbox="allow-scripts" src="./index.html" style="width:900px;height:1100px;border:0"></iframe>
+</body></html>

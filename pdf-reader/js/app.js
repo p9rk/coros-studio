@@ -6,12 +6,26 @@
 (function () {
 'use strict';
 
-const {
-  putDoc, getDoc, getAllDocs, deleteDoc,
-  putMark, deleteMark, getMarksForDoc,
-} = window.PDFDB;
+/* التخزين: نقرأ الدوال من window.PDFDB. وإن لم تكن محمّلة (نسخة HTML قديمة مخزّنة
+   لدّى المتصفح) نحمّل db.js ديناميكيًا ثم نبدأ — لضمان العمل في كل الحالات. */
+let DB = window.PDFDB || {};
+function putDoc() { return DB.putDoc.apply(null, arguments); }
+function getDoc() { return DB.getDoc.apply(null, arguments); }
+function getAllDocs() { return DB.getAllDocs.apply(null, arguments); }
+function deleteDoc() { return DB.deleteDoc.apply(null, arguments); }
+function putMark() { return DB.putMark.apply(null, arguments); }
+function deleteMark() { return DB.deleteMark.apply(null, arguments); }
+function getMarksForDoc() { return DB.getMarksForDoc.apply(null, arguments); }
+function bootDB(cb) {
+  if (window.PDFDB) { DB = window.PDFDB; cb(); return; }
+  const s = document.createElement('script');
+  s.src = './js/db.js?v=5';
+  s.onload = function () { DB = window.PDFDB || {}; cb(); };
+  s.onerror = function () { cb(); };
+  document.head.appendChild(s);
+}
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = './vendor/pdf.worker.min.js?v=5';
+try { pdfjsLib.GlobalWorkerOptions.workerSrc = './vendor/pdf.worker.min.js?v=5'; } catch (e) { /* محرّك PDF غير محمّل */ }
 
 /* ---------- أدوات مساعدة ---------- */
 const $ = (id) => document.getElementById(id);
@@ -88,8 +102,8 @@ const state = {
   zoom: prefs.zoom || 1,
   fit: prefs.fit || 'width',
   gen: 0,
-  dark: { on: !!prefs.darkOn, intensity: prefs.darkIntensity ?? 88 },
-  night: { on: !!prefs.nightOn, warm: prefs.warm ?? 35 },
+  dark: { on: !!prefs.darkOn, intensity: (prefs.darkIntensity == null ? 88 : prefs.darkIntensity) },
+  night: { on: !!prefs.nightOn, warm: (prefs.warm == null ? 35 : prefs.warm) },
   comfortHidden: false,
   sel: null,          // التحديد الحالي
   selColor: 'yellow',
@@ -97,7 +111,7 @@ const state = {
 };
 
 function loadPrefs() {
-  try { return JSON.parse(localStorage.getItem('pdfreader.prefs') || '{}'); } catch { return {}; }
+  try { return JSON.parse(localStorage.getItem('pdfreader.prefs') || '{}'); } catch (e) { return {}; }
 }
 function savePrefs() {
   localStorage.setItem('pdfreader.prefs', JSON.stringify({
@@ -209,7 +223,7 @@ async function handleFiles(fileList) {
           const doc = await pdfjsLib.getDocument({ data: buf.slice(0) }).promise;
           rec.pages = doc.numPages;
           doc.destroy();
-        } catch { /* تجاهل */ }
+        } catch (e) { /* تجاهل */ }
         // الحفظ في المكتبة (غير حرج: نفتح الملف حتى لو تعذّر الحفظ)
         try { await putDoc(rec); } catch (e) { console.warn('storage unavailable', e); }
         if (!first) first = rec;
@@ -246,7 +260,7 @@ async function loadSample() {
     const file = new File([blob], 'TraceMonkey — ملف تجريبي.pdf', { type: 'application/pdf' });
     await handleFiles([file]);
     toast('تمت إضافة الملف التجريبي');
-  } catch {
+  } catch (e) {
     hideLoader();
     toast('تعذّر تحميل الملف التجريبي (تحقق من الاتصال)');
   }
@@ -261,7 +275,7 @@ async function openDoc(idOrRec) {
   showLoader('جارٍ فتح الملف…');
   let pdf = null;
   try {
-    if (state.pdf) { try { state.pdf.destroy(); } catch {} }
+    if (state.pdf) { try { state.pdf.destroy(); } catch (e) {} }
     const buf = await rec.blob.arrayBuffer();
     pdf = await pdfjsLib.getDocument({ data: buf }).promise;
 
@@ -415,7 +429,7 @@ function renderPage(index) {
   const myGen = state.gen;
   (async () => {
     try {
-      if (wrap._task) { try { wrap._task.cancel(); } catch {} wrap._task = null; }
+      if (wrap._task) { try { wrap._task.cancel(); } catch (e) {} wrap._task = null; }
       const pdfPage = await state.pdf.getPage(index + 1);
       if (myGen !== state.gen) return;
 
@@ -519,7 +533,8 @@ function handleSelection() {
   if (!sel || sel.isCollapsed || !sel.rangeCount) { hideSelMenu(); return; }
   const range = sel.getRangeAt(0);
   const node = range.startContainer;
-  const pageEl = (node.nodeType === 1 ? node : node.parentElement)?.closest?.('.page');
+  const base = (node.nodeType === 1 ? node : node.parentElement);
+  const pageEl = (base && base.closest) ? base.closest('.page') : null;
   if (!pageEl) { hideSelMenu(); return; }
   const text = sel.toString().trim();
   if (!text) { hideSelMenu(); return; }
@@ -572,7 +587,7 @@ async function commitSelection() {
   state.marks.push(mark);
   drawHighlights(s.page - 1);
   updatePanel();
-  window.getSelection()?.removeAllRanges();
+  const curSel = window.getSelection(); if (curSel) curSel.removeAllRanges();
   hideSelMenu();
   toast('تم إضافة التظليل');
 }
@@ -849,8 +864,8 @@ function bind() {
   el.smHighlight.addEventListener('click', () => commitSelection());
   el.smCopy.addEventListener('click', async () => {
     if (!state.sel) return;
-    try { await navigator.clipboard.writeText(state.sel.text); toast('تم النسخ'); } catch {}
-    window.getSelection()?.removeAllRanges();
+    try { await navigator.clipboard.writeText(state.sel.text); toast('تم النسخ'); } catch (e) {}
+    window.getSelection() && window.getSelection().removeAllRanges();
     hideSelMenu();
   });
 
@@ -867,14 +882,15 @@ function bind() {
   // السحب والإفلات
   let dragDepth = 0;
   window.addEventListener('dragenter', (e) => {
-    if (![...(e.dataTransfer?.types || [])].includes('Files')) return;
+    const dtTypes = (e.dataTransfer && e.dataTransfer.types) ? e.dataTransfer.types : [];
+    if (![...dtTypes].includes('Files')) return;
     dragDepth++; el.stage.classList.add('dragover');
   });
   window.addEventListener('dragover', (e) => e.preventDefault());
   window.addEventListener('dragleave', () => { if (--dragDepth <= 0) { dragDepth = 0; el.stage.classList.remove('dragover'); } });
   window.addEventListener('drop', (e) => {
     e.preventDefault(); dragDepth = 0; el.stage.classList.remove('dragover');
-    if (e.dataTransfer?.files?.length) handleFiles(e.dataTransfer.files);
+    if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) handleFiles(e.dataTransfer.files);
   });
 
   // لوحة المفاتيح
@@ -907,7 +923,7 @@ function bind() {
 
 /* ---------- إغلاق المستند ---------- */
 function closeDoc() {
-  if (state.pdf) { try { state.pdf.destroy(); } catch {} }
+  if (state.pdf) { try { state.pdf.destroy(); } catch (e) {} }
   if (state.doc) { state.doc.lastPage = state.page; putDoc(state.doc).catch(() => {}); }
   state.pdf = null; state.doc = null; state.pageEls = []; state.dims = [];
   state.marks = []; state.gen++;
@@ -937,7 +953,7 @@ async function generateThumb(pdf, rec) {
     rec.thumb = c.toDataURL('image/jpeg', 0.7);
     await putDoc(rec);
     refreshLibrary();
-  } catch {}
+  } catch (e) {}
 }
 
 /* ============================================================
@@ -969,5 +985,5 @@ async function init() {
   }
 }
 
-init();
+bootDB(init);
 })();
