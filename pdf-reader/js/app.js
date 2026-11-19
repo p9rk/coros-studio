@@ -36,7 +36,7 @@ const el = {
   openBtn: $('openBtn'),
   emptyOpenBtn: $('emptyOpenBtn'),
   sampleBtn: $('sampleBtn'),
-  fileInput: $('fileInput'),
+  fileInputs: [...document.querySelectorAll('.file-input')],
   docTitle: $('docTitle'),
   docSub: $('docSub'),
   topbar: $('topbar'),
@@ -763,10 +763,12 @@ function applyDisplayMode() {
    ربط الأحداث
    ============================================================ */
 function bind() {
-  el.openBtn.addEventListener('click', () => el.fileInput.click());
-  el.emptyOpenBtn.addEventListener('click', () => el.fileInput.click());
   el.sampleBtn.addEventListener('click', loadSample);
-  el.fileInput.addEventListener('change', (e) => { handleFiles(e.target.files); e.target.value = ''; });
+
+  // فتح الملفات عبر مُدخلات الملفات الأصلية (طبقة شفافة تغطّي الأزرار)
+  el.fileInputs.forEach((inp) => {
+    inp.addEventListener('change', (e) => { handleFiles(e.target.files); e.target.value = ''; });
+  });
 
   el.search.addEventListener('input', renderDocList);
 

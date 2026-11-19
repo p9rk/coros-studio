@@ -36,10 +36,11 @@
     </div>
 
     <div class="side-actions">
-      <button class="btn primary" id="openBtn">
+      <label class="btn primary file-btn" id="openBtn">
         <svg viewBox="0 0 24 24" class="i"><path d="M12 5v14M5 12h14"/></svg>
         <span>فتح ملفات</span>
-      </button>
+        <input type="file" class="file-input" accept="application/pdf,.pdf" multiple />
+      </label>
       <button class="icon-btn glass-btn" id="sampleBtn" title="ملف تجريبي">
         <svg viewBox="0 0 24 24"><path d="M12 3v3M12 18v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M3 12h3M18 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>
       </button>
@@ -115,10 +116,11 @@
         </div>
         <h2>اسحب ملفات PDF هنا</h2>
         <p>أو اضغط على «فتح ملفات» لتبدأ القراءة بتصميم مريح ونظيف</p>
-        <button class="btn primary" id="emptyOpenBtn">
+        <label class="btn primary file-btn" id="emptyOpenBtn">
           <svg viewBox="0 0 24 24" class="i"><path d="M12 5v14M5 12h14"/></svg>
           <span>افتح ملفًا</span>
-        </button>
+          <input type="file" class="file-input" accept="application/pdf,.pdf" multiple />
+        </label>
       </div>
 
       <div class="pages" id="pages"></div>
@@ -191,8 +193,6 @@
   <button class="sm-action" id="smHighlight">تظليل</button>
   <button class="sm-action" id="smCopy">نسخ</button>
 </div>
-
-<input type="file" id="fileInput" accept="application/pdf,.pdf" multiple hidden />
 
 <div class="toast" id="toast" hidden></div>
 
