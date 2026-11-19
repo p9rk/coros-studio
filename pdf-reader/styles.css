@@ -35,6 +35,8 @@
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
+/* مهم: قاعدة المصمّم (display) تتغلّب على خاصية hidden، لذا نفرض الإخفاء */
+[hidden]{display:none!important}
 html,body{height:100%}
 body{
   font-family:var(--ui);
