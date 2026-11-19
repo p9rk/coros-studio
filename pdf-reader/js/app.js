@@ -185,31 +185,46 @@ async function handleFiles(fileList) {
   if (!files.length) { toast('الرجاء اختيار ملفات PDF'); return; }
 
   showLoader('جارٍ الاستيراد…');
-  let firstId = null;
-  for (const file of files) {
-    const buf = await file.arrayBuffer();
-    let pages = 0;
-    try {
-      const doc = await pdfjsLib.getDocument({ data: buf.slice(0) }).promise;
-      pages = doc.numPages;
-      doc.destroy();
-    } catch { /* ignore */ }
-    const rec = {
-      id: 'd_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
-      name: file.name,
-      size: file.size,
-      pages,
-      addedAt: Date.now(),
-      lastOpenedAt: Date.now(),
-      lastPage: 1,
-      blob: file,
-    };
-    await putDoc(rec);
-    if (!firstId) firstId = rec.id;
+  let first = null;
+  const failed = [];
+  try {
+    for (const file of files) {
+      try {
+        const rec = {
+          id: 'd_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
+          name: file.name,
+          size: file.size,
+          pages: 0,
+          addedAt: Date.now(),
+          lastOpenedAt: Date.now(),
+          lastPage: 1,
+          blob: file,
+        };
+        // عدّ الصفحات (غير حرج)
+        try {
+          const buf = await file.arrayBuffer();
+          const doc = await pdfjsLib.getDocument({ data: buf.slice(0) }).promise;
+          rec.pages = doc.numPages;
+          doc.destroy();
+        } catch { /* تجاهل */ }
+        // الحفظ في المكتبة (غير حرج: نفتح الملف حتى لو تعذّر الحفظ)
+        try { await putDoc(rec); } catch (e) { console.warn('storage unavailable', e); }
+        if (!first) first = rec;
+      } catch (e) {
+        console.error(e);
+        failed.push(file.name);
+      }
+    }
+
+    try { await refreshLibrary(); } catch (e) { console.warn('storage unavailable', e); }
+
+    if (first) await openDoc(first);
+    else if (files.length) toast('تعذّر فتح الملف');
+  } finally {
+    hideLoader();
   }
-  hideLoader();
-  await refreshLibrary();
-  if (firstId) await openDoc(firstId);
+
+  if (failed.length) toast('تعذّر فتح: ' + failed.join('، '));
 }
 
 async function removeDoc(id) {
@@ -237,19 +252,20 @@ async function loadSample() {
 /* ============================================================
    فتح مستند وبناء الصفحات
    ============================================================ */
-async function openDoc(id) {
-  const rec = await getDoc(id);
+async function openDoc(idOrRec) {
+  const rec = typeof idOrRec === 'string' ? await getDoc(idOrRec).catch(() => null) : idOrRec;
   if (!rec) { toast('الملف غير موجود'); return; }
   showLoader('جارٍ فتح الملف…');
+  let pdf = null;
   try {
     if (state.pdf) { try { state.pdf.destroy(); } catch {} }
     const buf = await rec.blob.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+    pdf = await pdfjsLib.getDocument({ data: buf }).promise;
 
     state.doc = rec;
     state.pdf = pdf;
     state.page = Math.min(rec.lastPage || 1, pdf.numPages);
-    state.marks = await getMarksForDoc(rec.id);
+    state.marks = await getMarksForDoc(rec.id).catch(() => []);
 
     // أبعاد الصفحات
     state.dims = [];
@@ -273,17 +289,21 @@ async function openDoc(id) {
     await nextTick();
     layout(true);
     scrollToPage(state.page, false);
-
-    // تحديث الصورة المصغّرة وحفظ آخر فتح
-    if (!rec.thumb) { generateThumb(pdf, rec); }
-    rec.lastOpenedAt = Date.now();
-    await putDoc(rec);
-    refreshLibrary();
   } catch (err) {
     console.error(err);
     toast('تعذّر فتح هذا الملف');
   } finally {
     hideLoader();
+  }
+
+  // عمليات التخزين غير حرجة: التطبيق يعمل ويُعرض الملف حتى لو تعذّر الحفظ
+  try {
+    if (!rec.thumb && pdf) generateThumb(pdf, rec);
+    rec.lastOpenedAt = Date.now();
+    await putDoc(rec);
+    await refreshLibrary();
+  } catch (e) {
+    console.warn('storage unavailable', e);
   }
 }
 
@@ -878,14 +898,14 @@ function bind() {
   });
 
   window.addEventListener('beforeunload', () => {
-    if (state.doc) { state.doc.lastPage = state.page; putDoc(state.doc); }
+    if (state.doc) { state.doc.lastPage = state.page; putDoc(state.doc).catch(() => {}); }
   });
 }
 
 /* ---------- إغلاق المستند ---------- */
 function closeDoc() {
   if (state.pdf) { try { state.pdf.destroy(); } catch {} }
-  if (state.doc) { state.doc.lastPage = state.page; putDoc(state.doc); }
+  if (state.doc) { state.doc.lastPage = state.page; putDoc(state.doc).catch(() => {}); }
   state.pdf = null; state.doc = null; state.pageEls = []; state.dims = [];
   state.marks = []; state.gen++;
   if (observer) { observer.disconnect(); observer = null; }
